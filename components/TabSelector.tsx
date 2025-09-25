@@ -12,7 +12,7 @@ const TabButton: React.FC<{
   isSelected: boolean;
   onClick: () => void;
 }> = ({ label, Icon, isSelected, onClick }) => {
-  const baseClasses = "flex items-center justify-center w-full px-3 py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
+  const baseClasses = "flex items-center justify-center flex-shrink-0 px-4 py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
   const selectedClasses = "bg-brand-teal-500 text-white shadow-md";
   const unselectedClasses = "bg-white text-brand-wheat-800 hover:bg-brand-wheat-50";
 
@@ -93,7 +93,7 @@ const ProfileIco: React.FC<{className: string}> = ({className}) => (
 export default function TabSelector({ selectedMode, onSelectMode }: TabSelectorProps): ReactElement {
   return (
     <div className="bg-brand-wheat-200 p-1 rounded-xl flex items-center justify-between gap-2">
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 flex-grow">
+      <div className="flex-grow flex items-center gap-2 overflow-x-auto no-scrollbar pr-2">
         <TabButton 
           label="Image" 
           Icon={ImageIco}

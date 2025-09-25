@@ -9,7 +9,7 @@ export default function Header(): ReactElement {
           <path strokeLinecap="round" strokeLinejoin="round" d="M2 8.5l10 6.5V22" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M22 8.5l-10 6.5V22" />
         </svg>
-        <h1 className="text-2xl sm:text-3xl font-bold text-brand-wheat-900">
+        <h1 className="text-2xl font-bold text-brand-wheat-900">
           Prismatik <span className="text-brand-teal-500">Studio</span>
         </h1>
       </div>

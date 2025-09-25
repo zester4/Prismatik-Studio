@@ -193,6 +193,17 @@ const FeatureDetail = ({ icon, title, description, bulletPoints, imageUrl, align
     </div>
 );
 
+const marqueeImages = [
+    { src: "https://images.unsplash.com/photo-1679085226243-85b413c415b3?q=80&w=400&auto=format&fit=crop", rotate: "-3deg", marginTop: "0" },
+    { src: "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=400&auto=format&fit=crop", rotate: "2deg", marginTop: "2rem" },
+    { src: "https://images.unsplash.com/photo-1629114757912-3499f57f1542?q=80&w=400&auto=format&fit=crop", rotate: "-5deg", marginTop: "0" },
+    { src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop", rotate: "4deg", marginTop: "1rem" },
+    { src: "https://images.unsplash.com/photo-1618355799105-67657b238383?q=80&w=400&auto=format&fit=crop", rotate: "-2deg", marginTop: "2.5rem" },
+    { src: "https://images.unsplash.com/photo-1620641788421-7a1c363ea42e?q=80&w=400&auto=format&fit=crop", rotate: "3deg", marginTop: "0.5rem" },
+    { src: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400&auto=format&fit=crop", rotate: "-4deg", marginTop: "1.5rem" },
+];
+
+const allMarqueeImages = [...marqueeImages, ...marqueeImages];
 
 // --- Main HomePage Component --- //
 export default function HomePage(): ReactElement {
@@ -220,7 +231,7 @@ export default function HomePage(): ReactElement {
             {/* Hero Section */}
             <section className="pt-36 pb-24 text-center bg-brand-wheat-50 overflow-hidden">
                 <div className="container mx-auto px-4 sm:px-6 relative z-10">
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-brand-wheat-900 leading-tight">
+                    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-wheat-900 leading-tight">
                         Your AI Co-pilot for <span className="text-brand-teal-500">Boundless Creation</span>
                     </h2>
                     <p className="mt-6 max-w-3xl mx-auto text-lg text-brand-wheat-700">
@@ -230,13 +241,11 @@ export default function HomePage(): ReactElement {
                         Start Creating for Free
                     </a>
                 </div>
-                <div className="relative mt-12">
-                    <div className="flex justify-center gap-4 sm:gap-6 animate-marquee">
-                        <img src="https://images.unsplash.com/photo-1679085226243-85b413c415b3?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-3deg]" alt="showcase 1"/>
-                        <img src="https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[2deg] mt-8" alt="showcase 2"/>
-                        <img src="https://images.unsplash.com/photo-1629114757912-3499f57f1542?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-5deg]" alt="showcase 3"/>
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[4deg] mt-4" alt="showcase 4"/>
-                        <img src="https://images.unsplash.com/photo-1618355799105-67657b238383?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-2deg] mt-10" alt="showcase 5"/>
+                <div className="relative mt-16 overflow-x-hidden">
+                    <div className="flex gap-6 animate-marquee">
+                        {allMarqueeImages.map((img, i) => (
+                             <img key={i} src={img.src} className="w-40 h-52 object-cover rounded-xl shadow-lg flex-shrink-0" style={{ transform: `rotate(${img.rotate})`, marginTop: img.marginTop }} alt={`showcase ${i + 1}`} />
+                        ))}
                     </div>
                 </div>
             </section>
@@ -376,7 +385,7 @@ export default function HomePage(): ReactElement {
                     </div>
                     <div className="relative">
                         <div className="absolute top-10 left-0 w-full h-1 bg-brand-wheat-200 hidden md:block" aria-hidden="true"></div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8 relative">
                             <HowItWorksStep icon={<PencilIcon />} step={1} title="Describe Your Vision" description="Start with a thought. Write a detailed prompt describing exactly what you want to create." />
                             <HowItWorksStep icon={<SettingsIcon />} step={2} title="Customize & Refine" description="Choose your model, style, and format. Fine-tune the parameters to match your creative intent." />
                             <HowItWorksStep icon={<SparklesIcon />} step={3} title="Generate & Iterate" description="Witness the AI bring your idea to life. Download, edit, or use your result as inspiration for the next version." />

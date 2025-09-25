@@ -304,16 +304,16 @@ export default function ArticleGenerator(): ReactElement {
                 {block.type === 'heading' && (
                   <div>
                     {editingBlockId === block.id ? (
-                      <div className="flex items-start gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
                         <textarea
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                           className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-2xl font-bold text-brand-wheat-800"
                           rows={2}
                         />
-                        <div className="flex flex-col gap-2 flex-shrink-0">
-                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
-                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
+                        <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
+                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
                             {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
                           </button>
                         </div>
@@ -329,16 +329,16 @@ export default function ArticleGenerator(): ReactElement {
                 {block.type === 'paragraph' && (
                    <div>
                     {editingBlockId === block.id ? (
-                      <div className="flex items-start gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
                         <textarea
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                           className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-brand-wheat-800 leading-relaxed"
                           rows={6}
                         />
-                        <div className="flex flex-col gap-2 flex-shrink-0">
-                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
-                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
+                        <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
+                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
                             {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
                           </button>
                         </div>
