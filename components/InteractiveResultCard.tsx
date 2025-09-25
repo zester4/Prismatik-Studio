@@ -181,6 +181,9 @@ export default function InteractiveResultCard({ item }: InteractiveResultCardPro
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity duration-300 flex items-center justify-center">
                   <span className="text-white text-lg font-bold bg-black bg-opacity-60 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">View Article</span>
               </div>
+               <button onClick={handleToggleFavorite} title={isFavorited ? "Remove from favorites" : "Add to favorites"} className="absolute top-2 left-2 z-10 p-1.5 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition">
+                {isFavorited ? <StarIconFilled className="w-5 h-5 text-yellow-400" /> : <StarIconOutline className="w-5 h-5" />}
+             </button>
             </div>
           )}
           <div className="p-4 flex flex-col flex-grow">
@@ -189,7 +192,7 @@ export default function InteractiveResultCard({ item }: InteractiveResultCardPro
             <div className="flex-grow"></div>
             <div className="grid grid-cols-2 gap-2 mt-4">
               <button onClick={handleCopyPrompt} className="text-sm w-full bg-brand-wheat-100 hover:bg-brand-wheat-200 text-brand-wheat-800 font-semibold py-2 px-3 rounded-md transition duration-200">
-                {copyButtonText}
+                {copyButtonText === 'Copied!' ? 'Copied!' : 'Copy Topic'}
               </button>
               <button onClick={openArticleModal} className="text-sm w-full bg-brand-teal-500 hover:bg-brand-teal-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200">
                 View Article
