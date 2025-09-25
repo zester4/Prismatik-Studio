@@ -108,7 +108,7 @@ export default function Profile(): ReactElement {
     let streak = 0;
     if (historyItems.length > 0) {
         const oneDay = 24 * 60 * 60 * 1000;
-        // FIX: Add explicit types to sort callback to fix arithmetic operation error.
+        // Add explicit types to sort callback to fix arithmetic operation error.
         const uniqueDays = [...new Set(historyItems.map(item => new Date(item.timestamp).setHours(0, 0, 0, 0)))].sort((a: number, b: number) => b - a);
 
         const today = new Date().setHours(0, 0, 0, 0);

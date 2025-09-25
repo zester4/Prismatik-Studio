@@ -24,6 +24,7 @@ const getVideoModelName = (id: string | undefined): string => {
 }
 
 const getStyleName = (id: string) => {
+    if (id === 'edit') return 'Edit';
     return id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
@@ -274,6 +275,11 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
              <button onClick={handleToggleFavorite} title={isFavorited ? "Remove from favorites" : "Add to favorites"} className="absolute top-2 left-2 z-10 p-1.5 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition">
                 {isFavorited ? <StarIconFilled className="w-5 h-5 text-yellow-400" /> : <StarIconOutline className="w-5 h-5" />}
              </button>
+             {item.type === 'image' && item.isEdit && (
+                <div className="absolute top-2 right-2 bg-brand-teal-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md">
+                    Edited
+                </div>
+            )}
             {item.type === 'logo' && (
                 <div className="absolute top-2 right-2 bg-brand-teal-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                     Logo

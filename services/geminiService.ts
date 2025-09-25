@@ -106,6 +106,41 @@ export const generateImages = async (
   }
 };
 
+export const editImage = async (
+  prompt: string,
+  image: { mimeType: string; data: string }
+): Promise<string> => {
+  try {
+    const model = 'gemini-2.5-flash-image-preview';
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { 
+        parts: [
+          { text: prompt }, 
+          { inlineData: { mimeType: image.mimeType, data: image.data } }
+        ] 
+      },
+      config: {
+        responseModalities: [Modality.IMAGE, Modality.TEXT],
+      },
+    });
+
+    const imagePart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
+    if (imagePart?.inlineData) {
+      return `data:image/png;base64,${imagePart.inlineData.data}`;
+    } else {
+      const textPart = response.candidates?.[0]?.content.parts.find(p => p.text);
+      if (textPart?.text) {
+          throw new Error(`Image editing failed. Model response: ${textPart.text}`);
+      }
+      throw new Error("Image editing failed to return an image.");
+    }
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error, 'image'));
+  }
+};
+
+
 export const generateVideo = async (
   prompt: string, 
   aspectRatio: AspectRatio, 

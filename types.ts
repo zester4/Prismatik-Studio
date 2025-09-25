@@ -25,6 +25,7 @@ export interface HistoryItemImage extends HistoryItemBase {
   model: string;
   style: string;
   aspectRatio: AspectRatio;
+  isEdit?: boolean;
 }
 
 export interface HistoryItemVideo extends HistoryItemBase {
