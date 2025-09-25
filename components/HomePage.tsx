@@ -1,4 +1,5 @@
 import React, { ReactElement, useRef, useState, useEffect } from 'react';
+import Footer from './Footer';
 
 // --- ICONS --- //
 const ImageIco: React.FC<{className: string}> = ({className}) => (
@@ -21,6 +22,16 @@ const LogoIco: React.FC<{className: string}> = ({className}) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
     </svg>
 );
+const ArticleIco: React.FC<{className: string}> = ({className}) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+const AdIco: React.FC<{className: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+    </svg>
+);
 const PencilIcon: React.FC<{className?: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
@@ -37,54 +48,55 @@ const SparklesIcon: React.FC<{className?: string}> = ({className}) => (
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293M17.707 5.293L19 4m-3 13l-2.293 2.293m2.293-2.293L19 18M12 3v4m-2 2h4m-4 7v4m-2-2h4m5-11l2.293-2.293M12 12l2.293 2.293m-2.293-2.293L9.707 9.707m2.293 2.293L14.293 14.293" />
     </svg>
 );
-const LightbulbIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-11.25H10.5a6.01 6.01 0 001.5 11.25v.25a2.25 2.25 0 11-4.5 0v-.25a6.01 6.01 0 001.5-11.25H6.75a6.01 6.01 0 001.5 11.25v.25a2.25 2.25 0 11-4.5 0v-.25a6.01 6.01 0 001.5-11.25H12M12 18h.01M12 18v.01" />
-    </svg>
-);
-const PaletteIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.998 15.998 0 011.622-3.385m5.043.025a15.998 15.998 0 001.622-3.385m3.388 1.62a15.998 15.998 0 00-1.622-3.385m-5.043.025a15.998 15.998 0 01-3.388-1.622m7.732 0a15.998 15.998 0 00-3.388-1.622m-5.043.025a15.998 15.998 0 01-1.622-3.385m5.043.025a15.998 15.998 0 00-1.622-3.385m-3.388 1.62a15.998 15.998 0 00-1.622-3.385" />
-    </svg>
-);
-const MinusCircleIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-);
-const ArrowPathIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.18-3.185m-3.181 9.995l-3.182-3.182a8.25 8.25 0 0111.664 0l3.18 3.185" />
-    </svg>
-);
-
-// New Icons for Added Sections
 const MarketerIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 100 15 7.5 7.5 0 000-15zM21 21l-5.197-5.197" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H7.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 13.5H10.5" />
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
     </svg>
 );
-const ArtistIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 21v-4.5a.75.75 0 00-.75-.75H4.5A2.25 2.25 0 012.25 13.5V5.25A2.25 2.25 0 014.5 3h15A2.25 2.25 0 0121.75 5.25v8.25A2.25 2.25 0 0119.5 15.75h-3.75a.75.75 0 00-.75.75v4.5m0-13.5h.008v.008h-.008v-.008zm-3 0h.008v.008h-.008v-.008zm-3 0h.008v.008h-.008v-.008z" />
+const AuthorIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
     </svg>
 );
-const WriterIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+const DeveloperIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
     </svg>
 );
 const EntrepreneurIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519 22.5 22.5 0 01-5.814 5.519L9 18.75l-6.75-6.75z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 12a9.75 9.75 0 11-19.5 0 9.75 9.75 0 0119.5 0z" />
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
     </svg>
 );
-const QuoteIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="currentColor" viewBox="0 0 16 16">
-        <path d="M12 12a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1h-1.388c0-.351.021-.703.062-1.054.062-.372.166-.703.31-.992.145-.29.331-.517.559-.683.227-.186.516-.279.868-.279V3c-.579 0-1.085.124-1.52.372a3.322 3.322 0 0 0-1.085.992 4.92 4.92 0 0 0-.62 1.458A7.712 7.712 0 0 0 9 7.558V11a1 1 0 0 0 1 1h2Zm-6 0a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1H4.612c0-.351.021-.703.062-1.054.062-.372.166-.703.31-.992.145-.29.331-.517.559-.683.227-.186.516-.279.868-.279V3c-.579 0-1.085.124-1.52.372a3.322 3.322 0 0 0-1.085.992 4.92 4.92 0 0 0-.62 1.458A7.712 7.712 0 0 0 3 7.558V11a1 1 0 0 0 1 1h2Z"/>
+const GeminiLogoIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg className={className} viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M101.833 55.3333C101.833 30.6667 82.5 11.3333 57.8333 11.3333C33.1667 11.3333 13.8333 30.6667 13.8333 55.3333C13.8333 80 33.1667 99.3333 57.8333 99.3333C65.4167 99.3333 72.5 97.4167 78.5833 94.0833L84.6667 100.167L100.167 84.6667L94.0833 78.5833C99.3333 70.5833 101.833 62.5 101.833 55.3333ZM57.8333 84.6667C41.3333 84.6667 28.5 71.8333 28.5 55.3333C28.5 38.8333 41.3333 26 57.8333 26C74.3333 26 87.1667 38.8333 87.1667 55.3333C87.1667 71.8333 74.3333 84.6667 57.8333 84.6667Z" fill="url(#paint0_linear_1_2)"/>
+        <path d="M114.167 84.6667L84.6667 114.167V84.6667H114.167Z" fill="url(#paint1_linear_1_2)"/>
+        <defs>
+            <linearGradient id="paint0_linear_1_2" x1="57.83" y1="11.33" x2="57.83" y2="99.33" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#41a9a1"/>
+            <stop offset="1" stopColor="#368e87"/>
+            </linearGradient>
+            <linearGradient id="paint1_linear_1_2" x1="99.42" y1="84.67" x2="99.42" y2="114.17" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#ecbf8a"/>
+            <stop offset="1" stopColor="#e6a86e"/>
+            </linearGradient>
+        </defs>
+    </svg>
+);
+const BrainIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 22l-.648-1.437a3.375 3.375 0 00-2.6-2.6L12 17.25l1.438-.648a3.375 3.375 0 002.6-2.6L17 12.75l.648 1.437a3.375 3.375 0 002.6 2.6l1.438.648-1.438.648a3.375 3.375 0 00-2.6 2.6z" />
+    </svg>
+);
+const LayersIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.375 6.375l11.25 11.25m-11.25 0L17.625 6.375M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+const CheckBadgeIcon: React.FC<{className?: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
 const ChevronDownIcon: React.FC<{className?: string}> = ({className}) => (
@@ -93,96 +105,37 @@ const ChevronDownIcon: React.FC<{className?: string}> = ({className}) => (
     </svg>
 );
 
-
 // --- Reusable Components --- //
 const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}> = ({ children, className }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      {
-        rootMargin: '0px',
-        threshold: 0.1
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.unobserve(entry.target);
       }
-    );
+    }, { threshold: 0.1 });
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        observer.unobserve(ref.current);
-      }
-    };
+    if (ref.current) observer.observe(ref.current);
+    return () => { if (ref.current) observer.unobserve(ref.current); };
   }, []);
 
-  return (
-    <section ref={ref} className={`${className || ''} ${isVisible ? 'is-visible' : 'is-hidden'}`}>
-      {children}
-    </section>
-  );
+  return <section ref={ref} className={`${className || ''} ${isVisible ? 'is-visible' : 'is-hidden'}`}>{children}</section>;
 };
 
-
-interface FeatureCardProps {
-    icon: ReactElement<{ className?: string }>;
-    title: string;
-    description: string;
-}
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
-    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div className="bg-brand-teal-100 text-brand-teal-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-            {React.cloneElement(icon, { className: 'w-7 h-7' })}
-        </div>
-        <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
-        <p className="text-brand-wheat-700">{description}</p>
-    </div>
-);
-
-const HowItWorksStep: React.FC<{ icon: ReactElement<{ className?: string }>; step: number; title: string; description: string }> = ({ icon, step, title, description }) => (
+// FIX: Changed icon prop type to ReactElement to allow passing props via React.cloneElement.
+const HowItWorksStep: React.FC<{ icon: ReactElement; step: number; title: string; description: string }> = ({ icon, step, title, description }) => (
     <div className="text-center">
         <div className="relative inline-block">
-            <div className="bg-white rounded-lg w-16 h-16 flex items-center justify-center mb-4 shadow-md">
-                {React.cloneElement(icon, { className: 'w-8 h-8 text-brand-teal-500' })}
+            <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center mb-5 shadow-lg border-4 border-brand-teal-100">
+                {React.cloneElement(icon, { className: 'w-10 h-10 text-brand-teal-500' })}
             </div>
-            <span className="absolute -top-2 -left-2 bg-brand-teal-500 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center border-4 border-brand-wheat-100">{step}</span>
+            <span className="absolute -top-1 -right-1 bg-brand-teal-500 text-white font-bold rounded-full w-9 h-9 flex items-center justify-center border-4 border-brand-wheat-100 text-lg">{step}</span>
         </div>
         <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
         <p className="text-brand-wheat-700 max-w-xs mx-auto">{description}</p>
-    </div>
-);
-
-const QuickStartCard: React.FC<{ icon: ReactElement<{ className?: string }>; title: string; description: string; }> = ({ icon, title, description }) => (
-    <div className="bg-brand-wheat-50 p-6 rounded-lg border border-brand-wheat-200">
-        <div className="flex items-start gap-4">
-            <div className="text-brand-teal-500 mt-1">
-                {React.cloneElement(icon, { className: 'w-6 h-6' })}
-            </div>
-            <div>
-                <h4 className="font-bold text-brand-wheat-800">{title}</h4>
-                <p className="text-sm text-brand-wheat-600 mt-1">{description}</p>
-            </div>
-        </div>
-    </div>
-);
-
-const ShowcaseCard: React.FC<{ imageUrl: string; title: string; prompt: string }> = ({ imageUrl, title, prompt }) => (
-    <div className="group relative rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-        <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 p-6 text-white">
-            <h4 className="text-xl font-bold">{title}</h4>
-            <p className="text-sm opacity-80 mt-1 italic">"{prompt}"</p>
-        </div>
     </div>
 );
 
@@ -190,21 +143,54 @@ const FaqItem: React.FC<{ question: string; answer: string }> = ({ question, ans
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="border-b border-brand-wheat-200">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex justify-between items-center py-5 text-left"
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center py-5 text-left gap-4">
                 <h4 className="text-lg font-semibold text-brand-wheat-800">{question}</h4>
-                <ChevronDownIcon className={`w-5 h-5 text-brand-wheat-600 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                <div className="w-6 h-6 flex-shrink-0 bg-brand-wheat-200 rounded-full flex items-center justify-center">
+                    <ChevronDownIcon className={`w-4 h-4 text-brand-wheat-600 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                </div>
             </button>
             <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                  <div className="overflow-hidden">
-                    <p className="pb-5 text-brand-wheat-700">{answer}</p>
+                    <p className="pb-5 text-brand-wheat-700 pr-10">{answer}</p>
                  </div>
             </div>
         </div>
     );
 };
+
+const FeatureDetail: React.FC<{
+    icon: ReactElement,
+    title: string,
+    description: string,
+    bulletPoints: string[],
+    imageUrl: string,
+    align: 'left' | 'right'
+}> = ({ icon, title, description, bulletPoints, imageUrl, align }) => (
+    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${align === 'right' ? 'lg:grid-flow-col-dense' : ''}`}>
+        <div className={` ${align === 'right' ? 'lg:col-start-2' : ''}`}>
+            <div className="flex items-center gap-4 mb-4">
+                <div className="bg-brand-teal-100 text-brand-teal-500 p-3 rounded-lg">
+                    {icon}
+                </div>
+                <h3 className="text-3xl font-bold text-brand-wheat-900">{title}</h3>
+            </div>
+            <p className="text-lg text-brand-wheat-700 mb-6">{description}</p>
+            <ul className="space-y-3">
+                {bulletPoints.map((point, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                        <CheckBadgeIcon className="w-6 h-6 text-brand-teal-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-brand-wheat-800">{point}</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+        <div className="relative">
+            <div className="aspect-w-4 aspect-h-3 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
+                <img src={imageUrl} alt={`${title} showcase`} className="w-full h-full object-cover" />
+            </div>
+        </div>
+    </div>
+);
 
 
 // --- Main HomePage Component --- //
@@ -214,7 +200,7 @@ interface HomePageProps {
 export default function HomePage({ onStartCreating }: HomePageProps): ReactElement {
   return (
     <div className="min-h-screen bg-brand-wheat-50 text-brand-wheat-900">
-        <header className="bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 shadow-sm">
+        <header className="bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm">
             <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                  <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-teal-500 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -227,190 +213,206 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
                     </h1>
                 </div>
                 <button onClick={onStartCreating} className="bg-brand-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-teal-600 transition duration-300 shadow-sm hover:shadow-md">
-                    Start Creating
+                    Launch Studio
                 </button>
             </div>
         </header>
 
         <main>
             {/* Hero Section */}
-            <section className="pt-32 pb-20 text-center bg-brand-wheat-50">
-                <div className="container mx-auto px-4 sm:px-6">
+            <section className="pt-36 pb-24 text-center bg-brand-wheat-50 overflow-hidden">
+                <div className="container mx-auto px-4 sm:px-6 relative z-10">
                     <h2 className="text-4xl md:text-6xl font-extrabold text-brand-wheat-900 leading-tight">
-                        Unleash Your Creativity with <span className="text-brand-teal-500">AI</span>
+                        Your AI Co-pilot for <span className="text-brand-teal-500">Boundless Creation</span>
                     </h2>
-                    <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-700">
-                        Generate stunning images, captivating videos, immersive stories, and unique logos from simple text prompts. Welcome to the future of creation.
+                    <p className="mt-6 max-w-3xl mx-auto text-lg text-brand-wheat-700">
+                        Stop dreaming, start creating. Prismatik Studio is an all-in-one suite of generative AI tools that transforms your simple text prompts into stunning images, videos, stories, articles, logos, and ads.
                     </p>
-                    <button onClick={onStartCreating} className="mt-8 bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
-                        Get Started for Free
+                    <button onClick={onStartCreating} className="mt-10 bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Start Creating for Free
                     </button>
+                </div>
+                <div className="relative mt-12">
+                    <div className="flex justify-center gap-4 sm:gap-6 animate-marquee">
+                        <img src="https://images.unsplash.com/photo-1679085226243-85b413c415b3?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-3deg]" alt="showcase 1"/>
+                        <img src="https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[2deg] mt-8" alt="showcase 2"/>
+                        <img src="https://images.unsplash.com/photo-1629114757912-3499f57f1542?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-5deg]" alt="showcase 3"/>
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[4deg] mt-4" alt="showcase 4"/>
+                        <img src="https://images.unsplash.com/photo-1618355799105-67657b238383?q=80&w=400&auto=format&fit=crop" className="w-40 h-52 object-cover rounded-xl shadow-lg transform rotate-[-2deg] mt-10" alt="showcase 5"/>
+                    </div>
                 </div>
             </section>
             
-            {/* Features Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-100">
+            {/* Detailed Features Section */}
+            <AnimatedSection className="py-24 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                         <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Your All-in-One Creative Suite</h3>
-                         <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                            From a single idea to a finished masterpiece, our suite of AI tools has you covered.
+                    <div className="text-center mb-16">
+                         <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">One Studio, Infinite Possibilities</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                            Each tool in Prismatik Studio is designed to be powerful on its own, but magical when used together. Explore what you can create.
                          </p>
                     </div>
+                    <div className="space-y-20">
+                        <FeatureDetail
+                            icon={<ImageIco className="w-7 h-7" />}
+                            title="Image Generator"
+                            description="Craft breathtaking visuals for any purpose. Whether you need photorealistic assets, fantasy concept art, or stylish digital illustrations, our Image Generator is your digital canvas."
+                            bulletPoints={[
+                                "Access multiple state-of-the-art models like Imagen 4.",
+                                "Fine-tune with aspect ratios, styles, and negative prompts.",
+                                "Generate multiple concepts at once to find the perfect shot."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1664420339932-51786933a11f?q=80&w=800&auto=format&fit=crop"
+                            align="left"
+                        />
+                        <FeatureDetail
+                            icon={<VideoIco className="w-7 h-7" />}
+                            title="Video Generator"
+                            description="Transform static ideas into dynamic motion. Generate short video clips from a simple text prompt or bring your existing images to life with subtle, captivating animation."
+                            bulletPoints={[
+                                "Powered by the cutting-edge Veo model for cinematic quality.",
+                                "Create videos from text or animate your own images.",
+                                "Perfect for social media, presentations, or ad campaigns."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1574717547372-5341499557ce?q=80&w=800&auto=format&fit=crop"
+                            align="right"
+                        />
+                        <FeatureDetail
+                            icon={<StoryIco className="w-7 h-7" />}
+                            title="Story Generator"
+                            description="Overcome writer's block and visualize your narrative like never before. Develop a story idea, and our AI will write it scene by scene, complete with unique illustrations for each part."
+                            bulletPoints={[
+                                "Generate multi-scene stories with accompanying images.",
+                                "Lock in a character's appearance for visual consistency.",
+                                "Edit text and regenerate images to perfect your tale."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=800&auto=format&fit=crop"
+                            align="left"
+                        />
+                        <FeatureDetail
+                            icon={<ArticleIco className="w-7 h-7" />}
+                            title="Article Generator"
+                            description="From blog posts to in-depth reports, generate well-structured, coherent articles on any topic. The AI assists with structure, writing, and even suggests relevant imagery."
+                            bulletPoints={[
+                                "Specify article type, writing style, and number of images.",
+                                "AI-powered proofreading to correct grammar and spelling.",
+                                "Context-aware image generation creates relevant visuals."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=800&auto=format&fit=crop"
+                            align="right"
+                        />
+                        <FeatureDetail
+                            icon={<LogoIco className="w-7 h-7" />}
+                            title="Logo Generator"
+                            description="Need a professional logo, fast? Describe your brand, choose a style and color palette, and receive multiple high-quality, text-free logo concepts in seconds."
+                            bulletPoints={[
+                                "Based on detailed brand descriptions, not just keywords.",
+                                "Explore various styles from minimalist to vintage.",
+                                "Receive clean, vector-style concepts on a white background."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1607237138337-581bedac452c?q=80&w=800&auto=format&fit=crop"
+                            align="left"
+                        />
+                        <FeatureDetail
+                            icon={<AdIco className="w-7 h-7" />}
+                            title="Ad Creator"
+                            description="Launch your next campaign with ease. The Ad Creator generates persuasive copy (headline, body, CTA) and a stunning visual (image or video) tailored to your product and audience."
+                            bulletPoints={[
+                                "Generates both ad copy and media in one seamless workflow.",
+                                "Choose a tone of voice, from professional to humorous.",
+                                "Upload your own product shot or have the AI create one."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=800&auto=format&fit=crop"
+                            align="right"
+                        />
+                    </div>
+                </div>
+            </AnimatedSection>
+
+            {/* Use Cases Section */}
+            <AnimatedSection className="py-24 bg-brand-wheat-50">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="text-center mb-16">
+                        <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Designed for Every Creator</h3>
+                        <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                           Whether you're a professional team or a solo creator with a big idea, Prismatik Studio is built to amplify your efforts.
+                        </p>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <FeatureCard icon={<ImageIco className="w-full h-full" />} title="Image Generation" description="Craft photorealistic images, digital art, and more in any style imaginable." />
-                        <FeatureCard icon={<VideoIco className="w-full h-full" />} title="Video Generation" description="Bring your ideas to life with dynamic, high-quality videos from text or images." />
-                        <FeatureCard icon={<StoryIco className="w-full h-full" />} title="Story Generation" description="Weave compelling narratives and visualize them with AI-generated scene illustrations." />
-                         <FeatureCard icon={<LogoIco className="w-full h-full" />} title="Logo Design" description="Instantly create professional, unique logos for your brand or project." />
+                        <PersonaCard icon={<MarketerIcon />} title="The Marketer" description="Rapidly generate A/B test variants for ad campaigns, create eye-catching social media content, and draft copy that converts, all in a fraction of the time." />
+                        <PersonaCard icon={<AuthorIcon />} title="The Author" description="Break through writer's block by visualizing scenes, develop character concepts with the image generator, and illustrate entire chapters with the story tool." />
+                        <PersonaCard icon={<DeveloperIcon />} title="The Indie Developer" description="Create stunning concept art, generate in-game assets, design unique logos for your projects, and produce promotional materials without an art team." />
+                        <PersonaCard icon={<EntrepreneurIcon />} title="The Small Business Owner" description="Design a professional brand identity, create marketing materials for your products, and produce engaging ads for social media, all without a big budget." />
                     </div>
                 </div>
             </AnimatedSection>
             
-            {/* Showcase Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-50">
+             {/* Technology Section */}
+            <AnimatedSection className="py-24 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">From Imagination to Reality</h3>
-                        <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                            See what's possible with the power of Prismatik Studio.
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 h-[500px]">
-                        <div className="lg:col-span-2 lg:row-span-2">
-                             <ShowcaseCard imageUrl="https://images.unsplash.com/photo-1679085226243-85b413c415b3?q=80&w=800&auto=format&fit=crop" title="Sci-Fi Character" prompt="A photorealistic robot warrior..." />
+                    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <div className="text-center md:text-left">
+                             <GeminiLogoIcon className="w-24 h-24 mx-auto md:mx-0" />
+                             <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900 mt-4">Powered by Google Gemini</h3>
+                             <p className="mt-4 text-lg text-brand-wheat-700">
+                                Prismatik Studio sits on the shoulders of giants. We harness the full power of Google's state-of-the-art Gemini family of models, including Imagen and Veo, to deliver unparalleled quality, speed, and creative potential directly to your fingertips.
+                             </p>
                         </div>
-                        <ShowcaseCard imageUrl="https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=800&auto=format&fit=crop" title="Story Illustration" prompt="A magical library with floating books..." />
-                        <ShowcaseCard imageUrl="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop" title="Minimalist Logo" prompt="A geometric logo for a tech company..." />
-                        <div className="sm:col-span-2">
-                             <ShowcaseCard imageUrl="https://images.unsplash.com/photo-1629114757912-3499f57f1542?q=80&w=800&auto=format&fit=crop" title="Cinematic Video" prompt="Drone shot of a misty forest at dawn..." />
+                        <div className="space-y-6">
+                            <TechBenefitCard icon={<SparklesIcon/>} title="Unmatched Quality" description="Generate visuals and text with incredible detail, coherence, and realism."/>
+                            <TechBenefitCard icon={<BrainIcon/>} title="Multi-Modal Understanding" description="Go beyond text. The models understand images, enabling features like Character Lock and animating your photos."/>
+                            <TechBenefitCard icon={<LayersIcon/>} title="Versatility at Scale" description="From a single image to a full-length article, the models are optimized for a massive range of creative tasks."/>
                         </div>
                     </div>
                 </div>
             </AnimatedSection>
 
             {/* How It Works Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-100">
+            <AnimatedSection className="py-24 bg-brand-wheat-50">
                  <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                         <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Create in Three Simple Steps</h3>
-                         <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                            Our intuitive interface makes it easy to bring your ideas to life.
+                    <div className="text-center mb-16">
+                         <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Your Idea, Supercharged</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                            Our intuitive workflow makes it easy to go from concept to creation in minutes.
                          </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <HowItWorksStep icon={<PencilIcon />} step={1} title="Describe Your Vision" description="Write a detailed prompt describing your idea. The more specific you are, the better the result!" />
-                        <HowItWorksStep icon={<SettingsIcon />} step={2} title="Customize Options" description="Select your preferred model, style, aspect ratio, and other settings to fine-tune your creation." />
-                        <HowItWorksStep icon={<SparklesIcon />} step={3} title="Generate & Refine" description="Click generate! Watch the AI work its magic, then download or refine your masterpiece." />
+                    <div className="relative">
+                        <div className="absolute top-10 left-0 w-full h-1 bg-brand-wheat-200 hidden md:block" aria-hidden="true"></div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
+                            <HowItWorksStep icon={<PencilIcon />} step={1} title="Describe Your Vision" description="Start with a thought. Write a detailed prompt describing exactly what you want to create." />
+                            <HowItWorksStep icon={<SettingsIcon />} step={2} title="Customize & Refine" description="Choose your model, style, and format. Fine-tune the parameters to match your creative intent." />
+                            <HowItWorksStep icon={<SparklesIcon />} step={3} title="Generate & Iterate" description="Witness the AI bring your idea to life. Download, edit, or use your result as inspiration for the next version." />
+                        </div>
                     </div>
                  </div>
             </AnimatedSection>
-
-            {/* Use Cases Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-50">
-                <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Creativity for Everyone</h3>
-                        <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                           Whether you're a professional or a hobbyist, our tools empower you to create amazing content.
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <FeatureCard icon={<MarketerIcon />} title="For Marketers" description="Generate stunning ad visuals, write compelling copy, and create promotional videos in minutes." />
-                        <FeatureCard icon={<ArtistIcon />} title="For Artists" description="Break creative blocks, explore new styles, and rapidly prototype ideas for concept art and designs." />
-                        <FeatureCard icon={<WriterIcon />} title="For Writers" description="Craft engaging narratives, develop characters, and instantly visualize your scenes to overcome writer's block." />
-                        <FeatureCard icon={<EntrepreneurIcon />} title="For Entrepreneurs" description="Design professional logos, create marketing materials, and produce product ads without a big budget." />
-                    </div>
-                </div>
-            </AnimatedSection>
             
-            {/* Testimonials Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-100">
-                <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                         <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Loved by Creators Worldwide</h3>
-                         <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                            Don't just take our word for it. Here's what people are saying about Prismatik Studio.
-                         </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        <div className="bg-white p-8 rounded-xl shadow-lg">
-                            <QuoteIcon className="w-8 h-8 text-brand-teal-200 mb-4" />
-                            <p className="text-brand-wheat-700 mb-6 italic">"This has revolutionized our workflow. We can now produce high-quality ad campaigns in a fraction of the time. It's an indispensable tool for our team."</p>
-                            <p className="font-bold text-brand-wheat-900">Sarah L.</p>
-                            <p className="text-sm text-brand-wheat-600">Marketing Manager</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-xl shadow-lg md:transform md:scale-105">
-                            <QuoteIcon className="w-8 h-8 text-brand-teal-200 mb-4" />
-                            <p className="text-brand-wheat-700 mb-6 italic">"As a solo developer, I don't have the budget for a dedicated artist. This tool lets me generate incredible concept art and assets. It's like having an art department on call."</p>
-                            <p className="font-bold text-brand-wheat-900">Marco B.</p>
-                            <p className="text-sm text-brand-wheat-600">Indie Game Developer</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-xl shadow-lg">
-                            <QuoteIcon className="w-8 h-8 text-brand-teal-200 mb-4" />
-                            <p className="text-brand-wheat-700 mb-6 italic">"The story generator is pure magic. Seeing my characters and scenes come to life has been incredibly inspiring and has helped me overcome writer's block more than once."</p>
-                            <p className="font-bold text-brand-wheat-900">Jasmine K.</p>
-                            <p className="text-sm text-brand-wheat-600">Author</p>
-                        </div>
-                    </div>
-                </div>
-            </AnimatedSection>
-
-             {/* Quick Start Guide Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-50">
-                <div className="container mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Quick Start Guide</h3>
-                        <p className="mt-3 max-w-2xl mx-auto text-md text-brand-wheat-600">
-                            A few tips to help you get incredible results, faster.
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                        <QuickStartCard 
-                            icon={<LightbulbIcon />} 
-                            title="Be Descriptive & Specific" 
-                            description="Instead of 'a dog', try 'a fluffy golden retriever puppy playing in a field of daisies during a golden sunset'."
-                        />
-                        <QuickStartCard 
-                            icon={<PaletteIcon />} 
-                            title="Experiment with Styles" 
-                            description="Combine your subject with an art style. For example, add 'in the style of watercolor' or 'cinematic lighting'."
-                        />
-                        <QuickStartCard 
-                            icon={<MinusCircleIcon />} 
-                            title="Use Negative Prompts" 
-                            description="For models that support it, use the negative prompt to exclude things you don't want, like 'blurry, text, watermark'."
-                        />
-                        <QuickStartCard 
-                            icon={<ArrowPathIcon />} 
-                            title="Iterate and Refine" 
-                            description="Your first result might not be perfect. Use it as inspiration and adjust your prompt to get closer to your vision."
-                        />
-                    </div>
-                </div>
-            </AnimatedSection>
-
             {/* FAQ Section */}
-            <AnimatedSection className="py-20 bg-brand-wheat-100">
+            <AnimatedSection className="py-24 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900">Frequently Asked Questions</h3>
+                        <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Questions? We Have Answers.</h3>
                     </div>
                     <div className="max-w-3xl mx-auto">
                         <FaqItem
-                            question="What models does Prismatik Studio use?"
-                            answer="We leverage Google's powerful family of Gemini models, including Imagen for images and Veo for video, to provide state-of-the-art results."
+                            question="What is Prismatik Studio?"
+                            answer="It's a web-based creative suite that uses Google's Gemini AI to help you generate content. Think of it as a user-friendly interface that gives you access to incredibly powerful AI models for creating images, videos, stories, and more, all from one place."
                         />
                         <FaqItem
-                            question="Is it free to use?"
-                            answer="Yes, the basic features of Prismatik Studio are available for free. We operate based on the free tier of the Gemini API. Please be mindful of your own API key usage limits."
-                        />
-                        <FaqItem
-                            question="What kind of content can I create?"
-                            answer="You can generate a wide range of content, including digital art, photorealistic images, short videos, multi-scene illustrated stories, brand logos, and complete advertisements."
+                            question="How do I get an API key?"
+                            answer="You'll need a Google Gemini API key to use the studio. You can get one for free from Google AI Studio. The app will use this key to make requests to the AI models on your behalf."
                         />
                         <FaqItem
                             question="Can I use the generated content commercially?"
-                            answer="Please refer to the terms of service for the Google Gemini API. Generally, you own the content you create, but it's important to understand the usage rights and restrictions of the underlying models."
+                            answer="Content you create is subject to Google's Gemini API terms of service. Generally, you own the assets you create, but it is your responsibility to ensure your use case complies with Google's policies and does not violate any copyrights."
+                        />
+                        <FaqItem
+                            question="Is my data and my creations private?"
+                            answer="Prismatik Studio is designed with privacy in mind. Your API key and creations are stored in your browser's local storage and are never sent to our servers. All AI processing is handled directly between your browser and the Google Gemini API."
+                        />
+                        <FaqItem
+                            question="What makes this different from other AI tools?"
+                            answer="Our focus is on providing an integrated, multi-tool workflow. Instead of jumping between different apps for images, text, and video, you can do it all here. Features like Character Lock in the Story Generator are examples of how we leverage the tools working together."
                         />
                     </div>
                 </div>
@@ -418,24 +420,44 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
             
             {/* Final CTA */}
             <AnimatedSection className="bg-brand-wheat-50">
-                <div className="container mx-auto px-4 sm:px-6 py-20 text-center">
-                    <h2 className="text-3xl md:text-5xl font-extrabold text-brand-wheat-900 leading-tight">
-                        Ready to Create Something Amazing?
+                <div className="container mx-auto px-4 sm:px-6 py-24 text-center">
+                    <h2 className="text-4xl md:text-5xl font-extrabold text-brand-wheat-900 leading-tight">
+                        Ready to Build the Impossible?
                     </h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-brand-wheat-700">
-                        Join thousands of creators and bring your most ambitious ideas to life today.
+                        The canvas is blank. The tools are ready. Your next masterpiece is just a prompt away.
                     </p>
                     <button onClick={onStartCreating} className="mt-8 bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Enter the Studio
                     </button>
                 </div>
             </AnimatedSection>
-
         </main>
         
-        <footer className="text-center py-8 bg-brand-wheat-200 text-brand-wheat-700 text-sm">
-            <p>Powered by Google Gemini. Designed with passion.</p>
-        </footer>
+        <Footer />
     </div>
   );
 }
+
+// FIX: Changed icon prop type to ReactElement to allow passing props via React.cloneElement.
+const PersonaCard: React.FC<{ icon: ReactElement; title: string; description: string }> = ({ icon, title, description }) => (
+    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center">
+        <div className="bg-brand-teal-100 text-brand-teal-500 rounded-lg w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+            {React.cloneElement(icon, { className: 'w-8 h-8' })}
+        </div>
+        <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
+        <p className="text-brand-wheat-700">{description}</p>
+    </div>
+);
+
+const TechBenefitCard: React.FC<{ icon: ReactElement; title: string; description: string; }> = ({ icon, title, description }) => (
+    <div className="flex items-start gap-4">
+        <div className="bg-brand-teal-100 text-brand-teal-500 p-3 rounded-lg mt-1">
+             {React.cloneElement(icon, { className: 'w-6 h-6' })}
+        </div>
+        <div>
+            <h4 className="font-bold text-xl text-brand-wheat-800">{title}</h4>
+            <p className="text-md text-brand-wheat-600 mt-1">{description}</p>
+        </div>
+    </div>
+);

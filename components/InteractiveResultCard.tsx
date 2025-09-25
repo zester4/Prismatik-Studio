@@ -46,7 +46,7 @@ const StarIconOutline: React.FC<{className?: string}> = ({className}) => (
 );
 
 
-export default function InteractiveResultCard({ item }: InteractiveResultCardProps): ReactElement {
+const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) => {
   const [copyButtonText, setCopyButtonText] = useState('Copy Prompt');
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
@@ -318,4 +318,6 @@ export default function InteractiveResultCard({ item }: InteractiveResultCardPro
       )}
     </>
   );
-}
+};
+
+export default InteractiveResultCard;

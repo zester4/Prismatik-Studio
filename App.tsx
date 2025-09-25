@@ -50,9 +50,9 @@ export default function App(): ReactElement {
 
   return (
     <HistoryProvider>
-      <div className="min-h-screen bg-brand-wheat-100 text-brand-wheat-900">
+      <div className="min-h-screen bg-brand-wheat-100 text-brand-wheat-900 flex flex-col">
         <Header />
-        <main className="container mx-auto px-4 sm:px-6 py-8">
+        <main className="container mx-auto px-4 sm:px-6 py-8 flex-grow">
           <div className="max-w-4xl mx-auto">
             <TabSelector selectedMode={mode} onSelectMode={handleModeChange} />
             <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
@@ -60,9 +60,6 @@ export default function App(): ReactElement {
             </div>
           </div>
         </main>
-        <footer className="text-center py-4 text-brand-wheat-700 text-sm">
-          <p>Powered by Google Gemini. Designed with passion.</p>
-        </footer>
       </div>
     </HistoryProvider>
   );

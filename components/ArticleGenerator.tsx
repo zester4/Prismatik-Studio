@@ -6,6 +6,7 @@ import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 
+// FIX: Corrected Omit syntax to use a union type for keys.
 type ArticleResult = Omit<HistoryItemArticle, 'id' | 'timestamp' | 'type'>;
 
 const RegenerateIcon = () => (
@@ -313,7 +314,7 @@ export default function ArticleGenerator(): ReactElement {
                         <div className="flex flex-col gap-2 flex-shrink-0">
                           <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
                           <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
-                            {isProofreading ? <LoadingSpinner /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                            {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
                           </button>
                         </div>
                       </div>
@@ -338,7 +339,7 @@ export default function ArticleGenerator(): ReactElement {
                         <div className="flex flex-col gap-2 flex-shrink-0">
                           <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
                           <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
-                            {isProofreading ? <LoadingSpinner /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                            {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
                           </button>
                         </div>
                       </div>

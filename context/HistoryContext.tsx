@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, PropsWithChildren } from 'react';
 import { HistoryItem } from '../types';
 
 interface HistoryContextType {
@@ -19,7 +19,7 @@ export const HistoryContext = createContext<HistoryContextType>({
   removeFavoritePrompt: () => {},
 });
 
-export const HistoryProvider = ({ children }: { children: ReactNode }) => {
+export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [favoritePrompts, setFavoritePrompts] = useState<string[]>([]);
 
