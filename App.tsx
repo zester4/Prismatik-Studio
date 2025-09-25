@@ -1,66 +1,79 @@
-import React, { useState, useCallback, ReactElement } from 'react';
-import { GenerationMode } from './types';
-import Header from './components/Header';
-import TabSelector from './components/TabSelector';
-import ImageGenerator from './components/ImageGenerator';
-import VideoGenerator from './components/VideoGenerator';
-import StoryGenerator from './components/StoryGenerator';
-import ArticleGenerator from './components/ArticleGenerator';
-import LogoGenerator from './components/LogoGenerator';
-import AdGenerator from './components/AdGenerator';
-import CreationGallery from './components/CreationGallery';
-import Profile from './components/Profile';
-import { HistoryProvider } from './context/HistoryContext';
+import React, { useState, useEffect, ReactElement } from 'react';
+import Studio from './components/Studio';
 import HomePage from './components/HomePage';
+import Layout from './components/Layout';
+import Solutions from './components/pages/Solutions';
+import Marketing from './components/pages/Marketing';
+import ContentCreation from './components/pages/ContentCreation';
+import Design from './components/pages/Design';
+import Development from './components/pages/Development';
+import Support from './components/pages/Support';
+import FAQ from './components/pages/FAQ';
+import Documentation from './components/pages/Documentation';
+import ApiStatus from './components/pages/ApiStatus';
+import Company from './components/pages/Company';
+import About from './components/pages/About';
+import Blog from './components/pages/Blog';
+import Contact from './components/pages/Contact';
+import NotFound from './components/pages/NotFound';
 
 export default function App(): ReactElement {
-  const [mode, setMode] = useState<GenerationMode>(GenerationMode.IMAGE);
-  const [showStudio, setShowStudio] = useState<boolean>(false);
+    const [route, setRoute] = useState(window.location.hash.substring(1) || '/');
 
-  const handleModeChange = useCallback((newMode: GenerationMode) => {
-    setMode(newMode);
-  }, []);
+    useEffect(() => {
+        const handleHashChange = () => {
+            setRoute(window.location.hash.substring(1) || '/');
+            window.scrollTo(0, 0); // Scroll to top on page change
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
 
-  const renderContent = () => {
-    switch (mode) {
-      case GenerationMode.IMAGE:
-        return <ImageGenerator />;
-      case GenerationMode.VIDEO:
-        return <VideoGenerator />;
-      case GenerationMode.STORY:
-        return <StoryGenerator />;
-      case GenerationMode.ARTICLE:
-        return <ArticleGenerator />;
-      case GenerationMode.LOGO:
-        return <LogoGenerator />;
-      case GenerationMode.AD:
-        return <AdGenerator />;
-      case GenerationMode.GALLERY:
-        return <CreationGallery />;
-      case GenerationMode.PROFILE:
-        return <Profile />;
-      default:
-        return <ImageGenerator />;
-    }
-  };
+    const renderContent = () => {
+        const path = route.split('?')[0];
 
-  if (!showStudio) {
-    return <HomePage onStartCreating={() => setShowStudio(true)} />;
-  }
+        switch (path) {
+            case '/':
+                return <HomePage />;
+            case '/studio':
+                return <Studio />;
+            
+            // Solutions Pages
+            case '/solutions':
+                return <Layout><Solutions /></Layout>;
+            case '/solutions/marketing':
+                return <Layout><Marketing /></Layout>;
+            case '/solutions/content-creation':
+                return <Layout><ContentCreation /></Layout>;
+            case '/solutions/design':
+                return <Layout><Design /></Layout>;
+            case '/solutions/development':
+                return <Layout><Development /></Layout>;
+            
+            // Support Pages
+            case '/support':
+                return <Layout><Support /></Layout>;
+            case '/support/faq':
+                return <Layout><FAQ /></Layout>;
+            case '/support/documentation':
+                return <Layout><Documentation /></Layout>;
+            case '/support/api-status':
+                return <Layout><ApiStatus /></Layout>;
 
-  return (
-    <HistoryProvider>
-      <div className="min-h-screen bg-brand-wheat-100 text-brand-wheat-900 flex flex-col">
-        <Header />
-        <main className="container mx-auto px-4 sm:px-6 py-8 flex-grow">
-          <div className="max-w-4xl mx-auto">
-            <TabSelector selectedMode={mode} onSelectMode={handleModeChange} />
-            <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-              {renderContent()}
-            </div>
-          </div>
-        </main>
-      </div>
-    </HistoryProvider>
-  );
+            // Company Pages
+            case '/company':
+                return <Layout><Company /></Layout>;
+            case '/company/about':
+                return <Layout><About /></Layout>;
+            case '/company/blog':
+                return <Layout><Blog /></Layout>;
+            case '/company/contact':
+                return <Layout><Contact /></Layout>;
+                
+            default:
+                return <Layout><NotFound /></Layout>;
+        }
+    };
+
+    return renderContent();
 }

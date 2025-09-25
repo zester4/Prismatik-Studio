@@ -2,73 +2,87 @@ import React, { ReactElement, useRef, useState, useEffect } from 'react';
 import Footer from './Footer';
 
 // --- ICONS --- //
-const ImageIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const ImageIco = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
 );
-const VideoIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const VideoIco = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
     </svg>
 );
-const StoryIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const StoryIco = ({className}: {className?: string}) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
   </svg>
 );
-const LogoIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const LogoIco = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
     </svg>
 );
-const ArticleIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const ArticleIco = ({className}: {className?: string}) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
   </svg>
 );
-const AdIco: React.FC<{className: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const AdIco = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
     </svg>
 );
-const PencilIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const PencilIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
     </svg>
 );
-const SettingsIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const SettingsIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
 );
-const SparklesIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const SparklesIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293M17.707 5.293L19 4m-3 13l-2.293 2.293m2.293-2.293L19 18M12 3v4m-2 2h4m-4 7v4m-2-2h4m5-11l2.293-2.293M12 12l2.293 2.293m-2.293-2.293L9.707 9.707m2.293 2.293L14.293 14.293" />
     </svg>
 );
-const MarketerIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const MarketerIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
     </svg>
 );
-const AuthorIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const AuthorIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
     </svg>
 );
-const DeveloperIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const DeveloperIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
     </svg>
 );
-const EntrepreneurIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const EntrepreneurIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
     </svg>
 );
-const GeminiLogoIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types. This was likely causing the error on line 132.
+const GeminiLogoIcon = ({className}: {className?: string}) => (
     <svg className={className} viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M101.833 55.3333C101.833 30.6667 82.5 11.3333 57.8333 11.3333C33.1667 11.3333 13.8333 30.6667 13.8333 55.3333C13.8333 80 33.1667 99.3333 57.8333 99.3333C65.4167 99.3333 72.5 97.4167 78.5833 94.0833L84.6667 100.167L100.167 84.6667L94.0833 78.5833C99.3333 70.5833 101.833 62.5 101.833 55.3333ZM57.8333 84.6667C41.3333 84.6667 28.5 71.8333 28.5 55.3333C28.5 38.8333 41.3333 26 57.8333 26C74.3333 26 87.1667 38.8333 87.1667 55.3333C87.1667 71.8333 74.3333 84.6667 57.8333 84.6667Z" fill="url(#paint0_linear_1_2)"/>
         <path d="M114.167 84.6667L84.6667 114.167V84.6667H114.167Z" fill="url(#paint1_linear_1_2)"/>
@@ -84,29 +98,34 @@ const GeminiLogoIcon: React.FC<{className?: string}> = ({className}) => (
         </defs>
     </svg>
 );
-const BrainIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const BrainIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 22l-.648-1.437a3.375 3.375 0 00-2.6-2.6L12 17.25l1.438-.648a3.375 3.375 0 002.6-2.6L17 12.75l.648 1.437a3.375 3.375 0 002.6 2.6l1.438.648-1.438.648a3.375 3.375 0 00-2.6 2.6z" />
     </svg>
 );
-const LayersIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const LayersIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6.375 6.375l11.25 11.25m-11.25 0L17.625 6.375M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
-const CheckBadgeIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const CheckBadgeIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
-const ChevronDownIcon: React.FC<{className?: string}> = ({className}) => (
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const ChevronDownIcon = ({className}: {className?: string}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
     </svg>
 );
 
 // --- Reusable Components --- //
-const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}> = ({ children, className }) => {
+// FIX: Changed component signature to avoid issues with React.FC and prop types.
+const AnimatedSection = ({ children, className }: {children: React.ReactNode, className?: string}) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -125,7 +144,6 @@ const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}>
   return <section ref={ref} className={`${className || ''} ${isVisible ? 'is-visible' : 'is-hidden'}`}>{children}</section>;
 };
 
-// FIX: Changed icon prop type to ReactElement to allow passing props via React.cloneElement.
 const HowItWorksStep: React.FC<{ icon: ReactElement; step: number; title: string; description: string }> = ({ icon, step, title, description }) => (
     <div className="text-center">
         <div className="relative inline-block">
@@ -194,10 +212,7 @@ const FeatureDetail: React.FC<{
 
 
 // --- Main HomePage Component --- //
-interface HomePageProps {
-    onStartCreating: () => void;
-}
-export default function HomePage({ onStartCreating }: HomePageProps): ReactElement {
+export default function HomePage(): ReactElement {
   return (
     <div className="min-h-screen bg-brand-wheat-50 text-brand-wheat-900">
         <header className="bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm">
@@ -209,12 +224,12 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
                       <path strokeLinecap="round" strokeLinejoin="round" d="M22 8.5l-10 6.5V22" />
                     </svg>
                     <h1 className="text-2xl font-bold text-brand-wheat-900">
-                        Prismatik <span className="text-brand-teal-500">Studio</span>
+                        Prismatik <a href="/#/" className="text-brand-teal-500">Studio</a>
                     </h1>
                 </div>
-                <button onClick={onStartCreating} className="bg-brand-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-teal-600 transition duration-300 shadow-sm hover:shadow-md">
+                <a href="/#/studio" className="bg-brand-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-teal-600 transition duration-300 shadow-sm hover:shadow-md">
                     Launch Studio
-                </button>
+                </a>
             </div>
         </header>
 
@@ -228,9 +243,9 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
                     <p className="mt-6 max-w-3xl mx-auto text-lg text-brand-wheat-700">
                         Stop dreaming, start creating. Prismatik Studio is an all-in-one suite of generative AI tools that transforms your simple text prompts into stunning images, videos, stories, articles, logos, and ads.
                     </p>
-                    <button onClick={onStartCreating} className="mt-10 bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <a href="/#/studio" className="mt-10 inline-block bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Start Creating for Free
-                    </button>
+                    </a>
                 </div>
                 <div className="relative mt-12">
                     <div className="flex justify-center gap-4 sm:gap-6 animate-marquee">
@@ -427,9 +442,9 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-brand-wheat-700">
                         The canvas is blank. The tools are ready. Your next masterpiece is just a prompt away.
                     </p>
-                    <button onClick={onStartCreating} className="mt-8 bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <a href="/#/studio" className="mt-8 inline-block bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Enter the Studio
-                    </button>
+                    </a>
                 </div>
             </AnimatedSection>
         </main>
@@ -439,7 +454,6 @@ export default function HomePage({ onStartCreating }: HomePageProps): ReactEleme
   );
 }
 
-// FIX: Changed icon prop type to ReactElement to allow passing props via React.cloneElement.
 const PersonaCard: React.FC<{ icon: ReactElement; title: string; description: string }> = ({ icon, title, description }) => (
     <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center">
         <div className="bg-brand-teal-100 text-brand-teal-500 rounded-lg w-16 h-16 flex items-center justify-center mb-4 mx-auto">

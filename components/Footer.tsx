@@ -25,14 +25,16 @@ export default function Footer(): ReactElement {
                     {/* Branding Section */}
                     <div className="md:col-span-4">
                         <div className="flex items-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-teal-500 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 8.5l10 6.5 10-6.5L12 2z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2 8.5l10 6.5V22" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M22 8.5l-10 6.5V22" />
-                            </svg>
-                            <h2 className="text-2xl font-bold text-brand-wheat-900">
-                                Prismatik <span className="text-brand-teal-500">Studio</span>
-                            </h2>
+                            <a href="/#/" className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-teal-500 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 8.5l10 6.5 10-6.5L12 2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 8.5l10 6.5V22" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 8.5l-10 6.5V22" />
+                                </svg>
+                                <h2 className="text-2xl font-bold text-brand-wheat-900">
+                                    Prismatik <span className="text-brand-teal-500">Studio</span>
+                                </h2>
+                            </a>
                         </div>
                         <p className="text-brand-wheat-700 text-sm max-w-xs">
                             An all-in-one suite of generative AI tools to transform your simple text prompts into stunning creations.
@@ -56,28 +58,28 @@ export default function Footer(): ReactElement {
                     {/* Links Sections */}
                     <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
                         <div>
-                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase">Solutions</h3>
+                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase"><a href="/#/solutions" className="hover:text-brand-teal-500 transition">Solutions</a></h3>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Marketing</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Content Creation</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Design</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Development</a></li>
+                                <li><a href="/#/solutions/marketing" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Marketing</a></li>
+                                <li><a href="/#/solutions/content-creation" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Content Creation</a></li>
+                                <li><a href="/#/solutions/design" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Design</a></li>
+                                <li><a href="/#/solutions/development" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Development</a></li>
                             </ul>
                         </div>
                         <div>
-                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase">Support</h3>
+                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase"><a href="/#/support" className="hover:text-brand-teal-500 transition">Support</a></h3>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">FAQ</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Documentation</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">API Status</a></li>
+                                <li><a href="/#/support/faq" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">FAQ</a></li>
+                                <li><a href="/#/support/documentation" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Documentation</a></li>
+                                <li><a href="/#/support/api-status" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">API Status</a></li>
                             </ul>
                         </div>
                         <div>
-                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase">Company</h3>
+                            <h3 className="text-sm font-semibold text-brand-wheat-900 tracking-wider uppercase"><a href="/#/company" className="hover:text-brand-teal-500 transition">Company</a></h3>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">About</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Blog</a></li>
-                                <li><a href="#" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Contact</a></li>
+                                <li><a href="/#/company/about" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">About</a></li>
+                                <li><a href="/#/company/blog" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Blog</a></li>
+                                <li><a href="/#/company/contact" className="text-base text-brand-wheat-700 hover:text-brand-teal-500 transition">Contact</a></li>
                             </ul>
                         </div>
                     </div>
