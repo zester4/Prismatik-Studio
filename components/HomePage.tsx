@@ -126,7 +126,8 @@ const AnimatedSection = ({ children, className }: {children: React.ReactNode, cl
   return <section ref={ref} className={`${className || ''} ${isVisible ? 'is-visible' : 'is-hidden'}`}>{children}</section>;
 };
 
-const HowItWorksStep = ({ icon, step, title, description }: { icon: ReactElement; step: number; title: string; description: string }) => (
+// FIX: Updated 'icon' prop type to resolve TypeScript error when using React.cloneElement.
+const HowItWorksStep = ({ icon, step, title, description }: { icon: React.ReactElement<{ className?: string }>; step: number; title: string; description: string }) => (
     <div className="text-center">
         <div className="relative inline-block">
             <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center mb-5 shadow-lg border-4 border-brand-teal-100">
@@ -436,7 +437,8 @@ export default function HomePage(): ReactElement {
   );
 }
 
-const PersonaCard = ({ icon, title, description }: { icon: ReactElement; title: string; description: string }) => (
+// FIX: Updated 'icon' prop type to resolve TypeScript error when using React.cloneElement.
+const PersonaCard = ({ icon, title, description }: { icon: React.ReactElement<{ className?: string }>; title: string; description: string }) => (
     <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center">
         <div className="bg-brand-teal-100 text-brand-teal-500 rounded-lg w-16 h-16 flex items-center justify-center mb-4 mx-auto">
             {React.cloneElement(icon, { className: 'w-8 h-8' })}
@@ -446,7 +448,8 @@ const PersonaCard = ({ icon, title, description }: { icon: ReactElement; title: 
     </div>
 );
 
-const TechBenefitCard = ({ icon, title, description }: { icon: ReactElement; title: string; description: string; }) => (
+// FIX: Updated 'icon' prop type to resolve TypeScript error when using React.cloneElement.
+const TechBenefitCard = ({ icon, title, description }: { icon: React.ReactElement<{ className?: string }>; title: string; description: string; }) => (
     <div className="flex items-start gap-4">
         <div className="bg-brand-teal-100 text-brand-teal-500 p-3 rounded-lg mt-1">
              {React.cloneElement(icon, { className: 'w-6 h-6' })}
