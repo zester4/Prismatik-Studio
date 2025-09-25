@@ -1,5 +1,5 @@
 import React, { useState, useCallback, ReactElement, useContext } from 'react';
-import { generateArticle, generateImages } from '../services/geminiService';
+import { generateArticle, generateImages, proofreadText } from '../services/geminiService';
 import { HistoryItemArticle, ArticleBlock } from '../types';
 import { ARTICLE_TYPES, WRITING_STYLES, CREATIVE_ARTICLE_PROMPTS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
@@ -27,6 +27,13 @@ const SaveIcon = () => (
     </svg>
 );
 
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+
 export default function ArticleGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
   const [articleType, setArticleType] = useState<string>(ARTICLE_TYPES[0].id);
@@ -42,6 +49,7 @@ export default function ArticleGenerator(): ReactElement {
   const [imageRegenId, setImageRegenId] = useState<string | null>(null);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editText, setEditText] = useState<string>('');
+  const [isProofreading, setIsProofreading] = useState<boolean>(false);
 
   const [isSavingPdf, setIsSavingPdf] = useState<boolean>(false);
   const [copyMarkdownText, setCopyMarkdownText] = useState('Copy as Markdown');
@@ -123,6 +131,21 @@ export default function ArticleGenerator(): ReactElement {
     );
     setResult({ ...result, content: newContent as ArticleBlock[] });
     setEditingBlockId(null);
+  };
+
+  const handleProofread = async () => {
+    if (!editText.trim()) return;
+    setIsProofreading(true);
+    setError(null);
+    try {
+      const correctedText = await proofreadText(editText);
+      setEditText(correctedText);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      setError(errorMessage);
+    } finally {
+      setIsProofreading(false);
+    }
   };
   
   const handleSaveAsPdf = async () => {
@@ -281,8 +304,18 @@ export default function ArticleGenerator(): ReactElement {
                   <div>
                     {editingBlockId === block.id ? (
                       <div className="flex items-start gap-2">
-                         <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-2xl font-bold" rows={2}/>
-                         <button onClick={() => handleSaveText(block.id)} className="flex-shrink-0 flex items-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold"><SaveIcon /> Save</button>
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-2xl font-bold text-brand-wheat-800"
+                          rows={2}
+                        />
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
+                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
+                            {isProofreading ? <LoadingSpinner /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between group">
@@ -293,16 +326,26 @@ export default function ArticleGenerator(): ReactElement {
                   </div>
                 )}
                 {block.type === 'paragraph' && (
-                  <div>
-                     {editingBlockId === block.id ? (
+                   <div>
+                    {editingBlockId === block.id ? (
                       <div className="flex items-start gap-2">
-                         <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white leading-relaxed" rows={6}/>
-                         <button onClick={() => handleSaveText(block.id)} className="flex-shrink-0 flex items-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold"><SaveIcon /> Save</button>
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-brand-wheat-800 leading-relaxed"
+                          rows={6}
+                        />
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition"><SaveIcon /> Save</button>
+                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50">
+                            {isProofreading ? <LoadingSpinner /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between group">
-                        <p className="text-brand-wheat-800 leading-relaxed whitespace-pre-wrap">{block.content}</p>
-                        <button onClick={() => handleStartEditing(block)} className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-sm text-brand-wheat-600 hover:text-brand-wheat-800 font-semibold self-start"><EditIcon /></button>
+                        <p className="text-brand-wheat-800 leading-relaxed whitespace-pre-wrap flex-grow">{block.content}</p>
+                        <button onClick={() => handleStartEditing(block)} className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-sm text-brand-wheat-600 hover:text-brand-wheat-800 font-semibold self-start ml-4 flex-shrink-0"><EditIcon /> Edit</button>
                       </div>
                     )}
                   </div>

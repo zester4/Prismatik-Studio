@@ -208,31 +208,31 @@ export const CREATIVE_AD_EXAMPLES = [
 
 export const CREATIVE_ARTICLE_PROMPTS = [
     {
-        topic: "The future of renewable energy and its impact on urban planning.",
+        topic: "An in-depth report on the future of renewable energy, focusing on how solar, wind, and geothermal technologies will reshape urban planning, architecture, and daily life in the cities of 2050.",
         type: 'report',
         style: 'professional',
         images: 3,
     },
     {
-        topic: "A step-by-step guide to baking the perfect sourdough bread at home.",
+        topic: "A comprehensive, beginner-friendly guide to baking the perfect sourdough bread at home, covering everything from creating and maintaining a starter to mastering the stretch-and-fold technique and achieving a crispy crust.",
         type: 'how-to-guide',
         style: 'casual',
         images: 4,
     },
     {
-        topic: "Exploring the psychological benefits of spending time in nature.",
+        topic: "A narrative-driven blog post exploring the profound psychological and physiological benefits of 'forest bathing' (Shinrin-yoku), blending personal anecdotes with scientific research on how nature reduces stress and improves well-being.",
         type: 'blog-post',
         style: 'storytelling',
         images: 2,
     },
     {
-        topic: "An analysis of the rise of remote work and its long-term effects on the global economy.",
+        topic: "A formal academic essay analyzing the long-term socio-economic effects of the global shift to remote work, discussing its impact on commercial real estate, urban-rural migration, and the future of corporate culture.",
         type: 'essay',
         style: 'academic',
         images: 1,
     },
     {
-        topic: "A summary of recent breakthroughs in artificial intelligence and machine learning.",
+        topic: "A technical research summary detailing the latest breakthroughs in conversational AI and large language models, explaining concepts like transformers and fine-tuning in an accessible way for a tech-savvy audience.",
         type: 'research-summary',
         style: 'technical',
         images: 2,

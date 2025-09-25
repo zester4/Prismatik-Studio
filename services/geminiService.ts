@@ -220,7 +220,6 @@ export const generateStory = async (
       }
     `;
     
-    // Fix: Added missing logic to complete the function and return a value.
     const plannerResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: storyPlannerPrompt,
@@ -274,7 +273,6 @@ export const generateStory = async (
   }
 };
 
-// Fix: Added missing function
 export const generateLogo = async (
   companyName: string,
   description: string,
@@ -302,7 +300,6 @@ export const generateLogo = async (
   }
 };
 
-// Fix: Added missing function
 export const generateAd = async (
     productName: string,
     description: string,
@@ -391,7 +388,6 @@ export const generateAd = async (
     }
 };
 
-// Fix: Added missing function
 export const generateAdVideo = async (
     productName: string,
     description: string,
@@ -440,7 +436,6 @@ export const generateAdVideo = async (
     }
 };
 
-// Fix: Added missing function
 export const generateArticle = async (
     topic: string,
     articleType: string,
@@ -449,38 +444,90 @@ export const generateArticle = async (
     onProgress: (message: string) => void
 ): Promise<{ title: string, content: ArticleBlock[] }> => {
     try {
+        // Step 1: Generate the article's text structure with image placeholders
         onProgress("Planning article structure...");
-        const articlePlanPrompt = `
-            Create a detailed plan for an article on the topic: "${topic}".
-            Type: "${articleType}", Style: "${writingStyle}".
-            The plan needs a "title" and a "content" array.
-            The "content" array must have objects with "type" ('heading' or 'paragraph') and "content" (string).
-            Include exactly ${numImages} image placeholders: {"type": "image", "imagePrompt": "detailed prompt for AI image generator"}.
-            The response must be a single valid JSON object.
+        const articleStructurePrompt = `
+            Create a detailed content structure for an article on the topic: "${topic}".
+            The article should be a "${articleType}" written in a "${writingStyle}" style.
+            Your response must be a single, valid JSON object with two keys:
+            1. "title": A compelling title for the article (string).
+            2. "content": An array of objects representing the article's flow.
+
+            The "content" array should contain objects with a "type" and "content" property for text blocks, for example:
+            { "type": "heading", "content": "This is a Section Title" }
+            { "type": "paragraph", "content": "This is a paragraph of text..." }
+
+            Crucially, you must also strategically insert exactly ${numImages} image placeholder objects where a visual would be most impactful.
+            An image placeholder object must look like this:
+            { "type": "image_placeholder" }
+
+            Do not generate image prompts yet. Just place the placeholders.
         `;
 
-        const planResponse = await ai.models.generateContent({
+        const structureResponse = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: articlePlanPrompt,
+            contents: articleStructurePrompt,
             config: { responseMimeType: "application/json" }
         });
 
-        const jsonString = planResponse.text.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/)?.[0]?.replace(/```json\n|```/g, '') || planResponse.text;
-        const articlePlan: { title: string; content: ({ type: 'heading' | 'paragraph', content: string } | { type: 'image', imagePrompt: string })[] } = JSON.parse(jsonString);
+        // Clean the response to ensure it's valid JSON
+        const jsonString = structureResponse.text.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/)?.[0]?.replace(/```json\n|```/g, '') || structureResponse.text;
+        const articlePlan: { title: string; content: ({ type: 'heading' | 'paragraph', content: string } | { type: 'image_placeholder' })[] } = JSON.parse(jsonString);
 
-        if (!articlePlan.title || !articlePlan.content) throw new Error("Failed to generate a valid article plan.");
+        if (!articlePlan.title || !articlePlan.content) {
+            throw new Error("Failed to generate a valid article structure.");
+        }
+        
+        onProgress("Article text generated. Creating contextual images...");
 
-        onProgress("Article plan created. Generating content and images...");
         const finalContent: ArticleBlock[] = [];
+        let imageCounter = 0;
 
-        for (const [i, block] of articlePlan.content.entries()) {
-            onProgress(`Processing block ${i + 1}/${articlePlan.content.length}...`);
-            if (block.type === 'image') {
-                const imageUrls = await generateImages(block.imagePrompt, 1, '16:9', 'photorealistic', 'gemini-2.5-flash-image-preview');
+        // Step 2 & 3: Iterate through the structure, generate prompts and images contextually
+        for (let i = 0; i < articlePlan.content.length; i++) {
+            const block = articlePlan.content[i];
+
+            if (block.type === 'image_placeholder') {
+                imageCounter++;
+                onProgress(`Analyzing context for image ${imageCounter}/${numImages}...`);
+
+                // Gather context from surrounding text blocks
+                const contextBlocks = articlePlan.content.slice(Math.max(0, i - 2), Math.min(articlePlan.content.length, i + 3));
+                const contextText = contextBlocks.map(b => {
+                    if (b.type === 'heading' || b.type === 'paragraph') return b.content;
+                    return '';
+                }).join('\n\n');
+
+                const imagePromptGenPrompt = `
+                    Based on the following article excerpt, create a single, detailed, and visually descriptive prompt for an AI image generator. The image should be highly relevant to the surrounding text. The prompt must be in English. Only return the prompt itself, with no extra text or labels.
+
+                    Article Context:
+                    ---
+                    ${contextText}
+                    ---
+
+                    Detailed Image Prompt:
+                `;
+                
+                const promptResponse = await ai.models.generateContent({
+                    model: "gemini-2.5-flash",
+                    contents: imagePromptGenPrompt,
+                });
+                const imagePrompt = promptResponse.text.trim();
+
+                onProgress(`Generating image ${imageCounter}/${numImages}...`);
+                const imageUrls = await generateImages(imagePrompt, 1, '16:9', 'photorealistic', 'gemini-2.5-flash-image-preview');
+
                 if (imageUrls.length > 0) {
-                    finalContent.push({ id: crypto.randomUUID(), type: 'image', imageUrl: imageUrls[0], imagePrompt: block.imagePrompt });
+                    finalContent.push({
+                        id: crypto.randomUUID(),
+                        type: 'image',
+                        imageUrl: imageUrls[0],
+                        imagePrompt: imagePrompt
+                    });
                 }
             } else {
+                // It's a heading or paragraph
                 finalContent.push({ id: crypto.randomUUID(), ...block });
             }
         }
@@ -491,4 +538,27 @@ export const generateArticle = async (
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'article'));
     }
+};
+
+export const proofreadText = async (text: string): Promise<string> => {
+  try {
+    const proofreadPrompt = `
+      Proofread the following text for any spelling, grammar, and punctuation errors.
+      Correct the errors and improve the overall clarity and flow, but preserve the original tone and meaning.
+      Only return the corrected text. Do not add any commentary, explanations, or markdown formatting.
+
+      Original Text:
+      "${text}"
+
+      Corrected Text:
+    `;
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: proofreadPrompt,
+    });
+    return response.text.trim();
+  } catch (error) {
+    // Using 'article' context for error message as it's used there
+    throw new Error(getFriendlyErrorMessage(error, 'article'));
+  }
 };
