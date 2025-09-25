@@ -1,4 +1,5 @@
-import React, { useState, useEffect, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Studio from './components/Studio';
 import HomePage from './components/HomePage';
 import Layout from './components/Layout';
@@ -18,62 +19,32 @@ import Contact from './components/pages/Contact';
 import NotFound from './components/pages/NotFound';
 
 export default function App(): ReactElement {
-    const [route, setRoute] = useState(window.location.hash.substring(1) || '/');
+    return (
+        <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/studio" element={<Studio />} />
 
-    useEffect(() => {
-        const handleHashChange = () => {
-            setRoute(window.location.hash.substring(1) || '/');
-            window.scrollTo(0, 0); // Scroll to top on page change
-        };
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
+            {/* Solutions Pages */}
+            <Route path="/solutions" element={<Layout><Solutions /></Layout>} />
+            <Route path="/solutions/marketing" element={<Layout><Marketing /></Layout>} />
+            <Route path="/solutions/content-creation" element={<Layout><ContentCreation /></Layout>} />
+            <Route path="/solutions/design" element={<Layout><Design /></Layout>} />
+            <Route path="/solutions/development" element={<Layout><Development /></Layout>} />
 
-    const renderContent = () => {
-        const path = route.split('?')[0];
+            {/* Support Pages */}
+            <Route path="/support" element={<Layout><Support /></Layout>} />
+            <Route path="/support/faq" element={<Layout><FAQ /></Layout>} />
+            <Route path="/support/documentation" element={<Layout><Documentation /></Layout>} />
+            <Route path="/support/api-status" element={<Layout><ApiStatus /></Layout>} />
 
-        switch (path) {
-            case '/':
-                return <HomePage />;
-            case '/studio':
-                return <Studio />;
-            
-            // Solutions Pages
-            case '/solutions':
-                return <Layout><Solutions /></Layout>;
-            case '/solutions/marketing':
-                return <Layout><Marketing /></Layout>;
-            case '/solutions/content-creation':
-                return <Layout><ContentCreation /></Layout>;
-            case '/solutions/design':
-                return <Layout><Design /></Layout>;
-            case '/solutions/development':
-                return <Layout><Development /></Layout>;
-            
-            // Support Pages
-            case '/support':
-                return <Layout><Support /></Layout>;
-            case '/support/faq':
-                return <Layout><FAQ /></Layout>;
-            case '/support/documentation':
-                return <Layout><Documentation /></Layout>;
-            case '/support/api-status':
-                return <Layout><ApiStatus /></Layout>;
+            {/* Company Pages */}
+            <Route path="/company" element={<Layout><Company /></Layout>} />
+            <Route path="/company/about" element={<Layout><About /></Layout>} />
+            <Route path="/company/blog" element={<Layout><Blog /></Layout>} />
+            <Route path="/company/contact" element={<Layout><Contact /></Layout>} />
 
-            // Company Pages
-            case '/company':
-                return <Layout><Company /></Layout>;
-            case '/company/about':
-                return <Layout><About /></Layout>;
-            case '/company/blog':
-                return <Layout><Blog /></Layout>;
-            case '/company/contact':
-                return <Layout><Contact /></Layout>;
-                
-            default:
-                return <Layout><NotFound /></Layout>;
-        }
-    };
-
-    return renderContent();
+            {/* Catch-all Not Found Page */}
+            <Route path="*" element={<Layout><NotFound /></Layout>} />
+        </Routes>
+    );
 }
