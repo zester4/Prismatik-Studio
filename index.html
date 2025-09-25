@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prismatik Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              'brand-teal': {
+                '50': '#edf9f8',
+                '100': '#d9f2ef',
+                '200': '#b6e5e0',
+                '300': '#92d8d1',
+                '400': '#5fc0b8',
+                '500': '#41a9a1',
+                '600': '#368e87',
+                '700': '#2f746f',
+                '800': '#2a5e5a',
+                '900': '#264f4c',
+                '950': '#162f2d',
+              },
+              'brand-wheat': {
+                '50': '#fefbf5',
+                '100': '#fcf4e6',
+                '200': '#f8e8cd',
+                '300': '#f3dcb3',
+                '400': '#ecbf8a',
+                '500': '#e6a86e',
+                '600': '#d58f5b',
+                '700': '#b2704f',
+                '800': '#8e5a48',
+                '900': '#72493f',
+                '950': '#3d251f',
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom scrollbar for textareas - Webkit */
+      textarea::-webkit-scrollbar {
+        width: 5px;
+      }
+      textarea::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      textarea::-webkit-scrollbar-thumb {
+        background: #72493f; /* brand-wheat-900 */
+        border-radius: 10px;
+      }
+      /* Custom scrollbar for textareas - Firefox */
+      textarea {
+        scrollbar-width: thin;
+        scrollbar-color: #72493f transparent;
+      }
+      
+      /* Scroll Animation Classes */
+      .is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+      .is-hidden {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-wheat-50 font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

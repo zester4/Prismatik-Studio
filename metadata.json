@@ -1,0 +1,7 @@
+{
+  "name": "Prismatik studio",
+  "description": "An AI-powered creative suite to generate stunning images and captivating videos from simple text prompts. Choose your model, customize options, and bring your ideas to life instantly.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
