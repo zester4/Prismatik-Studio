@@ -21,9 +21,9 @@ export default function About(): ReactElement {
         {/* Hero Section */}
         <div className="bg-brand-wheat-50">
             <div className="container mx-auto px-4 sm:px-6 py-24 text-center">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-brand-wheat-900">Our Mission: To Democratize Creativity</h1>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-brand-wheat-900">Our Mission: To Build Your Creative Co-Pilot</h1>
                 <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-700">
-                    We believe that everyone has a story to tell, an idea to visualize, and a vision to share. Our mission is to break down the technical and financial barriers to creative expression by building intuitive, powerful, and accessible AI tools for all.
+                    We believe that everyone has a story to tell, an idea to visualize, and a vision to share. Our mission is to break down the technical and financial barriers to creative expression by building an intuitive, powerful, and accessible AI co-pilot for creators of all kinds.
                 </p>
             </div>
         </div>
@@ -36,7 +36,7 @@ export default function About(): ReactElement {
                 </div>
                 <div>
                     <h2 className="text-3xl font-bold text-brand-wheat-900">Why Prismatik Studio?</h2>
-                    <p className="mt-4 text-brand-wheat-700">Prismatik Studio started as a simple idea: what if you could have a single, unified interface to access the world's most advanced generative models? Instead of juggling multiple subscriptions and learning different workflows, we wanted to create a seamless environment where your creativity can flow uninterrupted.</p>
+                    <p className="mt-4 text-brand-wheat-700">Prismatik Studio started as a simple idea: what if you could have a single, unified interface to access the world's most advanced generative models? Instead of juggling multiple subscriptions and learning different workflows, we wanted to create a seamless environment where your creativity can flow uninterrupted from one medium to the next.</p>
                     <p className="mt-4 text-brand-wheat-700">We are not building the AI models themselves; we are standing on the shoulders of giants like Google. Our focus is on crafting the best possible user experience, creating innovative workflows (like Character Lock in our Story Generator), and ensuring that your privacy is always protected.</p>
                 </div>
              </div>
@@ -57,12 +57,12 @@ export default function About(): ReactElement {
                      <PrincipleCard 
                         icon={<PrivacyIcon />}
                         title="Privacy First"
-                        description="Your API key and your creations are your own. We never see or store your data. Everything runs securely in your browser."
+                        description="Your API key and your creations are your own. We never see or store your data. Everything runs securely in your browser, for your eyes only."
                     />
                      <PrincipleCard 
                         icon={<UxIcon />}
                         title="Intuitive by Design"
-                        description="We believe powerful tools don't have to be complicated. Our interface is designed to be clean, intuitive, and easy to use for everyone."
+                        description="We believe powerful tools don't have to be complicated. Our interface is designed to be clean, intuitive, and easy for everyone to use."
                     />
                  </div>
             </div>

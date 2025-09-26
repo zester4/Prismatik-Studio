@@ -38,17 +38,17 @@ export default function Marketing(): ReactElement {
                 <FeatureCard 
                     icon={<CampaignIcon />}
                     title="Instant Ad Generation"
-                    description="Generate complete ad sets—including compelling copy and on-brand visuals—from a single product description."
+                    description="Use the Ad Creator to generate complete ad sets—including compelling copy and on-brand visuals—from a single product description."
                 />
                 <FeatureCard 
                     icon={<SocialIcon />}
                     title="Scale Social Content"
-                    description="Create a month's worth of social media visuals, video clips, and post ideas in a single afternoon."
+                    description="Use the Image and Video Generators to create a month's worth of social media visuals, video clips, and post ideas in a single afternoon."
                 />
                 <FeatureCard 
                     icon={<BrandIcon />}
                     title="Strengthen Brand Identity"
-                    description="Rapidly prototype logos and visual styles to build a consistent and memorable brand across all channels."
+                    description="Use the Logo Generator to rapidly prototype logos and visual styles to build a consistent and memorable brand across all channels."
                 />
             </div>
 
@@ -60,15 +60,15 @@ export default function Marketing(): ReactElement {
                         <ul className="mt-6 space-y-3">
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Persuasive Copywriting:</strong> Get optimized headlines, body text, and calls-to-action that resonate.</span>
+                                <span><strong>Persuasive Copywriting:</strong> Get optimized headlines, body text, and calls-to-action that resonate with your chosen tone of voice.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Stunning Visuals:</strong> Generate professional product shots or dynamic video ads, with or without your own images.</span>
+                                <span><strong>Stunning Visuals:</strong> Generate professional product shots or dynamic video ads, with or without your own images, tailored to your target audience.</span>
                             </li>
                              <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Effortless A/B Testing:</strong> Create multiple ad variants with different tones and visuals to find what truly converts.</span>
+                                <span><strong>Effortless A/B Testing:</strong> Create multiple ad variants in seconds. Tweak the tone, change the visuals, and test different CTAs to find what truly converts.</span>
                             </li>
                         </ul>
                     </div>

@@ -33,25 +33,25 @@ export default function Solutions(): ReactElement {
                 <SolutionCard 
                     href="/#/solutions/marketing"
                     title="Marketing & Advertising"
-                    description="Supercharge your campaigns by generating high-quality ad copy, visuals, and promotional videos at scale. A/B test creative concepts in a fraction of the time."
+                    description="Use the Ad Creator to generate campaign copy and visuals, the Video Generator for promotional clips, and the Image Generator for social media content."
                     icon={<MarketingIcon />}
                 />
                 <SolutionCard 
                     href="/#/solutions/content-creation"
                     title="Content Creation"
-                    description="Break through creative blocks by authoring illustrated stories, drafting long-form articles, and generating engaging scripts for your next big project."
+                    description="Leverage the Story Generator to visualize narratives, the Article Generator for long-form content, and AI proofreading to polish your final draft."
                     icon={<ContentIcon />}
                 />
                 <SolutionCard 
                     href="/#/solutions/design"
                     title="Design & Branding"
-                    description="Rapidly prototype brand identities with our Logo Generator, create stunning mood boards, and produce unique visual assets for your web, print, and digital projects."
+                    description="Rapidly prototype brand identities with the Logo Generator, and create unique mood boards and assets with the versatile Image Generator."
                     icon={<DesignIcon />}
                 />
                 <SolutionCard 
                     href="/#/solutions/development"
                     title="Development & Gaming"
-                    description="Accelerate your workflow by generating game assets like sprites and textures, creating UI mockups, and producing illustrative graphics for technical documentation."
+                    description="Accelerate your workflow by generating game assets like sprites and textures, UI mockups, and illustrative graphics for technical documentation."
                     icon={<DevelopmentIcon />}
                 />
             </div>

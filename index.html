@@ -57,6 +57,15 @@
       }
     </script>
     <style>
+      /* Hide body scrollbar */
+      body::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+      
       /* Custom scrollbar for textareas - Webkit */
       textarea::-webkit-scrollbar {
         width: 5px;

@@ -25,7 +25,7 @@ export default function Support(): ReactElement {
             <div className="text-center">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-brand-wheat-900">Support Center</h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-brand-wheat-700">
-                    Welcome to the Prismatik Studio help hub. Find the resources you need to troubleshoot issues, learn best practices, and get the most out of your creative workflow.
+                    Welcome to the Prismatik Studio help hub. Find the resources you need to troubleshoot issues, learn best practices, and get the most out of your creative workflow. We're here to help you succeed.
                 </p>
             </div>
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">

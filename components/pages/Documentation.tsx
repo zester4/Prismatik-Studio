@@ -1,6 +1,6 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useState, PropsWithChildren } from 'react';
 
-const NavLink = ({ children, href, isActive, onClick }: { children: React.ReactNode, href: string, isActive: boolean, onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void }) => (
+const NavLink = ({ children, href, isActive, onClick }: PropsWithChildren<{ href: string, isActive: boolean, onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void }>) => (
     <a 
         href={href} 
         onClick={onClick}
@@ -10,7 +10,7 @@ const NavLink = ({ children, href, isActive, onClick }: { children: React.ReactN
     </a>
 );
 
-const CodeBlock = ({ children }: { children: React.ReactNode }) => (
+const CodeBlock = ({ children }: PropsWithChildren<{}>) => (
     <pre className="bg-brand-wheat-950 text-white p-4 rounded-lg text-sm overflow-x-auto">
         <code>{children}</code>
     </pre>
@@ -47,20 +47,26 @@ const sections = {
         content: (
             <>
                 <h2 className="text-3xl font-bold text-brand-wheat-900">Image Generator</h2>
-                <p className="mt-4 text-brand-wheat-700">The Image Generator allows you to create high-quality visuals from text prompts. It also supports image-to-image editing.</p>
+                <p className="mt-4 text-brand-wheat-700">The Image Generator allows you to create high-quality visuals from text prompts. It also supports image-to-image editing by uploading an image.</p>
                 
                 <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Key Parameters</h3>
                 <ul className="mt-4 list-disc list-inside space-y-2 text-brand-wheat-700">
-                    <li><strong>Prompt:</strong> A detailed description of the image you want to create. More detail leads to better results.</li>
-                    <li><strong>Model:</strong> Choose from various models like Imagen 4 for different balances of speed and quality.</li>
+                    <li><strong>Prompt:</strong> A detailed description of the image you want to create. More detail leads to better results. For editing, describe the changes you want to make.</li>
+                    <li><strong>Model:</strong> Choose from various models like Imagen 4 for different balances of speed and quality. Editing always uses the Gemini 2.5 Flash model.</li>
                     <li><strong>Negative Prompt:</strong> (Imagen models only) Specify elements to exclude from your image (e.g., "text, blurry, watermark").</li>
                     <li><strong>Aspect Ratio:</strong> The dimensions of the output image (e.g., 16:9 for landscape, 9:16 for portrait).</li>
                     <li><strong>Style:</strong> Apply a predefined style like "Photorealistic" or "Anime" to guide the visual output.</li>
                 </ul>
 
-                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Example Prompt</h3>
+                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Example Prompt (Creation)</h3>
                 <CodeBlock>
                     Epic fantasy concept art. A colossal, ancient golem, constructed from moss-covered stones and intertwined with glowing blue magical vines, sits meditating in the center of a forgotten, sun-dappled clearing in a redwood forest.
+                </CodeBlock>
+                 <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Example Prompt (Editing)</h3>
+                <CodeBlock>
+                    (With an image of a dog uploaded)
+                    <br />
+                    Add a small, futuristic visor over the dog's eyes.
                 </CodeBlock>
             </>
         )
@@ -77,7 +83,7 @@ const sections = {
                     <li><strong>Prompt:</strong> Describe the scene and action for your video. Focus on movement and visual elements.</li>
                     <li><strong>Model:</strong> The Veo model family is optimized for high-quality video generation.</li>
                     <li><strong>Aspect Ratio:</strong> Choose a widescreen (16:9) or vertical (9:16) format.</li>
-                    <li><strong>Animate Image (Optional):</strong> Upload an image to serve as the starting point for the video generation.</li>
+                    <li><strong>Animate Image (Optional):</strong> Upload an image to serve as the starting point for the video generation. The AI will attempt to animate the contents of the image based on your prompt.</li>
                 </ul>
 
                 <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Example Prompt</h3>
@@ -99,13 +105,74 @@ const sections = {
                     <li><strong>Prompt:</strong> A high-level concept or plot for your story.</li>
                     <li><strong>Number of Scenes:</strong> How many text/image pairs the story should contain.</li>
                     <li><strong>Narrative Length:</strong> Controls the amount of text generated for each scene (Short, Medium, or Detailed).</li>
-                    <li><strong>Character Lock (Optional):</strong> Upload an image of a character to maintain their visual consistency throughout the story.</li>
+                    <li><strong>Character Lock (Optional):</strong> Upload an image of a character to maintain their visual consistency throughout the story. The AI analyzes the image and uses that description for all scenes.</li>
                 </ul>
 
                 <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Example Prompt</h3>
                 <CodeBlock>
                     The story of a decommissioned, gentle-giant of a sanitation robot who secretly builds a beautiful garden in the middle of a vast, metallic scrapyard.
                 </CodeBlock>
+            </>
+        )
+    },
+    'article-generator': {
+        title: 'Article Generator',
+        content: (
+            <>
+                <h2 className="text-3xl font-bold text-brand-wheat-900">Article Generator</h2>
+                <p className="mt-4 text-brand-wheat-700">Generate structured, long-form content on any topic. The AI plans the article, writes the text, and creates contextually relevant images.</p>
+                
+                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Key Parameters</h3>
+                <ul className="mt-4 list-disc list-inside space-y-2 text-brand-wheat-700">
+                    <li><strong>Prompt (Topic):</strong> The core subject of your article.</li>
+                    <li><strong>Article Type:</strong> The format of the content, such as 'Blog Post', 'Report', or 'How-To Guide'.</li>
+                    <li><strong>Writing Style:</strong> The tone of the article, from 'Professional' to 'Casual' or 'Academic'.</li>
+                    <li><strong>Number of Images:</strong> The AI will intelligently place this number of generated images throughout the article.</li>
+                </ul>
+
+                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Pro-Tip: Editing & Proofreading</h3>
+                <p className="mt-2 text-brand-wheat-700">After generating, you can click to edit any paragraph or heading. The built-in proofreading tool can then be used on your edited text to check for spelling and grammar errors.</p>
+            </>
+        )
+    },
+     'logo-generator': {
+        title: 'Logo Generator',
+        content: (
+            <>
+                <h2 className="text-3xl font-bold text-brand-wheat-900">Logo Generator</h2>
+                <p className="mt-4 text-brand-wheat-700">Rapidly prototype professional logo concepts for your brand or project.</p>
+                
+                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Key Parameters</h3>
+                <ul className="mt-4 list-disc list-inside space-y-2 text-brand-wheat-700">
+                    <li><strong>Company Name & Slogan:</strong> Provide the brand name for context.</li>
+                    <li><strong>Description:</strong> This is the most important field. Describe the company's industry, values, and target audience.</li>
+                    <li><strong>Style:</strong> Choose a visual style like 'Minimalist' or 'Vintage' to guide the design.</li>
+                    <li><strong>Colors:</strong> Specify the desired color palette (e.g., "forest green, light grey, vibrant orange").</li>
+                </ul>
+                <div className="mt-4 p-4 bg-brand-wheat-100 border-l-4 border-brand-wheat-300 text-brand-wheat-800">
+                    <strong>Note:</strong> The Logo Generator is designed to create text-free, abstract, or symbolic marks. It will not render the company name in the image itself.
+                </div>
+            </>
+        )
+    },
+    'ad-creator': {
+        title: 'Ad Creator',
+        content: (
+            <>
+                <h2 className="text-3xl font-bold text-brand-wheat-900">Ad Creator</h2>
+                <p className="mt-4 text-brand-wheat-700">Generate a complete ad—including persuasive copy and a stunning visual (image or video)—in one go.</p>
+                
+                <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Key Parameters</h3>
+                <ul className="mt-4 list-disc list-inside space-y-2 text-brand-wheat-700">
+                    <li><strong>Ad Format:</strong> Choose between an Image Ad or a Video Ad.</li>
+                    <li><strong>Product Image (Optional):</strong> Upload your own product photo. The AI will enhance it and place it in an appropriate ad setting. If omitted, the AI will generate a product image from scratch.</li>
+                    <li><strong>Product Details:</strong> Fill in the name, description, and target audience.</li>
+                    <li><strong>Ad Tone:</strong> Select a tone of voice, from 'Professional' to 'Humorous', to guide the copywriting.</li>
+                     <li><strong>Call to Action (CTA):</strong> Specify the desired action (e.g., "Shop Now", "Learn More").</li>
+                </ul>
+
+                 <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">Output</h3>
+                <p className="mt-2 text-brand-wheat-700">The Ad Creator produces a result card containing both the generated media (image or video) and three distinct pieces of copy: a Headline, a Body, and your Call to Action, which can be copied individually.</p>
             </>
         )
     },

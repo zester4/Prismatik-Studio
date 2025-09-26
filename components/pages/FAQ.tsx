@@ -25,7 +25,8 @@ const FaqItem = ({ question, answer }: { question: string; answer: ReactElement 
     );
 };
 
-const faqData = [
+// FIX: Add explicit type to faqData to resolve type inference issue.
+const faqData: { question: string; answer: ReactElement }[] = [
     {
         question: "What do I need to use Prismatik Studio?",
         answer: (
@@ -42,18 +43,33 @@ const faqData = [
         )
     },
     {
-        question: "Can I use the images and videos I create for commercial purposes?",
+        question: "What's the difference between the image models (e.g., Imagen 4 vs Gemini)?",
         answer: (
-            <>
-                <p>The content you generate is subject to the <a href="https://ai.google.dev/terms" target="_blank" rel="noopener noreferrer" className="text-brand-teal-600 font-semibold hover:underline">Google Generative AI API Terms of Service</a>. Google's policy generally allows for commercial use of generated content, but it is your responsibility to ensure that your use case is compliant and does not infringe on any existing copyrights or trademarks.</p>
-                <p>We highly recommend reviewing the terms carefully before using assets in a commercial project.</p>
-            </>
+             <>
+                <p>Each model has its strengths:</p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                    <li><strong>Imagen Models:</strong> These are specialized for high-quality, photorealistic image generation. They offer more control through parameters like negative prompts and styles, and can generate multiple images at once. They are ideal for final assets and professional design work.</li>
+                    <li><strong>Gemini 2.5 Flash (Preview):</strong> This is a powerful multi-modal model. It excels at understanding complex prompts and is used for features that combine text and images, like our Image Editor, Story Generator, and Article Generator. It's incredibly fast and versatile.</li>
+                </ul>
+             </>
+        )
+    },
+    {
+        question: "Can I edit the content I generate?",
+        answer: (
+            <p>Yes! The Story and Article generators have built-in editing features. You can click to edit any block of text, regenerate any image that doesn't fit your vision, and even use AI-powered proofreading to polish your writing. For standalone images, you can upload a generated image back into the Image Generator to perform edits with a new prompt.</p>
+        )
+    },
+    {
+        question: "How does 'Character Lock' in the Story Generator work?",
+        answer: (
+            <p>When you upload a character image, the AI first analyzes the visual information to create a detailed text description of the character (e.g., "A girl with curly red hair, wearing a yellow raincoat."). This description is then automatically and consistently included in the image prompt for every scene of your story, ensuring the character looks the same throughout the narrative.</p>
         )
     },
     {
         question: "Why do my video generations disappear when I refresh the page?",
         answer: (
-            <p>Generated videos are stored as temporary "blob URLs" in your browser's memory. These URLs are not persistent and will be cleared when you close or refresh your browser tab. All other creations like images, logos, stories, and articles are saved to your browser's local storage and will persist between sessions.</p>
+            <p>Generated videos are stored as temporary "blob URLs" in your browser's memory. These URLs are not persistent and will be cleared when you close or refresh your browser tab. All other creations like images, logos, stories, and articles are saved to your browser's local storage and will persist between sessions. Be sure to download any videos you want to keep!</p>
         )
     },
      {

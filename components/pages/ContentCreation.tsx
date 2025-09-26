@@ -48,7 +48,7 @@ export default function ContentCreation(): ReactElement {
                 <FeatureCard 
                     icon={<ProofreadIcon />}
                     title="Polish to Perfection"
-                    description="Use AI-powered proofreading to refine your text, correcting grammar and spelling mistakes with a single click."
+                    description="Use the AI-powered proofreading feature in the Article Generator to refine your text, correcting grammar and spelling mistakes with a single click."
                 />
             </div>
 
@@ -60,15 +60,15 @@ export default function ContentCreation(): ReactElement {
                         <ul className="mt-6 space-y-3">
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Character Consistency:</strong> Upload a character image to maintain their appearance across every scene in your story.</span>
+                                <span><strong>Character Consistency:</strong> Upload a character image in the Story Generator to maintain their appearance across every scene in your story.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Total Creative Control:</strong> Easily edit generated text and regenerate any image until it perfectly matches your vision.</span>
+                                <span><strong>Total Creative Control:</strong> Easily edit generated text and regenerate any image that doesn't perfectly match your vision.</span>
                             </li>
                              <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Multiple Export Options:</strong> Save your work as a professional PDF or copy the content as Markdown for easy publishing.</span>
+                                <span><strong>Multiple Export Options:</strong> Save your stories as a video or PDF, or copy your articles as Markdown for easy publishing to your blog or CMS.</span>
                             </li>
                         </ul>
                     </div>

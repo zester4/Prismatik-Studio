@@ -38,17 +38,17 @@ export default function Development(): ReactElement {
                 <FeatureCard 
                     icon={<GameIcon />}
                     title="Game Asset Production"
-                    description="Generate sprites, textures, character portraits, and concept art for your next indie game."
+                    description="Generate sprites, seamless textures, character portraits, and concept art for your next indie game."
                 />
                 <FeatureCard 
                     icon={<UiIcon />}
                     title="UI & UX Mockups"
-                    description="Instantly create icons, buttons, and other UI elements for your web and mobile applications."
+                    description="Instantly create custom icons, placeholder user avatars, background images, and other UI elements for your web and mobile applications."
                 />
                 <FeatureCard 
                     icon={<DataIcon />}
-                    title="Synthetic Data"
-                    description="Create illustrative images for technical documentation, presentations, or training machine learning models."
+                    title="Synthetic Data & Docs"
+                    description="Create illustrative images for technical documentation, presentations, or training computer vision models."
                 />
             </div>
 
@@ -60,15 +60,15 @@ export default function Development(): ReactElement {
                         <ul className="mt-6 space-y-3">
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Consistent Art Styles:</strong> Use detailed prompts to maintain a consistent visual style across all your generated assets.</span>
+                                <span><strong>Consistent Art Styles:</strong> Use detailed prompts and the 'Style' parameter to maintain a consistent visual language across all your generated assets.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>High-Resolution Outputs:</strong> Generate images ready for use in your applications, with various aspect ratios available.</span>
+                                <span><strong>High-Resolution Outputs:</strong> Generate images ready for use in your applications, with various aspect ratios available to fit any component or screen.</span>
                             </li>
                              <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>API-First Potential:</strong> While Prismatik is a UI, it's built on the powerful Gemini API, showcasing what's possible for programmatic asset generation.</span>
+                                <span><strong>API-First Potential:</strong> While Prismatik is a UI, it's built on the powerful Gemini API, showcasing what's possible for programmatic asset generation in your own apps.</span>
                             </li>
                         </ul>
                     </div>

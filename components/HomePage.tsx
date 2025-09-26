@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState, useEffect } from 'react';
+import React, { ReactElement, useRef, useState, useEffect, PropsWithChildren } from 'react';
 import Footer from './Footer';
 
 // --- ICONS --- //
@@ -107,7 +107,8 @@ const ChevronDownIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 // --- Reusable Components --- //
-const AnimatedSection = ({ children, className }: {children: React.ReactNode, className?: string}) => {
+// FIX: Update component to use PropsWithChildren for better type safety.
+const AnimatedSection = ({ children, className }: PropsWithChildren<{ className?: string }>) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -229,7 +230,7 @@ export default function HomePage(): ReactElement {
 
         <main>
             {/* Hero Section */}
-            <section className="pt-36 pb-24 text-center bg-brand-wheat-50 overflow-hidden">
+            <section className="pt-36 pb-24 text-center bg-brand-wheat-50">
                 <div className="container mx-auto px-4 sm:px-6 relative z-10">
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-wheat-900 leading-tight">
                         Your AI Co-pilot for <span className="text-brand-teal-500">Boundless Creation</span>
@@ -241,7 +242,7 @@ export default function HomePage(): ReactElement {
                         Start Creating for Free
                     </a>
                 </div>
-                <div className="relative mt-16 overflow-x-hidden">
+                <div className="relative mt-16 overflow-hidden">
                     <div className="flex gap-6 animate-marquee">
                         {allMarqueeImages.map((img, i) => (
                              <img key={i} src={img.src} className="w-40 h-52 object-cover rounded-xl shadow-lg flex-shrink-0" style={{ transform: `rotate(${img.rotate})`, marginTop: img.marginTop }} alt={`showcase ${i + 1}`} />

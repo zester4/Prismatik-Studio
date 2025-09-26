@@ -38,17 +38,17 @@ export default function Design(): ReactElement {
                 <FeatureCard 
                     icon={<LogoIcon />}
                     title="Rapid Brand Prototyping"
-                    description="Generate dozens of professional logo concepts in minutes to kickstart your next branding project."
+                    description="Use the Logo Generator to produce dozens of professional logo concepts in minutes, kickstarting your next branding project."
                 />
                 <FeatureCard 
                     icon={<AssetIcon />}
                     title="Endless Asset Creation"
-                    description="Need a specific icon, texture, or illustration? Describe it and let the Image Generator create it for you."
+                    description="Need a specific icon, texture, or illustration for a website or app? Describe it and let the Image Generator create it for you."
                 />
                 <FeatureCard 
                     icon={<MoodboardIcon />}
                     title="Instant Mood Boards"
-                    description="Quickly generate a wide range of images in various styles to establish the visual direction for a project."
+                    description="Quickly generate a wide range of images in various styles to establish the visual direction for a project and align with clients."
                 />
             </div>
 
@@ -60,15 +60,15 @@ export default function Design(): ReactElement {
                         <ul className="mt-6 space-y-3">
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Explore Diverse Styles:</strong> From photorealistic to anime to 3D renders, instantly see your ideas in any style.</span>
+                                <span><strong>Explore Diverse Styles:</strong> From photorealistic to anime to 3D renders, instantly see your ideas in any style to find the perfect aesthetic.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Fine-Tuned Control:</strong> Use negative prompts and aspect ratio controls to get the exact composition you need.</span>
+                                <span><strong>Fine-Tuned Control:</strong> Use negative prompts and aspect ratio controls to get the exact composition you need for web banners, social posts, or print layouts.</span>
                             </li>
                              <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-brand-teal-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span><strong>Edit with Precision:</strong> Upload your own sketches or existing designs and use text prompts to modify them.</span>
+                                <span><strong>Edit with Precision:</strong> Upload your own sketches or existing designs and use text prompts to modify them, adding elements or changing styles on the fly.</span>
                             </li>
                         </ul>
                     </div>
