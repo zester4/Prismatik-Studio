@@ -102,6 +102,7 @@ export default function StoryGenerator(): ReactElement {
   const [isSavingPdf, setIsSavingPdf] = useState<boolean>(false);
   const [isExportingVideo, setIsExportingVideo] = useState<boolean>(false);
   const [videoExportProgress, setVideoExportProgress] = useState<string>('');
+  const [sceneErrors, setSceneErrors] = useState<{ [key: number]: { message: string; isRetryable: boolean } | null }>({});
   
   const { addHistoryItem } = useContext(HistoryContext);
   const { activePersona } = useContext(PersonaContext);
@@ -145,6 +146,7 @@ export default function StoryGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setSceneErrors({});
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
@@ -176,6 +178,10 @@ export default function StoryGenerator(): ReactElement {
   const handleRegenerateImage = useCallback(async (index: number) => {
     if (!result) return;
     setSceneRegenIndex(index);
+    setSceneErrors(prev => ({ ...prev, [index]: null }));
+    setError(null);
+    setIsRetryable(false);
+
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
@@ -187,7 +193,9 @@ export default function StoryGenerator(): ReactElement {
         setResult({ ...result, scenes: newScenes });
       }
     } catch (e) {
-      setError(e instanceof Error ? `Failed to regenerate image: ${e.message}` : 'An unknown error occurred.');
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      const isRetryable = errorMessage.includes('[Network Error]') || errorMessage.includes('[Server Error]') || errorMessage.includes('[Bad Request]');
+      setSceneErrors(prev => ({ ...prev, [index]: { message: errorMessage, isRetryable } }));
     } finally {
       setSceneRegenIndex(null);
     }
@@ -507,6 +515,16 @@ export default function StoryGenerator(): ReactElement {
                         <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-lg">
                             <LoadingSpinner />
                             <span className="text-white ml-2">Regenerating...</span>
+                        </div>
+                    )}
+                    {sceneErrors[index] && (
+                        <div className="absolute inset-0 bg-red-800 bg-opacity-80 flex flex-col items-center justify-center rounded-lg p-4 text-center">
+                            <p className="text-white text-xs font-semibold mb-2">{sceneErrors[index]?.message}</p>
+                            {sceneErrors[index]?.isRetryable && (
+                                <button onClick={() => handleRegenerateImage(index)} className="bg-white text-red-800 text-xs font-bold px-3 py-1 rounded hover:bg-red-100">
+                                    Retry
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

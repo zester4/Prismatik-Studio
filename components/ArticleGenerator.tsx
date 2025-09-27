@@ -64,6 +64,10 @@ export default function ArticleGenerator(): ReactElement {
   const [isSavingPdf, setIsSavingPdf] = useState<boolean>(false);
   const [copyMarkdownText, setCopyMarkdownText] = useState('Copy as Markdown');
 
+  const [imageErrors, setImageErrors] = useState<{ [key: string]: { message: string; isRetryable: boolean } | null }>({});
+  const [proofreadError, setProofreadError] = useState<{ message: string; isRetryable: boolean } | null>(null);
+
+
   const { addHistoryItem } = useContext(HistoryContext);
   const { activePersona } = useContext(PersonaContext);
 
@@ -92,6 +96,7 @@ export default function ArticleGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setImageErrors({});
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
@@ -122,7 +127,11 @@ export default function ArticleGenerator(): ReactElement {
   const handleRegenerateImage = useCallback(async (block: Extract<ArticleBlock, { type: 'image' }>) => {
     if (!result) return;
     setImageRegenId(block.id);
+    setImageErrors(prev => ({ ...prev, [block.id]: null }));
+    setError(null);
+    setIsRetryable(false);
     const systemInstruction = activePersona?.systemInstruction;
+
     try {
       const newImageUrls = await generateImages(block.imagePrompt, 1, "16:9", 'none', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
       if (newImageUrls.length > 0) {
@@ -132,7 +141,9 @@ export default function ArticleGenerator(): ReactElement {
         setResult({ ...result, content: newContent as ArticleBlock[] });
       }
     } catch (e) {
-      setError(e instanceof Error ? `Failed to regenerate image: ${e.message}` : 'An unknown error occurred.');
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      const isRetryable = errorMessage.includes('[Network Error]') || errorMessage.includes('[Server Error]') || errorMessage.includes('[Bad Request]');
+      setImageErrors(prev => ({ ...prev, [block.id]: { message: errorMessage, isRetryable } }));
     } finally {
       setImageRegenId(null);
     }
@@ -141,6 +152,7 @@ export default function ArticleGenerator(): ReactElement {
   const handleStartEditing = (block: Extract<ArticleBlock, { type: 'heading' | 'paragraph' }>) => {
     setEditingBlockId(block.id);
     setEditText(block.content);
+    setProofreadError(null);
   };
 
   const handleSaveText = (blockId: string) => {
@@ -155,13 +167,14 @@ export default function ArticleGenerator(): ReactElement {
   const handleProofread = async () => {
     if (!editText.trim()) return;
     setIsProofreading(true);
-    setError(null);
+    setProofreadError(null);
     try {
       const correctedText = await proofreadText(editText);
       setEditText(correctedText);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-      setError(errorMessage);
+      const isRetryable = errorMessage.includes('[Network Error]') || errorMessage.includes('[Server Error]') || errorMessage.includes('[Bad Request]');
+      setProofreadError({ message: errorMessage, isRetryable });
     } finally {
       setIsProofreading(false);
     }
@@ -333,19 +346,31 @@ export default function ArticleGenerator(): ReactElement {
                 {block.type === 'heading' && (
                   <div>
                     {editingBlockId === block.id ? (
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-2xl font-bold text-brand-wheat-800"
-                          rows={2}
-                        />
-                        <div className="flex sm:flex-col gap-2 flex-shrink-0">
-                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
-                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
-                            {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
-                          </button>
+                      <div>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-2xl font-bold text-brand-wheat-800"
+                            rows={2}
+                          />
+                          <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                            <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
+                            <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
+                              {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                            </button>
+                          </div>
                         </div>
+                         {proofreadError && (
+                          <div className="w-full text-red-600 bg-red-100 p-2 mt-2 rounded-md text-sm flex justify-between items-center">
+                              <span>{proofreadError.message}</span>
+                              {proofreadError.isRetryable && (
+                                  <button onClick={handleProofread} className="font-semibold bg-red-200 hover:bg-red-300 px-2 py-0.5 rounded-md text-xs">
+                                      Retry
+                                  </button>
+                              )}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center justify-between group">
@@ -358,22 +383,34 @@ export default function ArticleGenerator(): ReactElement {
                 {block.type === 'paragraph' && (
                    <div>
                     {editingBlockId === block.id ? (
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-brand-wheat-800 leading-relaxed"
-                          rows={6}
-                        />
-                        <div className="flex sm:flex-col gap-2 flex-shrink-0">
-                          <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
-                          <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
-                            {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
-                          </button>
+                      <div>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            className="w-full p-2 rounded-md border border-brand-wheat-300 bg-white text-brand-wheat-800 leading-relaxed"
+                            rows={6}
+                          />
+                          <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                            <button onClick={() => handleSaveText(block.id)} className="flex items-center justify-center gap-1 text-sm bg-brand-teal-500 text-white px-3 py-2 rounded-md font-semibold hover:bg-brand-teal-600 transition w-full sm:w-auto"><SaveIcon /> Save</button>
+                            <button onClick={handleProofread} disabled={isProofreading} className="flex items-center justify-center gap-1 text-sm bg-brand-wheat-200 text-brand-wheat-800 px-3 py-2 rounded-md font-semibold hover:bg-brand-wheat-300 transition disabled:opacity-50 w-full sm:w-auto">
+                              {isProofreading ? <LoadingSpinner className="text-brand-wheat-800" /> : <CheckIcon />} {isProofreading ? 'Checking' : 'Proofread'}
+                            </button>
+                          </div>
                         </div>
+                        {proofreadError && (
+                          <div className="w-full text-red-600 bg-red-100 p-2 mt-2 rounded-md text-sm flex justify-between items-center">
+                              <span>{proofreadError.message}</span>
+                              {proofreadError.isRetryable && (
+                                  <button onClick={handleProofread} className="font-semibold bg-red-200 hover:bg-red-300 px-2 py-0.5 rounded-md text-xs">
+                                      Retry
+                                  </button>
+                              )}
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between group">
+                      <div className="flex items-start justify-between group">
                         <p className="text-brand-wheat-800 leading-relaxed whitespace-pre-wrap flex-grow">{block.content}</p>
                         <button onClick={() => handleStartEditing(block)} className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-sm text-brand-wheat-600 hover:text-brand-wheat-800 font-semibold self-start ml-4 flex-shrink-0"><EditIcon /> Edit</button>
                       </div>
@@ -388,6 +425,16 @@ export default function ArticleGenerator(): ReactElement {
                     </div>
                     {imageRegenId === block.id && (
                       <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-lg"><LoadingSpinner /><span className="text-white ml-2">Regenerating...</span></div>
+                    )}
+                    {imageErrors[block.id] && (
+                        <div className="absolute inset-0 bg-red-800 bg-opacity-80 flex flex-col items-center justify-center rounded-lg p-4 text-center">
+                            <p className="text-white text-xs font-semibold mb-2">{imageErrors[block.id]?.message}</p>
+                            {imageErrors[block.id]?.isRetryable && (
+                                <button onClick={() => handleRegenerateImage(block)} className="bg-white text-red-800 text-xs font-bold px-3 py-1 rounded hover:bg-red-100">
+                                    Retry
+                                </button>
+                            )}
+                        </div>
                     )}
                   </div>
                 )}
