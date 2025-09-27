@@ -51,14 +51,14 @@ function StudioContent(): ReactElement {
   return (
     <div className="min-h-screen bg-brand-wheat-100 text-brand-wheat-900 flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 sm:px-6 py-8 flex-grow">
-        <div className="max-w-4xl mx-auto">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 flex-grow">
+        <div className="max-w-5xl mx-auto">
           <TabSelector 
             selectedMode={mode} 
             onSelectMode={handleModeChange}
             onOpenPersonaHub={() => setIsPersonaHubOpen(true)}
           />
-          <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <div className="mt-6 bg-white rounded-2xl shadow-lg p-4 sm:p-8">
             {renderContent()}
           </div>
         </div>

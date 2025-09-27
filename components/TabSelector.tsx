@@ -15,13 +15,13 @@ const TabButton: React.FC<{
   isSelected: boolean;
   onClick: () => void;
 }> = ({ label, Icon, isSelected, onClick }) => {
-  const baseClasses = "flex items-center justify-center flex-shrink-0 px-4 py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
+  const baseClasses = "flex items-center justify-center flex-shrink-0 px-3 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
   const selectedClasses = "bg-brand-teal-500 text-white shadow-md";
   const unselectedClasses = "bg-white text-brand-wheat-800 hover:bg-brand-wheat-50";
 
   return (
     <button onClick={onClick} className={`${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`}>
-      <Icon className="w-5 h-5 mr-2 flex-shrink-0" />
+      <Icon className="w-4 h-4 sm:w-5 sm:w-5 mr-2 flex-shrink-0" />
       <span>{label}</span>
     </button>
   );
@@ -33,12 +33,12 @@ const IconButton: React.FC<{
   isSelected: boolean;
   onClick: () => void;
 }> = ({ label, Icon, isSelected, onClick }) => {
-  const baseClasses = "relative group flex items-center justify-center h-12 w-12 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
+  const baseClasses = "relative group flex items-center justify-center h-9 w-9 sm:h-10 sm:h-10 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal-500";
   const selectedClasses = "bg-brand-teal-500 text-white shadow-md";
   const unselectedClasses = "bg-white text-brand-wheat-800 hover:bg-brand-wheat-50";
   return (
     <button onClick={onClick} className={`${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`} aria-label={`Open ${label}`}>
-      <Icon className="w-6 h-6" />
+      <Icon className="w-5 h-5 sm:w-6 sm:w-6" />
       <span className="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         {label}
       </span>
@@ -100,7 +100,7 @@ export default function TabSelector({ selectedMode, onSelectMode, onOpenPersonaH
   const ActivePersonaIcon = activePersona ? PERSONA_ICONS[activePersona.icon] : PERSONA_ICONS['general'];
   
   return (
-    <div className="bg-brand-wheat-200 p-1 rounded-xl flex items-center justify-between gap-1">
+    <div className="bg-brand-wheat-100 p-1 rounded-lg flex items-center justify-between gap-1 border border-brand-wheat-200">
       <div className="flex-grow flex items-center gap-2 overflow-x-auto no-scrollbar pr-2">
         <TabButton 
           label="Image" 
