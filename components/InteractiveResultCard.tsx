@@ -1,9 +1,10 @@
 import React, { ReactElement, useState, useCallback, useContext } from 'react';
-import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock } from '../types';
+import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock, HistoryItemCampaign } from '../types';
 import { IMAGE_MODELS, VIDEO_MODELS } from '../constants';
 import ImageModal from './ImageModal';
 import StoryModal from './StoryModal';
 import ArticleModal from './ArticleModal';
+import CampaignModal from './CampaignModal';
 import { HistoryContext } from '../context/HistoryContext';
 
 interface InteractiveResultCardProps {
@@ -52,6 +53,7 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
   const { favoritePrompts, addFavoritePrompt, removeFavoritePrompt } = useContext(HistoryContext);
   
   const isFavorited = favoritePrompts.includes(item.prompt);
@@ -76,7 +78,7 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
   }, []);
 
   const handleDownload = useCallback(() => {
-    if (item.type === 'story' || item.type === 'article') return;
+    if (item.type === 'story' || item.type === 'article' || item.type === 'campaign') return;
 
     const link = document.createElement('a');
     let href = '';
@@ -129,6 +131,49 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
   };
   const closeArticleModal = () => setIsArticleModalOpen(false);
 
+  const openCampaignModal = () => {
+    if (item.type === 'campaign') {
+      setIsCampaignModalOpen(true);
+    }
+  };
+  const closeCampaignModal = () => setIsCampaignModalOpen(false);
+
+
+  if (item.type === 'campaign') {
+    return (
+      <>
+        <div className="bg-brand-wheat-50 rounded-xl overflow-hidden shadow-lg transition-shadow hover:shadow-xl flex flex-col">
+          <div className="relative group cursor-pointer" onClick={openCampaignModal}>
+            <img src={item.heroImage} alt={item.brandIdentity.companyName} className="w-full object-cover" style={{aspectRatio: '16/9'}} />
+             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity duration-300 flex items-center justify-center">
+                <span className="text-white text-lg font-bold bg-black bg-opacity-60 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">View Campaign</span>
+             </div>
+             <button onClick={handleToggleFavorite} title={isFavorited ? "Remove from favorites" : "Add to favorites"} className="absolute top-2 left-2 z-10 p-1.5 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition">
+                {isFavorited ? <StarIconFilled className="w-5 h-5 text-yellow-400" /> : <StarIconOutline className="w-5 h-5" />}
+             </button>
+             <div className="absolute top-2 right-2 bg-brand-teal-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                Campaign
+             </div>
+          </div>
+          <div className="p-4 flex flex-col flex-grow">
+            <h4 className="text-lg font-bold text-brand-wheat-900">{item.brandIdentity.companyName}</h4>
+            <p className="text-sm text-brand-wheat-700 leading-relaxed flex-grow mt-2">"{item.prompt}"</p>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button onClick={handleCopyPrompt} className="text-sm w-full bg-brand-wheat-100 hover:bg-brand-wheat-200 text-brand-wheat-800 font-semibold py-2 px-3 rounded-md transition duration-200">
+                {copyButtonText === 'Copied!' ? 'Copied!' : 'Copy Brief'}
+              </button>
+              <button onClick={openCampaignModal} className="text-sm w-full bg-brand-teal-500 hover:bg-brand-teal-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200">
+                View Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+        {isCampaignModalOpen && (
+          <CampaignModal campaign={item} onClose={closeCampaignModal} />
+        )}
+      </>
+    );
+  }
 
   if (item.type === 'story') {
     return (

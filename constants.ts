@@ -238,3 +238,10 @@ export const CREATIVE_ARTICLE_PROMPTS = [
         images: 2,
     },
 ];
+
+export const CREATIVE_CAMPAIGN_PROMPTS = [
+    "I'm launching 'Aether,' a new brand of noise-cancelling headphones for focus and productivity. The target audience is remote workers and students. The vibe should be minimalist, modern, and calm. I need a full campaign: logo, hero image for the website, ad copy, and a short social video.",
+    "I'm opening 'The Crimson Fork,' a new Italian restaurant focused on rustic, farm-to-table dining. The atmosphere should be warm, inviting, and authentic. I need a branding package including logos, a hero image of our signature pasta dish, ad copy for local newspapers, and a short video tour of the restaurant's cozy interior.",
+    "We're releasing 'Terra,' a new line of sustainable, eco-friendly backpacks made from recycled materials. The brand should feel adventurous, natural, and responsible. I need a campaign to launch the product: logos, a hero image of the backpack on a mountain trail, ad copy for social media, and a video showing the backpack in use in nature.",
+    "Announcing 'Pixel Paws,' a mobile app for pet adoption that uses AI to match pets with owners. The brand identity should be friendly, tech-savvy, and heartwarming. I need a complete launch kit: logos, a hero image for the app store, ad copy for online ads, and a short, animated video explaining how the app works.",
+];

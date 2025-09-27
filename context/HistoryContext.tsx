@@ -28,10 +28,11 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
       const storedItems = localStorage.getItem('creationHistory');
       if (storedItems) {
         const parsedItems: HistoryItem[] = JSON.parse(storedItems);
-        // Filter out video items and video ads, as their blob URLs are not persistent
+        // Filter out items with non-persistent blob URLs
         const validItems = parsedItems.filter(item => 
             item.type !== 'video' && 
-            !(item.type === 'ad' && item.adType === 'video')
+            !(item.type === 'ad' && item.adType === 'video') &&
+            item.type !== 'campaign'
         );
         setHistoryItems(validItems);
       }
@@ -49,7 +50,8 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
         // Only persist items whose media URLs are not temporary blobs
         const itemsToStore = items.filter(item => 
             item.type !== 'video' && 
-            !(item.type === 'ad' && item.adType === 'video')
+            !(item.type === 'ad' && item.adType === 'video') &&
+            item.type !== 'campaign'
         );
         localStorage.setItem('creationHistory', JSON.stringify(itemsToStore));
     } catch (error) {

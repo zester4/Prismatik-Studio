@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { HistoryContext } from '../context/HistoryContext';
 import InteractiveResultCard from './InteractiveResultCard';
-import { HistoryItem, HistoryItemImage, HistoryItemLogo, HistoryItemStory, HistoryItemAd, HistoryItemArticle } from '../types';
+import { HistoryItem, HistoryItemImage, HistoryItemLogo, HistoryItemStory, HistoryItemAd, HistoryItemArticle, HistoryItemCampaign } from '../types';
 
 const GallerySection: React.FC<{ title: string; items: HistoryItem[] }> = ({ title, items }) => {
   if (items.length === 0) {
@@ -40,6 +40,7 @@ export default function CreationGallery(): ReactElement {
   const logos = (categorizedItems.logo as HistoryItemLogo[] || []);
   const ads = (categorizedItems.ad as HistoryItemAd[] || []);
   const articles = (categorizedItems.article as HistoryItemArticle[] || []);
+  const campaigns = (categorizedItems.campaign as HistoryItemCampaign[] || []);
 
   return (
     <div>
@@ -57,6 +58,7 @@ export default function CreationGallery(): ReactElement {
         </div>
       ) : (
         <div>
+          <GallerySection title="Campaigns" items={campaigns} />
           <GallerySection title="Advertisements" items={ads} />
           <GallerySection title="Articles" items={articles} />
           <GallerySection title="Images" items={images} />

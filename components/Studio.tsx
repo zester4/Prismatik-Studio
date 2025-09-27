@@ -8,6 +8,7 @@ import StoryGenerator from './StoryGenerator';
 import ArticleGenerator from './ArticleGenerator';
 import LogoGenerator from './LogoGenerator';
 import AdGenerator from './AdGenerator';
+import CampaignGenerator from './CampaignGenerator';
 import CreationGallery from './CreationGallery';
 import Profile from './Profile';
 import { HistoryProvider } from '../context/HistoryContext';
@@ -33,6 +34,8 @@ function StudioContent(): ReactElement {
         return <LogoGenerator />;
       case GenerationMode.AD:
         return <AdGenerator />;
+      case GenerationMode.CAMPAIGN:
+        return <CampaignGenerator />;
       case GenerationMode.GALLERY:
         return <CreationGallery />;
       case GenerationMode.PROFILE:

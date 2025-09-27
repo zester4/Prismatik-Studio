@@ -60,6 +60,11 @@ const AdIco: React.FC<{className: string}> = ({className}) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584M9 18l-3.362-3.362" />
     </svg>
 );
+const CampaignIco: React.FC<{className: string}> = ({className}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+);
 const ModelIco: React.FC<{className: string}> = ({className}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293M17.707 5.293L19 4m-3 13l-2.293 2.293m2.293-2.293L19 18M12 3v4m-2 2h4m-4 7v4m-2-2h4m5-11l2.293-2.293M12 12l2.293 2.293m-2.293-2.293L9.707 9.707m2.293 2.293L14.293 14.293" />
@@ -97,6 +102,7 @@ export default function Profile(): ReactElement {
       logo: 0,
       ad: 0,
       article: 0,
+      campaign: 0,
     };
 
     for (const item of historyItems) {
@@ -204,6 +210,7 @@ export default function Profile(): ReactElement {
             <StatCard icon={<ArticleIco className="h-6 w-6" />} label="Articles Written" value={stats.article} />
             <StatCard icon={<LogoIco className="h-6 w-6" />} label="Logos Designed" value={stats.logo} />
             <StatCard icon={<AdIco className="h-6 w-6" />} label="Ads Created" value={stats.ad} />
+            <StatCard icon={<CampaignIco className="h-6 w-6" />} label="Campaigns Built" value={stats.campaign} />
         </div>
       </div>
 

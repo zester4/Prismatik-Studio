@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import type { AspectRatio, StoryScene, AdCopy, ArticleBlock } from '../types';
+import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity } from '../types';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
@@ -13,7 +13,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * @param context The generation context (e.g., 'image', 'video').
  * @returns A user-friendly error string.
  */
-const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article'): string => {
+const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign'): string => {
   console.error(`Error during ${context} generation:`, error);
   
   if (error instanceof Error) {
@@ -595,5 +595,84 @@ export const proofreadText = async (text: string): Promise<string> => {
   } catch (error) {
     // Using 'article' context for error message as it's used there
     throw new Error(getFriendlyErrorMessage(error, 'article'));
+  }
+};
+
+export const generateCampaign = async (
+  brief: string,
+  onProgress: (message: string) => void
+): Promise<{
+  brandIdentity: BrandIdentity;
+  logos: string[];
+  heroImage: string;
+  adCopy: AdCopy;
+  socialVideoUrl: string;
+}> => {
+  try {
+    // Step 1: Brand Identity
+    onProgress("Establishing brand identity...");
+    const brandIdentityPrompt = `
+      Based on the following campaign brief, act as a brand strategist to define a core brand identity.
+      Your response MUST be a valid JSON object with the following structure: { "companyName": string, "colors": string[], "mood": string[], "keywords": string[] }.
+      - companyName: Extract the company or product name from the brief.
+      - colors: Suggest a palette of 3-4 descriptive colors (e.g., "deep navy blue", "warm sand", "vibrant coral").
+      - mood: Provide 3-4 adjectives that describe the brand's feeling (e.g., "minimalist", "modern", "calm").
+      - keywords: List 4-5 relevant keywords for the brand's industry or concept.
+
+      Campaign Brief: "${brief}"
+    `;
+    
+    const identityResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: brandIdentityPrompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            companyName: { type: Type.STRING },
+            colors: { type: Type.ARRAY, items: { type: Type.STRING } },
+            mood: { type: Type.ARRAY, items: { type: Type.STRING } },
+            keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+          },
+        },
+      },
+    });
+    const brandIdentity: BrandIdentity = JSON.parse(identityResponse.text);
+
+    // Step 2: Logos
+    onProgress("Generating logo concepts...");
+    const logos = await generateLogo(
+      brandIdentity.companyName,
+      brief,
+      'modern',
+      brandIdentity.colors.join(', '),
+      'imagen-4.0-ultra-generate-001',
+      4
+    );
+    if (logos.length === 0) throw new Error("Logo generation failed.");
+
+    // Step 3: Hero Image
+    onProgress("Creating hero image...");
+    const heroImagePrompt = `Create a stunning, cinematic, photorealistic hero image for a website for "${brandIdentity.companyName}". The mood is ${brandIdentity.mood.join(', ')}. The campaign is about: ${brief}. The image should be visually captivating and high-quality, suitable for a main banner. Do not include any text.`;
+    const heroImages = await generateImages(heroImagePrompt, 1, "16:9", 'cinematic', 'imagen-4.0-generate-001');
+    if (heroImages.length === 0) throw new Error("Hero image generation failed.");
+    const heroImage = heroImages[0];
+
+    // Step 4: Ad Copy
+    onProgress("Writing ad copy...");
+    const adCopy: AdCopy = await generateAd(brandIdentity.companyName, brief, brandIdentity.keywords.join(', '), brandIdentity.mood[0] || 'professional', 'Learn More').then(res => res.adCopy);
+
+    // Step 5: Social Video
+    onProgress("Producing social media video...");
+    const videoPrompt = `Create a short, captivating, and visually engaging video (5-10 seconds) for social media. The video is for "${brandIdentity.companyName}" and should reflect a ${brandIdentity.mood.join(', ')} mood. The theme is: ${brief}. Use dynamic camera motion and cinematic visuals.`;
+    // The video generator progress will be passed through via its own onProgress callback
+    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress);
+    
+    onProgress("Campaign generation complete!");
+    return { brandIdentity, logos, heroImage, adCopy, socialVideoUrl };
+
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error, 'campaign'));
   }
 };

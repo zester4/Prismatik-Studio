@@ -7,6 +7,7 @@ export enum GenerationMode {
   ARTICLE = 'article',
   LOGO = 'logo',
   AD = 'ad',
+  CAMPAIGN = 'campaign',
   GALLERY = 'gallery',
   PROFILE = 'profile',
 }
@@ -80,5 +81,21 @@ export interface HistoryItemArticle extends HistoryItemBase {
   content: ArticleBlock[];
 }
 
+export interface BrandIdentity {
+  companyName: string;
+  colors: string[];
+  mood: string[];
+  keywords: string[];
+}
 
-export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle;
+export interface HistoryItemCampaign extends HistoryItemBase {
+  type: 'campaign';
+  brandIdentity: BrandIdentity;
+  logos: string[];
+  heroImage: string;
+  adCopy: AdCopy;
+  socialVideoUrl: string; // This will be a blob URL
+}
+
+
+export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign;
