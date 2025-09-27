@@ -1,5 +1,6 @@
-import React, { ReactElement, useEffect, useCallback } from 'react';
+import React, { ReactElement, useEffect, useCallback, useState } from 'react';
 import { HistoryItemCampaign, AdCopy } from '../types';
+import ImageModal from './ImageModal';
 
 interface CampaignModalProps {
   campaign: HistoryItemCampaign;
@@ -7,6 +8,8 @@ interface CampaignModalProps {
 }
 
 export default function CampaignModal({ campaign, onClose }: CampaignModalProps): ReactElement {
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -57,7 +60,11 @@ export default function CampaignModal({ campaign, onClose }: CampaignModalProps)
             {/* Brand Identity */}
             <div className="bg-white p-6 rounded-xl">
                 <h4 className="text-xl font-bold text-brand-wheat-800 mb-4">Brand Identity</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div>
+                        <p className="text-sm font-semibold text-brand-wheat-600">Target Audience</p>
+                        <p className="text-base font-medium text-brand-wheat-800 mt-2">{campaign.brandIdentity.targetAudience}</p>
+                    </div>
                     <div>
                         <p className="text-sm font-semibold text-brand-wheat-600">Colors</p>
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -93,8 +100,10 @@ export default function CampaignModal({ campaign, onClose }: CampaignModalProps)
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {campaign.logos.map((logoUrl, i) => (
                         <div key={i} className="group relative">
-                           <img src={logoUrl} alt={`Logo concept ${i+1}`} className="rounded-lg shadow-sm w-full aspect-square object-cover" />
-                           <button onClick={() => handleDownload(logoUrl, `logo_${i+1}.jpg`)} className="absolute bottom-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button onClick={() => setModalImageUrl(logoUrl)} className="w-full aspect-square block">
+                             <img src={logoUrl} alt={`Logo concept ${i+1}`} className="rounded-lg shadow-sm w-full h-full object-cover" />
+                           </button>
+                           <button onClick={() => handleDownload(logoUrl, `logo_${i+1}.jpg`)} className="absolute bottom-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Download logo">
                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                            </button>
                         </div>
@@ -108,7 +117,9 @@ export default function CampaignModal({ campaign, onClose }: CampaignModalProps)
                     <h4 className="text-xl font-bold text-brand-wheat-800">Hero Image</h4>
                     <button onClick={() => handleDownload(campaign.heroImage, 'hero_image.jpg')} className="text-sm font-semibold text-brand-teal-600 hover:underline">Download</button>
                 </div>
-                <img src={campaign.heroImage} alt="Campaign hero image" className="rounded-lg shadow-md w-full" />
+                <button onClick={() => setModalImageUrl(campaign.heroImage)} className="w-full block">
+                    <img src={campaign.heroImage} alt="Campaign hero image" className="rounded-lg shadow-md w-full" />
+                </button>
              </div>
              
              {/* Ad Copy */}
@@ -140,6 +151,7 @@ export default function CampaignModal({ campaign, onClose }: CampaignModalProps)
              </div>
         </div>
       </div>
+      {modalImageUrl && <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { CREATIVE_CAMPAIGN_PROMPTS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
+import ImageModal from './ImageModal';
 
 type CampaignResult = Omit<HistoryItemCampaign, 'id' | 'timestamp' | 'type'>;
 
@@ -15,12 +16,22 @@ export default function CampaignGenerator(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<CampaignResult | null>(null);
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   
   const { addHistoryItem } = useContext(HistoryContext);
 
   const handleSurpriseMe = useCallback(() => {
     const randomPrompt = CREATIVE_CAMPAIGN_PROMPTS[Math.floor(Math.random() * CREATIVE_CAMPAIGN_PROMPTS.length)];
     setPrompt(randomPrompt);
+  }, []);
+
+  const handleDownload = useCallback((url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }, []);
 
   const handleGenerate = useCallback(async () => {
@@ -117,8 +128,12 @@ export default function CampaignGenerator(): ReactElement {
              {/* Brand Identity */}
              <div className="bg-brand-wheat-50 p-6 rounded-xl border border-brand-wheat-200">
                 <h4 className="text-xl font-bold text-brand-wheat-800 mb-4">Brand Identity</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
+                        <p className="text-sm font-semibold text-brand-wheat-600">Target Audience</p>
+                        <p className="text-base font-medium text-brand-wheat-800 mt-2">{result.brandIdentity.targetAudience}</p>
+                    </div>
+                     <div>
                         <p className="text-sm font-semibold text-brand-wheat-600">Colors</p>
                         <div className="flex flex-wrap gap-2 mt-2">
                            {result.brandIdentity.colors.map((color, i) => (
@@ -150,15 +165,27 @@ export default function CampaignGenerator(): ReactElement {
                 <h4 className="text-xl font-bold text-brand-wheat-800 mb-4">Logo Concepts</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {result.logos.map((logoUrl, i) => (
-                        <img key={i} src={logoUrl} alt={`Logo concept ${i+1}`} className="rounded-lg shadow-sm w-full aspect-square object-cover" />
+                       <div key={i} className="group relative">
+                           <button onClick={() => setModalImageUrl(logoUrl)} className="w-full aspect-square block">
+                             <img src={logoUrl} alt={`Logo concept ${i+1}`} className="rounded-lg shadow-sm w-full h-full object-cover" />
+                           </button>
+                           <button onClick={() => handleDownload(logoUrl, `logo_${i+1}.jpg`)} className="absolute bottom-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Download logo">
+                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                           </button>
+                        </div>
                     ))}
                 </div>
              </div>
              
              {/* Hero Image */}
               <div className="bg-brand-wheat-50 p-6 rounded-xl border border-brand-wheat-200">
-                <h4 className="text-xl font-bold text-brand-wheat-800 mb-4">Hero Image</h4>
-                <img src={result.heroImage} alt="Campaign hero image" className="rounded-lg shadow-md w-full" />
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-xl font-bold text-brand-wheat-800">Hero Image</h4>
+                    <button onClick={() => handleDownload(result.heroImage, 'hero_image.jpg')} className="text-sm font-semibold text-brand-teal-600 hover:underline">Download</button>
+                </div>
+                <button onClick={() => setModalImageUrl(result.heroImage)} className="w-full block">
+                    <img src={result.heroImage} alt="Campaign hero image" className="rounded-lg shadow-md w-full" />
+                </button>
              </div>
              
              {/* Ad Copy */}
@@ -182,12 +209,16 @@ export default function CampaignGenerator(): ReactElement {
              
               {/* Social Video */}
               <div className="bg-brand-wheat-50 p-6 rounded-xl border border-brand-wheat-200">
-                <h4 className="text-xl font-bold text-brand-wheat-800 mb-4">Social Media Video</h4>
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-xl font-bold text-brand-wheat-800">Social Media Video</h4>
+                    <button onClick={() => handleDownload(result.socialVideoUrl, 'social_video.mp4')} className="text-sm font-semibold text-brand-teal-600 hover:underline">Download</button>
+                </div>
                 <video src={result.socialVideoUrl} controls autoPlay loop muted className="w-full max-w-sm mx-auto rounded-lg shadow-md" />
              </div>
            </div>
         </div>
       )}
+      {modalImageUrl && <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />}
     </div>
   );
 }

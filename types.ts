@@ -86,6 +86,7 @@ export interface BrandIdentity {
   colors: string[];
   mood: string[];
   keywords: string[];
+  targetAudience: string;
 }
 
 export interface HistoryItemCampaign extends HistoryItemBase {

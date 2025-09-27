@@ -335,14 +335,13 @@ export const generateLogo = async (
   }
 };
 
-export const generateAd = async (
+export const generateAdCopy = async (
     productName: string,
     description: string,
     audience: string,
     tone: string,
-    cta: string,
-    image?: { mimeType: string; data: string }
-): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
+    cta: string
+): Promise<AdCopy> => {
     try {
         const adCopyPrompt = `
             Create compelling ad copy for a product.
@@ -370,12 +369,28 @@ export const generateAd = async (
                         headline: { type: Type.STRING },
                         body: { type: Type.STRING },
                         cta: { type: Type.STRING },
-                    }
+                    },
+                    required: ['headline', 'body', 'cta']
                 }
             }
         });
 
-        const adCopy: AdCopy = JSON.parse(copyResponse.text);
+        return JSON.parse(copyResponse.text);
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'ad'));
+    }
+};
+
+export const generateAd = async (
+    productName: string,
+    description: string,
+    audience: string,
+    tone: string,
+    cta: string,
+    image?: { mimeType: string; data: string }
+): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
+    try {
+        const adCopy = await generateAdCopy(productName, description, audience, tone, cta);
         let imageUrl: string;
 
         if (image) {
@@ -434,25 +449,7 @@ export const generateAdVideo = async (
 ): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
     try {
         onProgress("Generating ad copy...");
-        const adCopyPrompt = `
-            Create compelling ad copy for a product video.
-            Product Name: "${productName}"
-            Description: "${description}"
-            Target Audience: "${audience}"
-            Tone of Voice: "${tone}"
-            Call to Action: "${cta}"
-            Provide a response in a valid JSON object format with "headline", "body", and "cta" properties.
-        `;
-
-        const copyResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: adCopyPrompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: { type: Type.OBJECT, properties: { headline: { type: Type.STRING }, body: { type: Type.STRING }, cta: { type: Type.STRING } } }
-            }
-        });
-        const adCopy: AdCopy = JSON.parse(copyResponse.text);
+        const adCopy = await generateAdCopy(productName, description, audience, tone, cta);
 
         onProgress("Generating video prompt...");
         const videoPrompt = `
@@ -613,11 +610,12 @@ export const generateCampaign = async (
     onProgress("Establishing brand identity...");
     const brandIdentityPrompt = `
       Based on the following campaign brief, act as a brand strategist to define a core brand identity.
-      Your response MUST be a valid JSON object with the following structure: { "companyName": string, "colors": string[], "mood": string[], "keywords": string[] }.
+      Your response MUST be a valid JSON object with the following structure: { "companyName": string, "targetAudience": string, "colors": string[], "mood": string[], "keywords": string[] }.
       - companyName: Extract the company or product name from the brief.
-      - colors: Suggest a palette of 3-4 descriptive colors (e.g., "deep navy blue", "warm sand", "vibrant coral").
-      - mood: Provide 3-4 adjectives that describe the brand's feeling (e.g., "minimalist", "modern", "calm").
-      - keywords: List 4-5 relevant keywords for the brand's industry or concept.
+      - targetAudience: Describe the primary target audience in a concise phrase.
+      - colors: Suggest a palette of 3-4 descriptive, nuanced colors (e.g., "midnight blue", "sun-bleached terracotta", "mint green").
+      - mood: Provide 3-4 evocative adjectives that describe the brand's feeling (e.g., "sophisticated", "adventurous", "serene").
+      - keywords: List 4-5 specific, relevant keywords for the brand's industry or concept.
 
       Campaign Brief: "${brief}"
     `;
@@ -631,10 +629,12 @@ export const generateCampaign = async (
           type: Type.OBJECT,
           properties: {
             companyName: { type: Type.STRING },
+            targetAudience: { type: Type.STRING },
             colors: { type: Type.ARRAY, items: { type: Type.STRING } },
             mood: { type: Type.ARRAY, items: { type: Type.STRING } },
             keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
           },
+          required: ['companyName', 'targetAudience', 'colors', 'mood', 'keywords']
         },
       },
     });
@@ -661,7 +661,13 @@ export const generateCampaign = async (
 
     // Step 4: Ad Copy
     onProgress("Writing ad copy...");
-    const adCopy: AdCopy = await generateAd(brandIdentity.companyName, brief, brandIdentity.keywords.join(', '), brandIdentity.mood[0] || 'professional', 'Learn More').then(res => res.adCopy);
+    const adCopy = await generateAdCopy(
+        brandIdentity.companyName, 
+        brief, 
+        brandIdentity.targetAudience, 
+        brandIdentity.mood[0] || 'professional', 
+        'Learn More'
+    );
 
     // Step 5: Social Video
     onProgress("Producing social media video...");
