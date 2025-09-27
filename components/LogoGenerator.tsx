@@ -1,12 +1,21 @@
 import React, { useState, useCallback, ReactElement, useContext } from 'react';
 import { generateLogo } from '../services/geminiService';
 import { HistoryItemLogo } from '../types';
-import { LOGO_STYLES, CREATIVE_LOGO_PROMPTS, LOGO_MODELS } from '../constants';
+import { LOGO_STYLES, LOGO_TEMPLATES, LOGO_MODELS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 type LogoResult = Omit<HistoryItemLogo, 'id' | 'timestamp' | 'type'>;
+
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 
 export default function LogoGenerator(): ReactElement {
   const [companyName, setCompanyName] = useState<string>('');
@@ -25,16 +34,20 @@ export default function LogoGenerator(): ReactElement {
 
   const selectedModelInfo = LOGO_MODELS.find(m => m.id === model);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_LOGO_PROMPTS[Math.floor(Math.random() * CREATIVE_LOGO_PROMPTS.length)];
-    const randomModel = LOGO_MODELS[Math.floor(Math.random() * LOGO_MODELS.length)].id;
-    setCompanyName(randomPrompt.companyName);
-    setSlogan(randomPrompt.slogan);
-    setDescription(randomPrompt.description);
-    setStyle(randomPrompt.style);
-    setColors(randomPrompt.colors);
-    setModel(randomModel);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setCompanyName(template.companyName || '');
+    setSlogan(template.slogan || '');
+    setDescription(template.prompt || '');
+    setStyle(template.style || 'modern');
+    setColors(template.colors || '');
+    setResults([]);
+    setError(null);
   }, []);
+
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = LOGO_TEMPLATES[Math.floor(Math.random() * LOGO_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleGenerate = useCallback(async () => {
     if (!companyName.trim() || !description.trim() || !style.trim() || !colors.trim()) {
@@ -103,10 +116,17 @@ export default function LogoGenerator(): ReactElement {
         </div>
 
         <div>
-            <label htmlFor="description" className="block text-sm font-medium text-brand-wheat-800 mb-1">Description *</label>
-            <p className="text-xs text-brand-wheat-600 mb-2">Describe your company and what the logo should represent.</p>
+            <div className="flex items-center gap-2 mb-1">
+                <label htmlFor="description" className="block text-sm font-medium text-brand-wheat-800">Description *</label>
+                <Tooltip text="Describe your company, its values, and what the logo should represent. The more detail, the better!">
+                    <InfoIcon />
+                </Tooltip>
+            </div>
+            <p className="text-xs text-brand-wheat-600 mb-2">The AI will generate a text-free logo based on this description.</p>
             <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isLoading} rows={4} placeholder="e.g., A tech company specializing in AI and eco-friendly robotics." className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500 resize-none" />
         </div>
+
+        <PromptTemplates templates={LOGO_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <div>
           <label htmlFor="model" className="block text-sm font-medium text-brand-wheat-800 mb-1">Logo Model</label>

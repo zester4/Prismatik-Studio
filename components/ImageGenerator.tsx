@@ -1,13 +1,22 @@
 import React, { useState, useCallback, ReactElement, useContext, ChangeEvent } from 'react';
 import { generateImages, editImage } from '../services/geminiService';
 import { AspectRatio, HistoryItemImage } from '../types';
-import { IMAGE_MODELS, ASPECT_RATIOS, IMAGE_STYLES, CREATIVE_IMAGE_PROMPTS } from '../constants';
+import { IMAGE_MODELS, ASPECT_RATIOS, IMAGE_STYLES, IMAGE_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 type ImageResult = Omit<HistoryItemImage, 'id' | 'timestamp' | 'type'>;
+
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 
 export default function ImageGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
@@ -25,20 +34,22 @@ export default function ImageGenerator(): ReactElement {
   
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_IMAGE_PROMPTS[Math.floor(Math.random() * CREATIVE_IMAGE_PROMPTS.length)];
-    const randomModel = IMAGE_MODELS[Math.floor(Math.random() * IMAGE_MODELS.length)].id;
-    const randomAspectRatio = ASPECT_RATIOS[Math.floor(Math.random() * ASPECT_RATIOS.length)];
-    const randomStyle = IMAGE_STYLES.filter(s => s.id !== 'none')[Math.floor(Math.random() * (IMAGE_STYLES.length - 1))].id;
-    
-    setPrompt(randomPrompt);
-    setModel(randomModel);
-    setAspectRatio(randomAspectRatio);
-    setStyle(randomStyle);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setPrompt(template.prompt || '');
+    setStyle(template.style || 'photorealistic');
+    setNegativePrompt(template.negativePrompt || '');
+    setAspectRatio(template.aspectRatio || '1:1');
+    setModel(template.model || IMAGE_MODELS[0].id);
     setNumberOfImages(1);
-    setNegativePrompt('');
+    setResults([]);
+    setError(null);
     setUploadedImage(null);
   }, []);
+
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = IMAGE_TEMPLATES[Math.floor(Math.random() * IMAGE_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -146,9 +157,16 @@ export default function ImageGenerator(): ReactElement {
           disabled={isLoading}
           rows={isEditing ? 4 : 8}
         />
+
+        <PromptTemplates templates={IMAGE_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <div>
-            <label className="block text-sm font-medium text-brand-wheat-800 mb-1">{isEditing ? 'Image to Edit' : 'Start with an Image (Optional)'}</label>
+            <div className="flex items-center gap-2 mb-1">
+                <label className="block text-sm font-medium text-brand-wheat-800">{isEditing ? 'Image to Edit' : 'Start with an Image (Optional)'}</label>
+                <Tooltip text="Upload an image to perform edits based on your prompt. This enables image-to-image generation.">
+                    <InfoIcon />
+                </Tooltip>
+            </div>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-brand-wheat-200 border-dashed rounded-md">
                 <div className="space-y-1 text-center">
                 {uploadedImage ? (
@@ -176,7 +194,12 @@ export default function ImageGenerator(): ReactElement {
         {!isEditing && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={isImagenModel ? 'md:col-span-2' : ''}>
-              <label htmlFor="model" className="block text-sm font-medium text-brand-wheat-800 mb-1">Model</label>
+                <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="model" className="block text-sm font-medium text-brand-wheat-800">Model</label>
+                    <Tooltip text="Different models have different strengths. Imagen models are great for photorealism, while Gemini is excellent for creative and multi-modal tasks.">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
               <select
                 id="model" value={model} onChange={(e) => setModel(e.target.value)}
                 disabled={isLoading}
@@ -189,7 +212,12 @@ export default function ImageGenerator(): ReactElement {
             {isImagenModel && (
               <>
                 <div className="md:col-span-2">
-                  <label htmlFor="negativePrompt" className="block text-sm font-medium text-brand-wheat-800 mb-1">Negative Prompt (Optional)</label>
+                    <div className="flex items-center gap-2 mb-1">
+                        <label htmlFor="negativePrompt" className="block text-sm font-medium text-brand-wheat-800">Negative Prompt</label>
+                        <Tooltip text="Specify what you DON'T want in the image. Useful for removing text, extra limbs, or unwanted objects.">
+                            <InfoIcon />
+                        </Tooltip>
+                    </div>
                   <input
                     type="text"
                     id="negativePrompt"
@@ -213,7 +241,12 @@ export default function ImageGenerator(): ReactElement {
                   </select>
                 </div>
                  <div className="md:col-span-2">
-                  <label htmlFor="style" className="block text-sm font-medium text-brand-wheat-800 mb-1">Style</label>
+                    <div className="flex items-center gap-2 mb-1">
+                        <label htmlFor="style" className="block text-sm font-medium text-brand-wheat-800">Style</label>
+                        <Tooltip text="Apply a pre-defined style to strongly influence the final look of the image. 'No Style' provides a more neutral interpretation of your prompt.">
+                            <InfoIcon />
+                        </Tooltip>
+                    </div>
                   <select id="style" value={style} onChange={(e) => setStyle(e.target.value)} disabled={isLoading} className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500">
                     {IMAGE_STYLES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>

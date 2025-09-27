@@ -1,13 +1,21 @@
 import React, { useState, useCallback, ReactElement, useContext, ChangeEvent } from 'react';
 import { generateVideo } from '../services/geminiService';
 import { AspectRatio, HistoryItemVideo } from '../types';
-import { VIDEO_ASPECT_RATIOS, CREATIVE_VIDEO_PROMPTS, VIDEO_MODELS } from '../constants';
+import { VIDEO_ASPECT_RATIOS, VIDEO_TEMPLATES, VIDEO_MODELS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 type VideoResult = Omit<HistoryItemVideo, 'id' | 'timestamp' | 'type'>;
+
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
 
 export default function VideoGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
@@ -22,15 +30,19 @@ export default function VideoGenerator(): ReactElement {
   
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_VIDEO_PROMPTS[Math.floor(Math.random() * CREATIVE_VIDEO_PROMPTS.length)];
-    const randomAspectRatio = VIDEO_ASPECT_RATIOS[Math.floor(Math.random() * VIDEO_ASPECT_RATIOS.length)];
-    const randomModel = VIDEO_MODELS[Math.floor(Math.random() * VIDEO_MODELS.length)].id;
-    setPrompt(randomPrompt);
-    setAspectRatio(randomAspectRatio);
-    setModel(randomModel);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setPrompt(template.prompt || '');
+    setAspectRatio(template.aspectRatio || '16:9');
+    setModel(template.model || VIDEO_MODELS[0].id);
+    setResult(null);
+    setError(null);
     setUploadedImage(null);
   }, []);
+
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = VIDEO_TEMPLATES[Math.floor(Math.random() * VIDEO_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
   
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -100,6 +112,7 @@ export default function VideoGenerator(): ReactElement {
           placeholder="e.g., An astronaut riding a horse on the moon."
           disabled={isLoading}
         />
+        <PromptTemplates templates={VIDEO_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
           <div>
@@ -119,7 +132,12 @@ export default function VideoGenerator(): ReactElement {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800 mb-1">Animate Image (Optional)</label>
+            <div className="flex items-center gap-2 mb-1">
+                <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800">Animate Image (Optional)</label>
+                <Tooltip text="Upload a starting image. The AI will generate a video that animates the contents of your image based on the prompt.">
+                    <InfoIcon />
+                </Tooltip>
+            </div>
              <input type="file" id="imageUpload" accept="image/*" onChange={handleFileChange} disabled={isLoading} className="block w-full text-sm text-brand-wheat-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-teal-50 file:text-brand-teal-700 hover:file:bg-brand-teal-100"/>
           </div>
         </div>

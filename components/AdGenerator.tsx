@@ -1,10 +1,12 @@
 import React, { useState, useCallback, ReactElement, useContext, ChangeEvent } from 'react';
 import { generateAd, generateAdVideo } from '../services/geminiService';
 import { HistoryItemAd, AdCopy } from '../types';
-import { AD_TONES, CREATIVE_AD_PROMPTS, CREATIVE_AD_EXAMPLES } from '../constants';
+import { AD_TONES, AD_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 type AdResult = Omit<HistoryItemAd, 'id' | 'timestamp' | 'type' | 'prompt'> & { prompt: string };
 type AdType = 'image' | 'video';
@@ -38,6 +40,12 @@ const AdTypeSelector: React.FC<{
   );
 };
 
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 
 export default function AdGenerator(): ReactElement {
   const [productName, setProductName] = useState<string>('');
@@ -56,32 +64,21 @@ export default function AdGenerator(): ReactElement {
   
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_AD_PROMPTS[Math.floor(Math.random() * CREATIVE_AD_PROMPTS.length)];
-    const randomTone = AD_TONES[Math.floor(Math.random() * AD_TONES.length)].id;
-    
-    setProductName(randomPrompt.productName);
-    setDescription(randomPrompt.description);
-    setAudience(randomPrompt.audience);
-    setCta(randomPrompt.cta);
-    setTone(randomTone);
-    
-    setUploadedImage(null);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setProductName(template.productName || '');
+    setDescription(template.prompt || '');
+    setAudience(template.audience || '');
+    setCta(template.cta || 'Shop Now');
+    setTone(template.tone || AD_TONES[0].id);
     setResult(null);
     setError(null);
+    setUploadedImage(null);
   }, []);
 
-  const handleSelectExample = useCallback((example: typeof CREATIVE_AD_EXAMPLES[0]) => {
-    setProductName(example.productName);
-    setDescription(example.description);
-    setAudience(example.audience);
-    setCta(example.cta);
-    setTone(example.tone);
-    
-    setUploadedImage(null);
-    setResult(null);
-    setError(null);
-  }, []);
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = AD_TEMPLATES[Math.floor(Math.random() * AD_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -184,31 +181,18 @@ export default function AdGenerator(): ReactElement {
       </div>
 
       <div className="space-y-6">
-        <div className="bg-brand-wheat-50 p-4 rounded-lg border border-brand-wheat-200">
-            <h3 className="text-base font-semibold text-brand-wheat-800 mb-3">Need Inspiration?</h3>
-            <div className="flex overflow-x-auto space-x-4 pb-2 -mb-2">
-                {CREATIVE_AD_EXAMPLES.map((example, index) => (
-                    <button key={index} onClick={() => handleSelectExample(example)} disabled={isLoading} className="flex-shrink-0 w-40 rounded-lg overflow-hidden group relative shadow-md hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-brand-teal-500 focus:ring-offset-2">
-                        <img src={example.imageUrl} alt={example.productName} className="w-full h-full object-cover aspect-[3/4]" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 p-2 text-left">
-                            <p className="text-white font-bold text-sm leading-tight">{example.productName}</p>
-                            <span className="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">Use this example</span>
-                        </div>
-                    </button>
-                ))}
-            </div>
-        </div>
-
-
          <div>
             <label className="block text-sm font-medium text-brand-wheat-800 mb-1">Ad Format *</label>
             <AdTypeSelector selectedType={adType} onSelectType={setAdType} disabled={isLoading} />
          </div>
         
         <div>
-          <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800 mb-1">Product Image (Optional)</label>
-          <p className="text-xs text-brand-wheat-600 mb-2">If you don't provide an image, the AI will generate one from scratch.</p>
+            <div className="flex items-center gap-2 mb-1">
+                <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800">Product Image (Optional)</label>
+                <Tooltip text="If provided, the AI will enhance your product shot. Otherwise, it will generate a new one from scratch based on your description.">
+                    <InfoIcon />
+                </Tooltip>
+            </div>
           <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-brand-wheat-200 border-dashed rounded-md">
             <div className="space-y-1 text-center">
               {uploadedImage ? (
@@ -232,6 +216,8 @@ export default function AdGenerator(): ReactElement {
             </div>
           </div>
         </div>
+        
+        <PromptTemplates templates={AD_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -251,7 +237,12 @@ export default function AdGenerator(): ReactElement {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label htmlFor="tone" className="block text-sm font-medium text-brand-wheat-800 mb-1">Ad Tone *</label>
+                <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="tone" className="block text-sm font-medium text-brand-wheat-800">Ad Tone *</label>
+                    <Tooltip text="Select the emotional or stylistic tone of the ad copy. This will influence the AI's word choice and sentence structure.">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
                 <select id="tone" value={tone} onChange={(e) => setTone(e.target.value)} disabled={isLoading} className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500">
                     {AD_TONES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>

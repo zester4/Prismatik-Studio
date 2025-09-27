@@ -1,11 +1,13 @@
 import React, { useState, useCallback, ReactElement, useContext } from 'react';
 import { generateCampaign } from '../services/geminiService';
 import { HistoryItemCampaign, BrandIdentity, AdCopy } from '../types';
-import { CREATIVE_CAMPAIGN_PROMPTS } from '../constants';
+import { CAMPAIGN_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import ImageModal from './ImageModal';
+import PromptTemplates from './PromptTemplates';
+import Tooltip from './Tooltip';
 
 type CampaignResult = Omit<HistoryItemCampaign, 'id' | 'timestamp' | 'type'>;
 
@@ -20,10 +22,16 @@ export default function CampaignGenerator(): ReactElement {
   
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_CAMPAIGN_PROMPTS[Math.floor(Math.random() * CREATIVE_CAMPAIGN_PROMPTS.length)];
-    setPrompt(randomPrompt);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setPrompt(template.prompt || '');
+    setResult(null);
+    setError(null);
   }, []);
+
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = CAMPAIGN_TEMPLATES[Math.floor(Math.random() * CAMPAIGN_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleDownload = useCallback((url: string, filename: string) => {
     const link = document.createElement('a');
@@ -93,6 +101,7 @@ export default function CampaignGenerator(): ReactElement {
           disabled={isLoading}
           rows={10}
         />
+        <PromptTemplates templates={CAMPAIGN_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <button onClick={handleGenerate} disabled={isLoading || !prompt.trim()} className="w-full flex items-center justify-center bg-brand-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-teal-600 transition duration-300 disabled:bg-brand-teal-300 disabled:cursor-not-allowed">
           {isLoading && <LoadingSpinner />}

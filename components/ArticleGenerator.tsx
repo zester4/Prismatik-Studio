@@ -1,10 +1,12 @@
 import React, { useState, useCallback, ReactElement, useContext } from 'react';
 import { generateArticle, generateImages, proofreadText } from '../services/geminiService';
 import { HistoryItemArticle, ArticleBlock } from '../types';
-import { ARTICLE_TYPES, WRITING_STYLES, CREATIVE_ARTICLE_PROMPTS } from '../constants';
+import { ARTICLE_TYPES, WRITING_STYLES, ARTICLE_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 // FIX: Corrected Omit syntax to use a union type for keys.
 type ArticleResult = Omit<HistoryItemArticle, 'id' | 'timestamp' | 'type'>;
@@ -34,6 +36,12 @@ const CheckIcon = () => (
   </svg>
 );
 
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 
 export default function ArticleGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
@@ -57,13 +65,19 @@ export default function ArticleGenerator(): ReactElement {
 
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_ARTICLE_PROMPTS[Math.floor(Math.random() * CREATIVE_ARTICLE_PROMPTS.length)];
-    setPrompt(randomPrompt.topic);
-    setArticleType(randomPrompt.type);
-    setWritingStyle(randomPrompt.style);
-    setNumImages(randomPrompt.images);
+  const handleSelectTemplate = useCallback((template: any) => {
+    setPrompt(template.prompt || '');
+    setArticleType(template.type || ARTICLE_TYPES[0].id);
+    setWritingStyle(template.style || WRITING_STYLES[0].id);
+    setNumImages(template.images || 2);
+    setResult(null);
+    setError(null);
   }, []);
+
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = ARTICLE_TEMPLATES[Math.floor(Math.random() * ARTICLE_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) {
@@ -244,16 +258,27 @@ export default function ArticleGenerator(): ReactElement {
           placeholder="e.g., The history and impact of the printing press."
           disabled={isLoading}
         />
+        <PromptTemplates templates={ARTICLE_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="articleType" className="block text-sm font-medium text-brand-wheat-800 mb-1">Article Type</label>
+                <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="articleType" className="block text-sm font-medium text-brand-wheat-800">Article Type</label>
+                    <Tooltip text="Defines the overall structure and format of the generated content (e.g., a blog post vs. a formal report).">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
               <select id="articleType" value={articleType} onChange={(e) => setArticleType(e.target.value)} disabled={isLoading} className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500">
                 {ARTICLE_TYPES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
             <div>
-              <label htmlFor="writingStyle" className="block text-sm font-medium text-brand-wheat-800 mb-1">Writing Style</label>
+                 <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="writingStyle" className="block text-sm font-medium text-brand-wheat-800">Writing Style</label>
+                    <Tooltip text="Determines the tone and voice of the article, from professional and academic to casual and conversational.">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
               <select id="writingStyle" value={writingStyle} onChange={(e) => setWritingStyle(e.target.value)} disabled={isLoading} className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500">
                 {WRITING_STYLES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>

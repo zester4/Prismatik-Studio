@@ -1,10 +1,12 @@
 import React, { useState, useCallback, ReactElement, useContext, ChangeEvent } from 'react';
 import { generateStory, generateImages } from '../services/geminiService';
 import { AspectRatio, HistoryItemStory } from '../types';
-import { ASPECT_RATIOS, CREATIVE_STORY_PROMPTS } from '../constants';
+import { ASPECT_RATIOS, STORY_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
+import Tooltip from './Tooltip';
+import PromptTemplates from './PromptTemplates';
 
 type StoryResult = Omit<HistoryItemStory, 'id' | 'timestamp' | 'type'>;
 type TextLength = 'short' | 'medium' | 'detailed';
@@ -25,6 +27,12 @@ const EditIcon = () => (
 const SaveIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+    </svg>
+);
+
+const InfoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
 
@@ -96,15 +104,20 @@ export default function StoryGenerator(): ReactElement {
   
   const { addHistoryItem } = useContext(HistoryContext);
 
-  const handleSurpriseMe = useCallback(() => {
-    const randomPrompt = CREATIVE_STORY_PROMPTS[Math.floor(Math.random() * CREATIVE_STORY_PROMPTS.length)];
-    const randomAspectRatio = ASPECT_RATIOS[Math.floor(Math.random() * ASPECT_RATIOS.length)];
-    setPrompt(randomPrompt);
-    setAspectRatio(randomAspectRatio);
-    setNumberOfScenes(4);
-    setTextLength('medium');
+  const handleSelectTemplate = useCallback((template: any) => {
+    setPrompt(template.prompt || '');
+    setAspectRatio(template.aspectRatio || '16:9');
+    setNumberOfScenes(template.numberOfScenes || 4);
+    setTextLength(template.textLength || 'medium');
+    setResult(null);
+    setError(null);
     setUploadedImage(null);
   }, []);
+  
+  const handleSurpriseMe = useCallback(() => {
+    const randomTemplate = STORY_TEMPLATES[Math.floor(Math.random() * STORY_TEMPLATES.length)];
+    handleSelectTemplate(randomTemplate);
+  }, [handleSelectTemplate]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -344,7 +357,7 @@ export default function StoryGenerator(): ReactElement {
   return (
     <div>
        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-wheat-900">Story Generation</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-wheat-900">Story Generator</h2>
            <button onClick={handleSurpriseMe} disabled={isLoading} className="flex items-center text-sm font-semibold text-brand-teal-600 hover:text-brand-teal-700 transition disabled:opacity-50 self-start sm:self-center">
              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
@@ -359,6 +372,7 @@ export default function StoryGenerator(): ReactElement {
           placeholder="e.g., A brave squirrel goes on an adventure to find the legendary Golden Acorn."
           disabled={isLoading}
         />
+        <PromptTemplates templates={STORY_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -378,7 +392,12 @@ export default function StoryGenerator(): ReactElement {
               </select>
             </div>
             <div>
-              <label htmlFor="textLength" className="block text-sm font-medium text-brand-wheat-800 mb-1">Narrative Length</label>
+                <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="textLength" className="block text-sm font-medium text-brand-wheat-800">Narrative Length</label>
+                    <Tooltip text="Controls how much text is generated for each scene. 'Short' is 1-2 sentences, 'Detailed' is 4-6.">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
               <select
                 id="textLength" value={textLength} onChange={(e) => setTextLength(e.target.value as TextLength)}
                 disabled={isLoading} className="w-full px-3 py-2 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md focus:ring-brand-teal-500 focus:border-brand-teal-500">
@@ -388,7 +407,12 @@ export default function StoryGenerator(): ReactElement {
               </select>
             </div>
              <div className="md:col-span-3">
-              <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800 mb-1">Character Lock (Optional)</label>
+                <div className="flex items-center gap-2 mb-1">
+                    <label htmlFor="imageUpload" className="block text-sm font-medium text-brand-wheat-800">Character Lock (Optional)</label>
+                    <Tooltip text="Upload an image of a character. The AI will analyze their appearance and keep it consistent across all scenes.">
+                        <InfoIcon />
+                    </Tooltip>
+                </div>
               <p className="text-xs text-brand-wheat-600 mb-2">Upload an image of a character to maintain their appearance across all scenes.</p>
               <input type="file" id="imageUpload" accept="image/*" onChange={handleFileChange} disabled={isLoading} className="block w-full text-sm text-brand-wheat-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-teal-50 file:text-brand-teal-700 hover:file:bg-brand-teal-100"/>
             </div>
