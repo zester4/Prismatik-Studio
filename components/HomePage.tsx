@@ -134,13 +134,13 @@ const AnimatedSection = ({ children, className }: PropsWithChildren<{ className?
 const HowItWorksStep = ({ icon, step, title, description }: { icon: React.ReactElement<{ className?: string }>; step: number; title: string; description: string }) => (
     <div className="text-center">
         <div className="relative inline-block">
-            <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center mb-5 shadow-lg border-4 border-brand-teal-100">
-                {React.cloneElement(icon, { className: 'w-10 h-10 text-brand-teal-500' })}
+            <div className="bg-white rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mb-5 shadow-lg border-4 border-brand-teal-100">
+                {React.cloneElement(icon, { className: 'w-8 h-8 sm:w-10 sm:h-10 text-brand-teal-500' })}
             </div>
-            <span className="absolute -top-1 -right-1 bg-brand-teal-500 text-white font-bold rounded-full w-9 h-9 flex items-center justify-center border-4 border-brand-wheat-100 text-lg">{step}</span>
+            <span className="absolute -top-1 -right-1 bg-brand-teal-500 text-white font-bold rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border-4 border-brand-wheat-100 text-base sm:text-lg">{step}</span>
         </div>
-        <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
-        <p className="text-brand-wheat-700 max-w-xs mx-auto">{description}</p>
+        <h3 className="text-lg sm:text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
+        <p className="text-brand-wheat-700 max-w-xs mx-auto text-sm sm:text-base">{description}</p>
     </div>
 );
 
@@ -149,14 +149,14 @@ const FaqItem = ({ question, answer }: { question: string; answer: string }) => 
     return (
         <div className="border-b border-brand-wheat-200">
             <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center py-5 text-left gap-4">
-                <h4 className="text-lg font-semibold text-brand-wheat-800">{question}</h4>
+                <h4 className="text-base sm:text-lg font-semibold text-brand-wheat-800">{question}</h4>
                 <div className="w-6 h-6 flex-shrink-0 bg-brand-wheat-200 rounded-full flex items-center justify-center">
                     <ChevronDownIcon className={`w-4 h-4 text-brand-wheat-600 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                 </div>
             </button>
             <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                  <div className="overflow-hidden">
-                    <p className="pb-5 text-brand-wheat-700 pr-10">{answer}</p>
+                    <p className="pb-5 text-brand-wheat-700 pr-4 sm:pr-10 text-sm sm:text-base">{answer}</p>
                  </div>
             </div>
         </div>
@@ -184,7 +184,7 @@ const FeatureDetail = ({ icon, title, description, bulletPoints, imageUrl, align
                 {bulletPoints.map((point, index) => (
                     <li key={index} className="flex items-start gap-3">
                         <CheckBadgeIcon className="w-6 h-6 text-brand-teal-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-brand-wheat-800">{point}</span>
+                        <span className="text-brand-wheat-800 text-sm sm:text-base">{point}</span>
                     </li>
                 ))}
             </ul>
@@ -197,35 +197,23 @@ const FeatureDetail = ({ icon, title, description, bulletPoints, imageUrl, align
     </div>
 );
 
-const marqueeImages = [
-    { src: "https://images.unsplash.com/photo-1679085226243-85b413c415b3?q=80&w=400&auto=format&fit=crop", rotate: "-3deg", marginTop: "0" },
-    { src: "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=400&auto=format&fit=crop", rotate: "2deg", marginTop: "2rem" },
-    { src: "https://images.unsplash.com/photo-1629114757912-3499f57f1542?q=80&w=400&auto=format&fit=crop", rotate: "-5deg", marginTop: "0" },
-    { src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop", rotate: "4deg", marginTop: "1rem" },
-    { src: "https://images.unsplash.com/photo-1618355799105-67657b238383?q=80&w=400&auto=format&fit=crop", rotate: "-2deg", marginTop: "2.5rem" },
-    { src: "https://images.unsplash.com/photo-1620641788421-7a1c363ea42e?q=80&w=400&auto=format&fit=crop", rotate: "3deg", marginTop: "0.5rem" },
-    { src: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400&auto=format&fit=crop", rotate: "-4deg", marginTop: "1.5rem" },
-];
-
-const allMarqueeImages = [...marqueeImages, ...marqueeImages];
-
 // --- Main HomePage Component --- //
 export default function HomePage(): ReactElement {
   return (
     <div className="min-h-screen bg-brand-wheat-50 text-brand-wheat-900">
         <header className="bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm">
-            <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-                 <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-teal-500 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+                <a href="/#/" className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-teal-500 mr-2 sm:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 8.5l10 6.5 10-6.5L12 2z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2 8.5l10 6.5V22" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M22 8.5l-10 6.5V22" />
                     </svg>
-                    <h1 className="text-2xl font-bold text-brand-wheat-900">
-                        Prismatik <a href="/#/" className="text-brand-teal-500">Studio</a>
+                    <h1 className="text-xl sm:text-2xl font-bold text-brand-wheat-900">
+                        Prismatik <span className="text-brand-teal-500">Studio</span>
                     </h1>
-                </div>
-                <a href="/#/studio" className="bg-brand-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-teal-600 transition duration-300 shadow-sm hover:shadow-md">
+                </a>
+                <a href="/#/studio" className="bg-brand-teal-500 text-white font-bold py-2 px-4 sm:px-6 rounded-lg hover:bg-brand-teal-600 transition duration-300 shadow-sm hover:shadow-md text-sm sm:text-base">
                     Launch Studio
                 </a>
             </div>
@@ -233,33 +221,33 @@ export default function HomePage(): ReactElement {
 
         <main>
             {/* Hero Section */}
-            <section className="pt-32 sm:pt-36 pb-16 sm:pb-24 text-center bg-brand-wheat-50">
+            <section className="pt-28 sm:pt-36 pb-16 sm:pb-24 text-center bg-brand-wheat-50">
                 <div className="container mx-auto px-4 sm:px-6 relative z-10">
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-wheat-900 leading-tight">
                         The All-in-One AI Suite for <span className="text-brand-teal-500">Modern Creators</span>
                     </h2>
-                    <p className="mt-6 max-w-3xl mx-auto text-lg sm:text-xl text-brand-wheat-700">
-                        From cinematic videos and photorealistic images to professional logos and persuasive ad copy, Prismatik Studio is the only tool you need to bring your creative vision to life.
+                    <p className="mt-6 max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-brand-wheat-700">
+                        Unlock a full suite of generative AI tools. Go from a simple text prompt to stunning images, cinematic videos, professional logos, and complete marketing campaigns in minutes.
                     </p>
-                    <a href="/#/studio" className="mt-10 inline-block bg-brand-teal-500 text-white font-bold py-3 px-8 sm:py-4 sm:px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <a href="/#/studio" className="mt-8 sm:mt-10 inline-block bg-brand-teal-500 text-white font-bold py-3 px-8 sm:py-4 sm:px-10 rounded-lg text-base sm:text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Start Creating for Free
                     </a>
-                    <p className="mt-8 text-sm text-brand-wheat-600 tracking-wide uppercase font-semibold">
+                    <p className="mt-6 sm:mt-8 text-xs sm:text-sm text-brand-wheat-600 tracking-wide uppercase font-semibold">
                         Generate: Images &bull; Videos &bull; Logos &bull; Ads &bull; Stories &bull; Articles
                     </p>
                 </div>
             </section>
             
              {/* Toolkit Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-brand-wheat-100">
+            <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12 sm:mb-16">
-                         <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">A Full Creative Toolkit</h3>
-                         <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
-                            Access a complete suite of specialized AI generators, each designed to excel at its specific creative task.
+                         <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">An All-in-One Creative Toolkit</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-brand-wheat-600">
+                            Stop juggling multiple apps. Prismatik Studio combines every tool you need into one seamless, intuitive workflow.
                          </p>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6 max-w-7xl mx-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 sm:gap-6 max-w-7xl mx-auto">
                         <ToolCard icon={<ImageIco />} name="Images" href="/#/studio" />
                         <ToolCard icon={<VideoIco />} name="Videos" href="/#/studio" />
                         <ToolCard icon={<StoryIco />} name="Stories" href="/#/studio" />
@@ -272,11 +260,11 @@ export default function HomePage(): ReactElement {
             </AnimatedSection>
 
             {/* Detailed Features Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-white">
+            <AnimatedSection className="py-16 sm:py-20 bg-white">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12 sm:mb-16">
-                         <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Go From Idea to Final Asset, Faster</h3>
-                         <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                         <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Go From Idea to Final Asset, Faster</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-brand-wheat-600">
                             Each tool in Prismatik Studio is powerful on its own, but magical when used together. Explore what you can create.
                          </p>
                     </div>
@@ -284,11 +272,11 @@ export default function HomePage(): ReactElement {
                         <FeatureDetail
                             icon={<ImageIco className="w-7 h-7" />}
                             title="Image Generation"
-                            description="Go from a simple sentence to breathtaking visuals. Whether you need photorealistic assets for your brand, fantasy concept art for a game, or stylish illustrations for the web, our Image Generator is your digital canvas."
+                            description="Go from a simple sentence to breathtaking visuals. Whether you need photorealistic assets for your brand, fantasy concept art, or stylish illustrations, our Image Generator is your digital canvas."
                             bulletPoints={[
-                                "Access multiple state-of-the-art models like Imagen 4.",
-                                "Fine-tune with aspect ratios, styles, and negative prompts.",
-                                "Upload your own images to edit and transform them with text."
+                                "Leverage state-of-the-art models like Imagen 4 for unparalleled realism and detail.",
+                                "Take full creative control with fine-tuned parameters for style, aspect ratio, and negative prompts.",
+                                "Transform your existing photos or sketches with powerful image-to-image editing capabilities."
                             ]}
                             imageUrl="https://images.unsplash.com/photo-1664420339932-51786933a11f?q=80&w=800&auto=format&fit=crop"
                             align="left"
@@ -298,9 +286,9 @@ export default function HomePage(): ReactElement {
                             title="Video Generation"
                             description="Transform static ideas into dynamic motion. Generate short, cinematic video clips from a simple text prompt or bring your existing images to life with subtle, captivating animation."
                             bulletPoints={[
-                                "Powered by the cutting-edge Veo model for high-definition quality.",
-                                "Create videos from text or animate your own images.",
-                                "Perfect for social media, presentations, or ad campaigns."
+                                "Create stunning, high-definition clips powered by Google's cutting-edge Veo model.",
+                                "Generate dynamic scenes from a text prompt or bring your static images to life with animation.",
+                                "Produce engaging content perfect for social media, product showcases, and dynamic presentations."
                             ]}
                             imageUrl="https://images.unsplash.com/photo-1574717547372-5341499557ce?q=80&w=800&auto=format&fit=crop"
                             align="right"
@@ -310,9 +298,9 @@ export default function HomePage(): ReactElement {
                             title="AI Campaign Director"
                             description="Move beyond single assets. Describe a project goal, and our AI Creative Director will generate a complete, cohesive campaign including brand identity, logos, a hero image, ad copy, and a social video."
                             bulletPoints={[
-                                "Establish a full brand identity with colors, mood, and keywords.",
-                                "Ensure visual and tonal consistency across all marketing materials.",
-                                "The ultimate time-saver for product launches and new brands."
+                                "Instantly define a complete brand identity, from color palettes and mood to target audience.",
+                                "Generate a suite of perfectly aligned assets, ensuring brand consistency across your entire campaign.",
+                                "Launch products or build brands in a fraction of the time, from initial concept to a full media kit."
                             ]}
                             imageUrl="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=800&auto=format&fit=crop"
                             align="left"
@@ -322,11 +310,11 @@ export default function HomePage(): ReactElement {
             </AnimatedSection>
 
             {/* Use Cases Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-brand-wheat-50">
+            <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-50">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12 sm:mb-16">
-                        <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Built for Every Creative Professional</h3>
-                        <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Built for Every Creative Professional</h3>
+                        <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-brand-wheat-600">
                            Whether you're a professional team or a solo creator with a big idea, Prismatik Studio is built to amplify your efforts.
                         </p>
                     </div>
@@ -340,13 +328,13 @@ export default function HomePage(): ReactElement {
             </AnimatedSection>
             
              {/* Technology Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-brand-wheat-100">
+            <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         <div className="text-center md:text-left">
                              <GeminiLogoIcon className="w-24 h-24 mx-auto md:mx-0" />
-                             <h3 className="text-3xl md:text-4xl font-bold text-brand-wheat-900 mt-4">State-of-the-Art AI by Google</h3>
-                             <p className="mt-4 text-lg text-brand-wheat-700">
+                             <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900 mt-4">State-of-the-Art AI by Google</h3>
+                             <p className="mt-4 text-base sm:text-lg text-brand-wheat-700">
                                 Prismatik Studio sits on the shoulders of giants. We harness the full power of Google's state-of-the-art Gemini family of models, including Imagen and Veo, to deliver unparalleled quality and creative potential.
                              </p>
                         </div>
@@ -360,11 +348,11 @@ export default function HomePage(): ReactElement {
             </AnimatedSection>
 
             {/* How It Works Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-white">
+            <AnimatedSection className="py-16 sm:py-20 bg-white">
                  <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12 sm:mb-16">
-                         <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Your Idea, Supercharged</h3>
-                         <p className="mt-4 max-w-3xl mx-auto text-lg text-brand-wheat-600">
+                         <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Your Idea, Supercharged</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-brand-wheat-600">
                             Our intuitive workflow makes it easy to go from concept to creation in minutes.
                          </p>
                     </div>
@@ -380,10 +368,10 @@ export default function HomePage(): ReactElement {
             </AnimatedSection>
             
             {/* FAQ Section */}
-            <AnimatedSection className="py-16 sm:py-24 bg-brand-wheat-100">
+            <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
                     <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-5xl font-bold text-brand-wheat-900">Questions? We Have Answers.</h3>
+                        <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Questions? We Have Answers.</h3>
                     </div>
                     <div className="max-w-3xl mx-auto">
                         <FaqItem
@@ -408,14 +396,14 @@ export default function HomePage(): ReactElement {
             
             {/* Final CTA */}
             <AnimatedSection className="bg-brand-wheat-50">
-                <div className="container mx-auto px-4 sm:px-6 py-24 text-center">
-                    <h2 className="text-4xl md:text-5xl font-extrabold text-brand-wheat-900 leading-tight">
+                <div className="container mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-wheat-900 leading-tight">
                         Ready to Build the Impossible?
                     </h2>
-                    <p className="mt-4 max-w-2xl mx-auto text-lg text-brand-wheat-700">
+                    <p className="mt-4 max-w-2xl mx-auto text-base sm:text-lg text-brand-wheat-700">
                         The canvas is blank. The tools are ready. Your next masterpiece is just a prompt away.
                     </p>
-                    <a href="/#/studio" className="mt-8 inline-block bg-brand-teal-500 text-white font-bold py-4 px-10 rounded-lg text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <a href="/#/studio" className="mt-8 inline-block bg-brand-teal-500 text-white font-bold py-3 px-8 sm:py-4 sm:px-10 rounded-lg text-base sm:text-lg hover:bg-brand-teal-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Enter the Studio
                     </a>
                 </div>
@@ -434,7 +422,7 @@ const PersonaCard = ({ icon, title, description }: { icon: React.ReactElement<{ 
             {React.cloneElement(icon, { className: 'w-8 h-8' })}
         </div>
         <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
-        <p className="text-brand-wheat-700">{description}</p>
+        <p className="text-brand-wheat-700 text-sm sm:text-base">{description}</p>
     </div>
 );
 
