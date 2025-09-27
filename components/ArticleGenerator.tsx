@@ -3,6 +3,7 @@ import { generateArticle, generateImages, proofreadText } from '../services/gemi
 import { HistoryItemArticle, ArticleBlock } from '../types';
 import { ARTICLE_TYPES, WRITING_STYLES, ARTICLE_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import Tooltip from './Tooltip';
@@ -64,6 +65,7 @@ export default function ArticleGenerator(): ReactElement {
   const [copyMarkdownText, setCopyMarkdownText] = useState('Copy as Markdown');
 
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setPrompt(template.prompt || '');
@@ -90,10 +92,11 @@ export default function ArticleGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    const systemInstruction = activePersona?.systemInstruction;
 
     try {
       const onProgress = (message: string) => setProgress(message);
-      const { title, content } = await generateArticle(prompt, articleType, writingStyle, numImages, onProgress);
+      const { title, content } = await generateArticle(prompt, articleType, writingStyle, numImages, onProgress, systemInstruction);
       
       const newResult: ArticleResult = { title, content, prompt };
       setResult(newResult);
@@ -114,13 +117,14 @@ export default function ArticleGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, articleType, writingStyle, numImages, addHistoryItem]);
+  }, [prompt, articleType, writingStyle, numImages, addHistoryItem, activePersona]);
 
   const handleRegenerateImage = useCallback(async (block: Extract<ArticleBlock, { type: 'image' }>) => {
     if (!result) return;
     setImageRegenId(block.id);
+    const systemInstruction = activePersona?.systemInstruction;
     try {
-      const newImageUrls = await generateImages(block.imagePrompt, 1, "16:9", 'none', 'gemini-2.5-flash-image-preview');
+      const newImageUrls = await generateImages(block.imagePrompt, 1, "16:9", 'none', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
       if (newImageUrls.length > 0) {
         const newContent = result.content.map(b => 
             b.id === block.id ? { ...b, imageUrl: newImageUrls[0] } : b
@@ -132,7 +136,7 @@ export default function ArticleGenerator(): ReactElement {
     } finally {
       setImageRegenId(null);
     }
-  }, [result]);
+  }, [result, activePersona]);
 
   const handleStartEditing = (block: Extract<ArticleBlock, { type: 'heading' | 'paragraph' }>) => {
     setEditingBlockId(block.id);

@@ -3,6 +3,7 @@ import { generateStory, generateImages } from '../services/geminiService';
 import { AspectRatio, HistoryItemStory } from '../types';
 import { ASPECT_RATIOS, STORY_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import Tooltip from './Tooltip';
@@ -103,6 +104,7 @@ export default function StoryGenerator(): ReactElement {
   const [videoExportProgress, setVideoExportProgress] = useState<string>('');
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setPrompt(template.prompt || '');
@@ -143,11 +145,12 @@ export default function StoryGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    const systemInstruction = activePersona?.systemInstruction;
 
     try {
       const onProgress = (message: string) => setProgress(message);
       const imageParam = uploadedImage ? { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 } : undefined;
-      const scenes = await generateStory(prompt, aspectRatio, numberOfScenes, textLength, onProgress, imageParam);
+      const scenes = await generateStory(prompt, aspectRatio, numberOfScenes, textLength, onProgress, imageParam, systemInstruction);
       
       const newResult: StoryResult = { scenes, prompt, aspectRatio };
       setResult(newResult);
@@ -168,14 +171,16 @@ export default function StoryGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, aspectRatio, addHistoryItem, numberOfScenes, textLength, uploadedImage]);
+  }, [prompt, aspectRatio, addHistoryItem, numberOfScenes, textLength, uploadedImage, activePersona]);
   
   const handleRegenerateImage = useCallback(async (index: number) => {
     if (!result) return;
     setSceneRegenIndex(index);
+    const systemInstruction = activePersona?.systemInstruction;
+
     try {
       const scene = result.scenes[index];
-      const newImageUrls = await generateImages(scene.imagePrompt, 1, result.aspectRatio, 'none', 'gemini-2.5-flash-image-preview');
+      const newImageUrls = await generateImages(scene.imagePrompt, 1, result.aspectRatio, 'none', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
       if (newImageUrls.length > 0) {
         const newScenes = [...result.scenes];
         newScenes[index] = { ...newScenes[index], imageUrl: newImageUrls[0] };
@@ -186,7 +191,7 @@ export default function StoryGenerator(): ReactElement {
     } finally {
       setSceneRegenIndex(null);
     }
-  }, [result]);
+  }, [result, activePersona]);
   
   const handleStartEditingText = (index: number) => {
     if (!result) return;

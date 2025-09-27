@@ -3,6 +3,7 @@ import { generateVideo } from '../services/geminiService';
 import { AspectRatio, HistoryItemVideo } from '../types';
 import { VIDEO_ASPECT_RATIOS, VIDEO_TEMPLATES, VIDEO_MODELS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
@@ -29,6 +30,7 @@ export default function VideoGenerator(): ReactElement {
   const [uploadedImage, setUploadedImage] = useState<{ file: File; dataUrl: string; base64: string; mimeType: string } | null>(null);
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setPrompt(template.prompt || '');
@@ -68,10 +70,13 @@ export default function VideoGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+
+    const systemInstruction = activePersona?.systemInstruction;
+
     try {
       const onProgress = (message: string) => setProgress(message);
       const imageParam = uploadedImage ? { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 } : undefined;
-      const url = await generateVideo(prompt, aspectRatio, model, onProgress, imageParam);
+      const url = await generateVideo(prompt, aspectRatio, model, onProgress, imageParam, systemInstruction);
       
       const newResult = { videoUrl: url, prompt, aspectRatio, model };
       setResult(newResult);
@@ -92,7 +97,7 @@ export default function VideoGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, aspectRatio, model, uploadedImage, addHistoryItem]);
+  }, [prompt, aspectRatio, model, uploadedImage, addHistoryItem, activePersona]);
   
   return (
     <div>

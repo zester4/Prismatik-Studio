@@ -3,6 +3,7 @@ import { generateLogo } from '../services/geminiService';
 import { HistoryItemLogo } from '../types';
 import { LOGO_STYLES, LOGO_TEMPLATES, LOGO_MODELS } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
 import Tooltip from './Tooltip';
@@ -31,6 +32,7 @@ export default function LogoGenerator(): ReactElement {
   const [results, setResults] = useState<LogoResult[]>([]);
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const selectedModelInfo = LOGO_MODELS.find(m => m.id === model);
 
@@ -59,9 +61,12 @@ export default function LogoGenerator(): ReactElement {
     setError(null);
     setIsRetryable(false);
     setResults([]);
+
+    const systemInstruction = activePersona?.systemInstruction;
+
     try {
       const numberOfConcepts = selectedModelInfo?.concepts || 4;
-      const generatedImages = await generateLogo(companyName, description, style, colors, model, numberOfConcepts, slogan);
+      const generatedImages = await generateLogo(companyName, description, style, colors, model, numberOfConcepts, slogan, systemInstruction);
       const newResults: LogoResult[] = generatedImages.map(imageUrl => ({
           prompt: description,
           companyName,
@@ -89,7 +94,7 @@ export default function LogoGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [companyName, slogan, description, style, colors, model, addHistoryItem, selectedModelInfo]);
+  }, [companyName, slogan, description, style, colors, model, addHistoryItem, selectedModelInfo, activePersona]);
 
   return (
     <div>

@@ -1,4 +1,85 @@
-import { AspectRatio } from './types';
+import React from 'react';
+import { AspectRatio, Persona } from './types';
+
+// --- ICONS for Personas ---
+// FIX: Converted JSX to React.createElement to be valid in a .ts file.
+const GeneralIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 22l-.648-1.437a3.375 3.375 0 00-2.6-2.6L12 17.25l1.438-.648a3.375 3.375 0 002.6-2.6L17 12.75l.648 1.437a3.375 3.375 0 002.6 2.6l1.438.648-1.438.648a3.375 3.375 0 00-2.6 2.6z" })
+    )
+);
+const SocialIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" }),
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M15 11a3 3 0 11-6 0 3 3 0 016 0z" })
+    )
+);
+const WriterIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" })
+    )
+);
+const FormalIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" })
+    )
+);
+const CreativeIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" })
+    )
+);
+const TechnicalIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" })
+    )
+);
+const MarketingIcon: React.FC<{className: string}> = ({className}) => (
+    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: className, fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584M9 18l-3.362-3.362" })
+    )
+);
+
+export const PERSONA_ICONS = {
+    general: GeneralIcon,
+    social: SocialIcon,
+    writer: WriterIcon,
+    formal: FormalIcon,
+    creative: CreativeIcon,
+    technical: TechnicalIcon,
+    marketing: MarketingIcon,
+};
+
+export const DEFAULT_PERSONAS: Persona[] = [
+    {
+        id: 'default',
+        name: 'General Assistant',
+        description: 'A helpful and neutral AI assistant with no special instructions.',
+        icon: 'general',
+        systemInstruction: '',
+    },
+    {
+        id: 'social-media-manager',
+        name: 'Witty Social Media Manager',
+        description: 'Generates creative, punchy, and engaging content perfect for social media.',
+        icon: 'social',
+        systemInstruction: 'You are an expert social media manager. Your tone is witty, informal, and full of clever puns. You specialize in creating short, attention-grabbing copy and visually striking concepts for platforms like Twitter and Instagram. Keep text concise and use emojis where appropriate.',
+    },
+    {
+        id: 'formal-report-writer',
+        name: 'Formal Report Writer',
+        description: 'Produces structured, professional, and data-driven content suitable for reports and official documents.',
+        icon: 'formal',
+        systemInstruction: 'You are a professional research assistant. Your tone is formal, objective, and academic. You focus on clarity, structure, and precision. Use professional language and avoid casualisms, slang, or personal opinions. Your primary goal is to present information clearly and logically.',
+    },
+    {
+        id: 'creative-storyteller',
+        name: 'Creative Storyteller',
+        description: 'Weaves imaginative narratives and rich, descriptive visuals for stories and creative writing.',
+        icon: 'writer',
+        systemInstruction: "You are a master storyteller. Your tone is imaginative, descriptive, and emotionally resonant. You excel at creating vivid worlds, compelling characters, and engaging plots. Focus on sensory details and creating a strong sense of atmosphere in both your writing and your visual concepts.",
+    },
+];
 
 export const IMAGE_MODELS = [
   { id: 'imagen-4.0-generate-001', name: 'Imagen 4' },

@@ -11,10 +11,13 @@ import AdGenerator from './AdGenerator';
 import CampaignGenerator from './CampaignGenerator';
 import CreationGallery from './CreationGallery';
 import Profile from './Profile';
+import PersonaHub from './PersonaHub';
 import { HistoryProvider } from '../context/HistoryContext';
+import { PersonaProvider } from '../context/PersonaContext';
 
 function StudioContent(): ReactElement {
   const [mode, setMode] = useState<GenerationMode>(GenerationMode.IMAGE);
+  const [isPersonaHubOpen, setIsPersonaHubOpen] = useState(false);
 
   const handleModeChange = useCallback((newMode: GenerationMode) => {
     setMode(newMode);
@@ -50,20 +53,27 @@ function StudioContent(): ReactElement {
       <Header />
       <main className="container mx-auto px-4 sm:px-6 py-8 flex-grow">
         <div className="max-w-4xl mx-auto">
-          <TabSelector selectedMode={mode} onSelectMode={handleModeChange} />
+          <TabSelector 
+            selectedMode={mode} 
+            onSelectMode={handleModeChange}
+            onOpenPersonaHub={() => setIsPersonaHubOpen(true)}
+          />
           <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
             {renderContent()}
           </div>
         </div>
       </main>
+      {isPersonaHubOpen && <PersonaHub onClose={() => setIsPersonaHubOpen(false)} />}
     </div>
   );
 }
 
 export default function Studio(): ReactElement {
     return (
-        <HistoryProvider>
-            <StudioContent />
-        </HistoryProvider>
+      <HistoryProvider>
+        <PersonaProvider>
+          <StudioContent />
+        </PersonaProvider>
+      </HistoryProvider>
     )
 }

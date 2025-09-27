@@ -100,3 +100,14 @@ export interface HistoryItemCampaign extends HistoryItemBase {
 
 
 export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign;
+
+// --- Persona Hub Types ---
+export type PersonaIconName = 'general' | 'social' | 'writer' | 'formal' | 'creative' | 'technical' | 'marketing';
+
+export interface Persona {
+  id: string;
+  name: string;
+  description: string;
+  icon: PersonaIconName;
+  systemInstruction: string;
+}

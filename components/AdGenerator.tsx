@@ -3,6 +3,7 @@ import { generateAd, generateAdVideo } from '../services/geminiService';
 import { HistoryItemAd, AdCopy } from '../types';
 import { AD_TONES, AD_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
 import Tooltip from './Tooltip';
@@ -63,6 +64,7 @@ export default function AdGenerator(): ReactElement {
   const [result, setResult] = useState<AdResult | null>(null);
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setProductName(template.productName || '');
@@ -111,6 +113,8 @@ export default function AdGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    const systemInstruction = activePersona?.systemInstruction;
+
     try {
       let mediaUrl: string;
       let adCopy: AdCopy;
@@ -119,7 +123,8 @@ export default function AdGenerator(): ReactElement {
       if (adType === 'image') {
         const response = await generateAd(
           productName, description, audience, tone, cta,
-          imageParam
+          imageParam,
+          systemInstruction
         );
         mediaUrl = response.mediaUrl;
         adCopy = response.adCopy;
@@ -128,7 +133,8 @@ export default function AdGenerator(): ReactElement {
         const response = await generateAdVideo(
             productName, description, audience, tone, cta,
             onProgress,
-            imageParam
+            imageParam,
+            systemInstruction
         );
         mediaUrl = response.mediaUrl;
         adCopy = response.adCopy;
@@ -160,7 +166,7 @@ export default function AdGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [productName, description, audience, tone, cta, uploadedImage, addHistoryItem, isFormValid, adType]);
+  }, [productName, description, audience, tone, cta, uploadedImage, addHistoryItem, isFormValid, adType, activePersona]);
 
   const buttonText = adType === 'image' ? 'Generate Image Ad' : 'Generate Video Ad';
   const loadingText = adType === 'image' ? 'Generating Ad...' : 'Generating Video Ad...';

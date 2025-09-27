@@ -52,7 +52,8 @@ export const generateImages = async (
   aspectRatio: AspectRatio, 
   style: string, 
   model: string,
-  negativePrompt?: string
+  negativePrompt?: string,
+  systemInstruction?: string
 ): Promise<string[]> => {
   try {
     let finalPrompt = style && style !== 'none'
@@ -62,6 +63,11 @@ export const generateImages = async (
     // Add a quality booster for detailed styles on Imagen models
     if (model.startsWith('imagen-') && style !== 'none') {
         finalPrompt += ', high quality, 8k resolution, cinematic lighting, highly detailed';
+    }
+
+    // For Imagen, which doesn't support systemInstruction directly, prepend it to the prompt.
+    if (systemInstruction && model.startsWith('imagen-')) {
+        finalPrompt = `${systemInstruction}. ${finalPrompt}`;
     }
 
     if (model.startsWith('imagen-')) {
@@ -84,6 +90,7 @@ export const generateImages = async (
         contents: { parts: [{ text: finalPrompt }] },
         config: {
           responseModalities: [Modality.IMAGE, Modality.TEXT],
+          systemInstruction: systemInstruction || undefined,
         },
       });
 
@@ -108,7 +115,8 @@ export const generateImages = async (
 
 export const editImage = async (
   prompt: string,
-  image: { mimeType: string; data: string }
+  image: { mimeType: string; data: string },
+  systemInstruction?: string
 ): Promise<string> => {
   try {
     const model = 'gemini-2.5-flash-image-preview';
@@ -122,6 +130,7 @@ export const editImage = async (
       },
       config: {
         responseModalities: [Modality.IMAGE, Modality.TEXT],
+        systemInstruction: systemInstruction || undefined,
       },
     });
 
@@ -146,13 +155,20 @@ export const generateVideo = async (
   aspectRatio: AspectRatio, 
   model: string,
   onProgress: (message: string) => void,
-  image?: { mimeType: string; data: string }
+  image?: { mimeType: string; data: string },
+  systemInstruction?: string
 ): Promise<string> => {
   try {
     onProgress("Starting video generation...");
+
+    let finalPrompt = prompt;
+    if (systemInstruction) {
+        finalPrompt = `${systemInstruction}. ${prompt}`;
+    }
+
     let operation = await ai.models.generateVideos({
       model,
-      prompt,
+      prompt: finalPrompt,
       image: image ? { 
         imageBytes: image.data,
         mimeType: image.mimeType,
@@ -201,7 +217,8 @@ export const generateStory = async (
   numberOfScenes: number,
   textLength: 'short' | 'medium' | 'detailed',
   onProgress: (message: string) => void,
-  characterImage?: { mimeType: string; data: string }
+  characterImage?: { mimeType: string; data: string },
+  systemInstruction?: string
 ): Promise<StoryScene[]> => {
   try {
     let characterDescription = "";
@@ -222,6 +239,7 @@ export const generateStory = async (
             },
           ],
         },
+        config: { systemInstruction: systemInstruction || undefined, }
       });
       characterDescription = descriptionResponse.text.trim();
       onProgress("Character analysis complete.");
@@ -259,6 +277,7 @@ export const generateStory = async (
       model: "gemini-2.5-flash",
       contents: storyPlannerPrompt,
       config: {
+        systemInstruction: systemInstruction || undefined,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -287,7 +306,7 @@ export const generateStory = async (
         const sceneData = storyPlan[i];
         onProgress(`Generating image for scene ${i + 1}/${storyPlan.length}...`);
         
-        const imageUrls = await generateImages(sceneData.imagePrompt, 1, aspectRatio, 'cinematic', 'gemini-2.5-flash-image-preview');
+        const imageUrls = await generateImages(sceneData.imagePrompt, 1, aspectRatio, 'cinematic', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
 
         if (imageUrls.length === 0) {
           throw new Error(`Failed to generate an image for scene ${i + 1}.`);
@@ -315,7 +334,8 @@ export const generateLogo = async (
   colors: string,
   model: string,
   numberOfConcepts: number,
-  slogan?: string
+  slogan?: string,
+  systemInstruction?: string,
 ): Promise<string[]> => {
   try {
     const prompt = `
@@ -327,7 +347,7 @@ export const generateLogo = async (
       The logo should be on a plain white background. Do NOT include any text, letters, or words in the logo itself.
     `.trim();
 
-    const images = await generateImages(prompt, numberOfConcepts, "1:1", 'none', model);
+    const images = await generateImages(prompt, numberOfConcepts, "1:1", 'none', model, undefined, systemInstruction);
     return images;
 
   } catch (error) {
@@ -340,7 +360,8 @@ export const generateAdCopy = async (
     description: string,
     audience: string,
     tone: string,
-    cta: string
+    cta: string,
+    systemInstruction?: string
 ): Promise<AdCopy> => {
     try {
         const adCopyPrompt = `
@@ -362,6 +383,7 @@ export const generateAdCopy = async (
             model: 'gemini-2.5-flash',
             contents: adCopyPrompt,
             config: {
+                systemInstruction: systemInstruction || undefined,
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -387,10 +409,11 @@ export const generateAd = async (
     audience: string,
     tone: string,
     cta: string,
-    image?: { mimeType: string; data: string }
+    image?: { mimeType: string; data: string },
+    systemInstruction?: string
 ): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
     try {
-        const adCopy = await generateAdCopy(productName, description, audience, tone, cta);
+        const adCopy = await generateAdCopy(productName, description, audience, tone, cta, systemInstruction);
         let imageUrl: string;
 
         if (image) {
@@ -402,20 +425,8 @@ export const generateAd = async (
                 Headline: ${adCopy.headline}
                 Body: ${adCopy.body}
             `;
-            const editResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image-preview',
-                contents: { parts: [{ text: imageEditPrompt }, { inlineData: { mimeType: image.mimeType, data: image.data } }] },
-                config: {
-                    responseModalities: [Modality.IMAGE, Modality.TEXT],
-                },
-            });
+            imageUrl = await editImage(imageEditPrompt, image, systemInstruction);
 
-            const imagePart = editResponse.candidates?.[0]?.content.parts.find(p => p.inlineData);
-            if (imagePart?.inlineData) {
-                imageUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
-            } else {
-                throw new Error("Image editing failed to return an image.");
-            }
         } else {
             const imageGenPrompt = `
                 Create a visually stunning, photorealistic, and professional advertisement image for a product called "${productName}".
@@ -426,7 +437,7 @@ export const generateAd = async (
                 Headline: ${adCopy.headline}
                 Body: ${adCopy.body}
             `;
-            const generatedImages = await generateImages(imageGenPrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001');
+            const generatedImages = await generateImages(imageGenPrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001', undefined, systemInstruction);
             if (generatedImages.length === 0) throw new Error("Image generation failed.");
             imageUrl = generatedImages[0];
         }
@@ -445,11 +456,12 @@ export const generateAdVideo = async (
     tone: string,
     cta: string,
     onProgress: (message: string) => void,
-    image?: { mimeType: string; data: string }
+    image?: { mimeType: string; data: string },
+    systemInstruction?: string
 ): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
     try {
         onProgress("Generating ad copy...");
-        const adCopy = await generateAdCopy(productName, description, audience, tone, cta);
+        const adCopy = await generateAdCopy(productName, description, audience, tone, cta, systemInstruction);
 
         onProgress("Generating video prompt...");
         const videoPrompt = `
@@ -460,7 +472,7 @@ export const generateAdVideo = async (
             Visual-only prompt; do not add text or sound.
         `;
 
-        const videoUrl = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image);
+        const videoUrl = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image, systemInstruction);
         return { mediaUrl: videoUrl, adCopy };
 
     } catch (error) {
@@ -473,7 +485,8 @@ export const generateArticle = async (
     articleType: string,
     writingStyle: string,
     numImages: number,
-    onProgress: (message: string) => void
+    onProgress: (message: string) => void,
+    systemInstruction?: string
 ): Promise<{ title: string, content: ArticleBlock[] }> => {
     try {
         // Step 1: Generate the article's text structure with image placeholders
@@ -499,7 +512,10 @@ export const generateArticle = async (
         const structureResponse = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: articleStructurePrompt,
-            config: { responseMimeType: "application/json" }
+            config: { 
+                systemInstruction: systemInstruction || undefined,
+                responseMimeType: "application/json"
+            }
         });
 
         // Clean the response to ensure it's valid JSON
@@ -544,11 +560,12 @@ export const generateArticle = async (
                 const promptResponse = await ai.models.generateContent({
                     model: "gemini-2.5-flash",
                     contents: imagePromptGenPrompt,
+                    config: { systemInstruction: systemInstruction || undefined, }
                 });
                 const imagePrompt = promptResponse.text.trim();
 
                 onProgress(`Generating image ${imageCounter}/${numImages}...`);
-                const imageUrls = await generateImages(imagePrompt, 1, '16:9', 'photorealistic', 'gemini-2.5-flash-image-preview');
+                const imageUrls = await generateImages(imagePrompt, 1, '16:9', 'photorealistic', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
 
                 if (imageUrls.length > 0) {
                     finalContent.push({
@@ -597,7 +614,8 @@ export const proofreadText = async (text: string): Promise<string> => {
 
 export const generateCampaign = async (
   brief: string,
-  onProgress: (message: string) => void
+  onProgress: (message: string) => void,
+  systemInstruction?: string
 ): Promise<{
   brandIdentity: BrandIdentity;
   logos: string[];
@@ -624,6 +642,7 @@ export const generateCampaign = async (
       model: "gemini-2.5-flash",
       contents: brandIdentityPrompt,
       config: {
+        systemInstruction: systemInstruction || undefined,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -648,14 +667,16 @@ export const generateCampaign = async (
       'modern',
       brandIdentity.colors.join(', '),
       'imagen-4.0-ultra-generate-001',
-      4
+      4,
+      undefined,
+      systemInstruction
     );
     if (logos.length === 0) throw new Error("Logo generation failed.");
 
     // Step 3: Hero Image
     onProgress("Creating hero image...");
     const heroImagePrompt = `Create a stunning, cinematic, photorealistic hero image for a website for "${brandIdentity.companyName}". The mood is ${brandIdentity.mood.join(', ')}. The campaign is about: ${brief}. The image should be visually captivating and high-quality, suitable for a main banner. Do not include any text.`;
-    const heroImages = await generateImages(heroImagePrompt, 1, "16:9", 'cinematic', 'imagen-4.0-generate-001');
+    const heroImages = await generateImages(heroImagePrompt, 1, "16:9", 'cinematic', 'imagen-4.0-generate-001', undefined, systemInstruction);
     if (heroImages.length === 0) throw new Error("Hero image generation failed.");
     const heroImage = heroImages[0];
 
@@ -666,14 +687,15 @@ export const generateCampaign = async (
         brief, 
         brandIdentity.targetAudience, 
         brandIdentity.mood[0] || 'professional', 
-        'Learn More'
+        'Learn More',
+        systemInstruction
     );
 
     // Step 5: Social Video
     onProgress("Producing social media video...");
     const videoPrompt = `Create a short, captivating, and visually engaging video (5-10 seconds) for social media. The video is for "${brandIdentity.companyName}" and should reflect a ${brandIdentity.mood.join(', ')} mood. The theme is: ${brief}. Use dynamic camera motion and cinematic visuals.`;
     // The video generator progress will be passed through via its own onProgress callback
-    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress);
+    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress, undefined, systemInstruction);
     
     onProgress("Campaign generation complete!");
     return { brandIdentity, logos, heroImage, adCopy, socialVideoUrl };

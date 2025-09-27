@@ -1,8 +1,9 @@
-import React, { useState, useCallback, ReactElement, useContext, ChangeEvent } from 'react';
+import React, { useState, useCallback, ReactElement, useContext, ChangeEvent, useMemo } from 'react';
 import { generateImages, editImage } from '../services/geminiService';
 import { AspectRatio, HistoryItemImage } from '../types';
 import { IMAGE_MODELS, ASPECT_RATIOS, IMAGE_STYLES, IMAGE_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
@@ -33,6 +34,7 @@ export default function ImageGenerator(): ReactElement {
 
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setPrompt(template.prompt || '');
@@ -82,10 +84,12 @@ export default function ImageGenerator(): ReactElement {
     setIsRetryable(false);
     setResults([]);
 
+    const systemInstruction = activePersona?.systemInstruction;
+
     try {
       if (uploadedImage) {
         // Image Editing Logic
-        const editedImage = await editImage(prompt, { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 });
+        const editedImage = await editImage(prompt, { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 }, systemInstruction);
         const newResult: ImageResult = {
           prompt,
           imageUrl: editedImage,
@@ -105,7 +109,7 @@ export default function ImageGenerator(): ReactElement {
 
       } else {
         // Text-to-Image Generation Logic
-        const generatedImages = await generateImages(prompt, numberOfImages, aspectRatio, style, model, negativePrompt);
+        const generatedImages = await generateImages(prompt, numberOfImages, aspectRatio, style, model, negativePrompt, systemInstruction);
         const newResults: ImageResult[] = generatedImages.map(imageUrl => ({
             prompt,
             imageUrl,
@@ -133,7 +137,7 @@ export default function ImageGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, numberOfImages, aspectRatio, style, model, negativePrompt, addHistoryItem, uploadedImage]);
+  }, [prompt, numberOfImages, aspectRatio, style, model, negativePrompt, addHistoryItem, uploadedImage, activePersona]);
 
   const isImagenModel = model.startsWith('imagen-');
   const isEditing = uploadedImage !== null;

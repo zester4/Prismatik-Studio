@@ -3,6 +3,7 @@ import { generateCampaign } from '../services/geminiService';
 import { HistoryItemCampaign, BrandIdentity, AdCopy } from '../types';
 import { CAMPAIGN_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
+import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import ImageModal from './ImageModal';
@@ -21,6 +22,7 @@ export default function CampaignGenerator(): ReactElement {
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   
   const { addHistoryItem } = useContext(HistoryContext);
+  const { activePersona } = useContext(PersonaContext);
 
   const handleSelectTemplate = useCallback((template: any) => {
     setPrompt(template.prompt || '');
@@ -53,10 +55,11 @@ export default function CampaignGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    const systemInstruction = activePersona?.systemInstruction;
 
     try {
       const onProgress = (message: string) => setProgress(message);
-      const campaignResult = await generateCampaign(prompt, onProgress);
+      const campaignResult = await generateCampaign(prompt, onProgress, systemInstruction);
       
       const newResult: CampaignResult = { prompt, ...campaignResult };
       setResult(newResult);
@@ -77,7 +80,7 @@ export default function CampaignGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, addHistoryItem]);
+  }, [prompt, addHistoryItem, activePersona]);
   
   return (
     <div>
