@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useCallback, useContext } from 'react';
-import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock, HistoryItemCampaign } from '../types';
+import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock, HistoryItemCampaign, HistoryItemPodcast } from '../types';
 import { IMAGE_MODELS, VIDEO_MODELS } from '../constants';
 import ImageModal from './ImageModal';
 import StoryModal from './StoryModal';
@@ -99,6 +99,9 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
         href = adItem.mediaUrl;
         promptForFilename = adItem.productName;
         fileExtension = adItem.adType === 'video' ? 'mp4' : 'jpg';
+    } else if (item.type === 'podcast') {
+        href = (item as HistoryItemPodcast).audioUrl;
+        fileExtension = 'mp3';
     }
     
     link.href = href;
@@ -302,6 +305,38 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
             </button>
            </div>
         </div>
+    );
+  }
+
+  if (item.type === 'podcast') {
+    return (
+      <div className="bg-brand-wheat-50 rounded-xl overflow-hidden shadow-lg transition-shadow hover:shadow-xl flex flex-col">
+        <div className="p-4 flex flex-col flex-grow">
+            <div className="relative group bg-brand-wheat-900 p-6 rounded-lg flex items-center justify-center aspect-video">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-brand-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                 <div className="absolute top-2 right-2 bg-brand-teal-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    Podcast
+                 </div>
+                 <button onClick={handleToggleFavorite} title={isFavorited ? "Remove from favorites" : "Add to favorites"} className="absolute top-2 left-2 z-10 p-1.5 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition">
+                    {isFavorited ? <StarIconFilled className="w-5 h-5 text-yellow-400" /> : <StarIconOutline className="w-5 h-5" />}
+                </button>
+            </div>
+            <audio controls src={item.audioUrl} className="w-full mt-4"></audio>
+            <p className="text-sm text-brand-wheat-700 leading-relaxed flex-grow mt-4">
+                "{item.prompt}"
+            </p>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button onClick={handleCopyPrompt} className="text-sm w-full bg-brand-wheat-100 hover:bg-brand-wheat-200 text-brand-wheat-800 font-semibold py-2 px-3 rounded-md transition duration-200">
+                {copyButtonText}
+              </button>
+              <button onClick={handleDownload} className="text-sm w-full bg-brand-teal-500 hover:bg-brand-teal-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200">
+                Download
+              </button>
+            </div>
+        </div>
+      </div>
     );
   }
 

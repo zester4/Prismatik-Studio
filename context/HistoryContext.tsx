@@ -31,6 +31,7 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
         // Filter out items with non-persistent blob URLs
         const validItems = parsedItems.filter(item => 
             item.type !== 'video' && 
+            item.type !== 'podcast' &&
             !(item.type === 'ad' && item.adType === 'video') &&
             item.type !== 'campaign'
         );
@@ -50,6 +51,7 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
         // Only persist items whose media URLs are not temporary blobs
         const itemsToStore = items.filter(item => 
             item.type !== 'video' && 
+            item.type !== 'podcast' &&
             !(item.type === 'ad' && item.adType === 'video') &&
             item.type !== 'campaign'
         );

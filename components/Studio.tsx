@@ -9,6 +9,7 @@ import ArticleGenerator from './ArticleGenerator';
 import LogoGenerator from './LogoGenerator';
 import AdGenerator from './AdGenerator';
 import CampaignGenerator from './CampaignGenerator';
+import PodcastGenerator from './PodcastGenerator';
 import CreationGallery from './CreationGallery';
 import Profile from './Profile';
 import PersonaHub from './PersonaHub';
@@ -33,6 +34,8 @@ function StudioContent(): ReactElement {
         return <StoryGenerator />;
       case GenerationMode.ARTICLE:
         return <ArticleGenerator />;
+      case GenerationMode.PODCAST:
+        return <PodcastGenerator />;
       case GenerationMode.LOGO:
         return <LogoGenerator />;
       case GenerationMode.AD:

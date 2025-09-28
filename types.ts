@@ -8,6 +8,7 @@ export enum GenerationMode {
   LOGO = 'logo',
   AD = 'ad',
   CAMPAIGN = 'campaign',
+  PODCAST = 'podcast',
   GALLERY = 'gallery',
   PROFILE = 'profile',
 }
@@ -98,8 +99,20 @@ export interface HistoryItemCampaign extends HistoryItemBase {
   socialVideoUrl: string; // This will be a blob URL
 }
 
+export interface PodcastScriptLine {
+    speaker: string;
+    line: string;
+}
 
-export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign;
+export interface HistoryItemPodcast extends HistoryItemBase {
+    type: 'podcast';
+    audioUrl: string; // This will be a blob URL
+    script: PodcastScriptLine[];
+    voiceAssignments: { [speaker: string]: string };
+}
+
+
+export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign | HistoryItemPodcast;
 
 // --- Persona Hub Types ---
 export type PersonaIconName = 'general' | 'social' | 'writer' | 'formal' | 'creative' | 'technical' | 'marketing';

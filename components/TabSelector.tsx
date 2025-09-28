@@ -83,6 +83,11 @@ const CampaignIco: React.FC<{className: string}> = ({className}) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
 );
+const PodcastIco: React.FC<{className: string}> = ({className}) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+  </svg>
+);
 const GalleryIco: React.FC<{className: string}> = ({className}) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -125,6 +130,12 @@ export default function TabSelector({ selectedMode, onSelectMode, onOpenPersonaH
           Icon={ArticleIco}
           isSelected={selectedMode === GenerationMode.ARTICLE}
           onClick={() => onSelectMode(GenerationMode.ARTICLE)}
+        />
+        <TabButton
+          label="Podcast" 
+          Icon={PodcastIco}
+          isSelected={selectedMode === GenerationMode.PODCAST}
+          onClick={() => onSelectMode(GenerationMode.PODCAST)}
         />
         <TabButton
           label="Logo" 

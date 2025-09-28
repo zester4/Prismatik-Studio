@@ -94,6 +94,14 @@ export const VIDEO_MODELS = [
   { id: 'veo-3.0-generate-001', name: 'Veo 3.0' },
 ];
 
+export const TTS_VOICES = [
+    { id: 'Zephyr', name: 'Zephyr (Female)' },
+    { id: 'Puck', name: 'Puck (Male)' },
+    { id: 'Charon', name: 'Charon (Male, Deep)' },
+    { id: 'Kore', name: 'Kore (Female)' },
+    { id: 'Fenrir', name: 'Fenrir (Male)' },
+];
+
 export const ASPECT_RATIOS: AspectRatio[] = ["1:1", "16:9", "9:16", "4:3", "3:4"];
 
 export const VIDEO_ASPECT_RATIOS: AspectRatio[] = ["16:9", "9:16"];
@@ -382,5 +390,28 @@ export const CAMPAIGN_TEMPLATES = [
         title: "Pet Adoption App",
         description: "Launch kit for 'Pixel Paws,' a mobile app that uses AI to match pets with owners.",
         prompt: "Announcing 'Pixel Paws,' a mobile app for pet adoption that uses AI to match pets with owners. The brand identity should be friendly, tech-savvy, and heartwarming. I need a complete launch kit: logos, a hero image for the app store, ad copy for online ads, and a short, animated video explaining how the app works."
+    },
+];
+
+export const PODCAST_TEMPLATES = [
+    {
+        title: "Tech News Roundup",
+        description: "A 5-minute, two-host podcast discussing the latest in AI and gadget news.",
+        prompt: "A 5-minute podcast with two hosts, 'Alex' and 'Ben', discussing the latest news in AI and consumer tech. The tone should be enthusiastic and informative."
+    },
+    {
+        title: "History of Coffee",
+        description: "A short, solo-narrated documentary on the origins of coffee.",
+        prompt: "A short documentary-style podcast about the history of coffee, from its discovery in Ethiopia to its global spread. The narrator should have a calm, engaging voice."
+    },
+    {
+        title: "True Crime: The Missing Starlet",
+        description: "A dramatic true crime episode about a fictional Hollywood mystery.",
+        prompt: "A 10-minute true crime podcast episode about the mysterious disappearance of a fictional 1940s Hollywood actress named 'Vera Sterling'. Include a main narrator and a second voice for reading quotes."
+    },
+    {
+        title: "Guided Meditation",
+        description: "A 5-minute guided meditation for relaxation and focus.",
+        prompt: "A 5-minute guided meditation session. The narrator should speak slowly and calmly, guiding the listener through breathing exercises for relaxation."
     },
 ];

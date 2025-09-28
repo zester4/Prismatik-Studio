@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity } from '../types';
+import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity, PodcastScriptLine } from '../types';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
@@ -13,7 +13,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * @param context The generation context (e.g., 'image', 'video').
  * @returns A user-friendly error string.
  */
-const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign'): string => {
+const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign' | 'podcast'): string => {
   console.error(`Error during ${context} generation:`, error);
   
   if (error instanceof Error) {
@@ -702,5 +702,80 @@ export const generateCampaign = async (
 
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'campaign'));
+  }
+};
+
+export const generatePodcastScript = async (topic: string, systemInstruction?: string): Promise<PodcastScriptLine[]> => {
+    try {
+        const scriptPrompt = `
+            You are a podcast script writer. Based on the user's topic, create an engaging podcast script.
+            The response must be a valid JSON array of objects, where each object represents a line in the script.
+            Each object must have two properties:
+            1. "speaker": A string identifying the speaker (e.g., "Narrator", "Host", "Guest 1"). If there's only one speaker, use "Narrator".
+            2. "line": A string of the text to be spoken.
+
+            Keep the script concise and conversational.
+
+            User's Topic: "${topic}"
+        `;
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: scriptPrompt,
+            config: {
+                systemInstruction: systemInstruction || "You are a creative and engaging scriptwriter for audio content.",
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            speaker: { type: Type.STRING },
+                            line: { type: Type.STRING },
+                        },
+                        required: ['speaker', 'line'],
+                    }
+                }
+            }
+        });
+
+        const script = JSON.parse(response.text);
+        if (!Array.isArray(script) || script.length === 0) {
+            throw new Error("The AI failed to generate a valid script structure. Please try a different topic.");
+        }
+        return script;
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'podcast'));
+    }
+};
+
+export const generateSpeech = async (text: string, voice: string): Promise<string> => {
+  try {
+    // NOTE: The @google/genai SDK documentation provided does not explicitly detail a non-streaming
+    // Text-to-Speech endpoint. This implementation is based on an extrapolation of the 'live' API's
+    // configuration, assuming a similar structure can be used with generateContent for single audio outputs.
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Synthesize the following text into speech: "${text}"`,
+        config: {
+            responseModalities: [Modality.AUDIO],
+            speechConfig: {
+                // Available voices from Dialog TTS documentation include Zephyr, Puck, Charon, Kore, and Fenrir.
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } },
+            },
+        },
+    });
+
+    const audioPart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
+    if (audioPart?.inlineData && audioPart.inlineData.mimeType.startsWith('audio/')) {
+        return audioPart.inlineData.data; // This is the base64 encoded audio string
+    } else {
+        const textPart = response.candidates?.[0]?.content.parts.find(p => p.text);
+        if (textPart?.text) {
+          throw new Error(`Speech generation failed. Model response: ${textPart.text}`);
+        }
+        throw new Error("Speech generation failed to return audio data.");
+    }
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error, 'podcast'));
   }
 };
