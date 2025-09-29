@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity, PodcastScriptLine } from '../types';
+// FIX: Import HistoryItemCampaign to resolve type error.
+import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity, PodcastScriptLine, HistoryItemCampaign } from '../types';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
@@ -13,7 +14,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * @param context The generation context (e.g., 'image', 'video').
  * @returns A user-friendly error string.
  */
-const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign' | 'podcast'): string => {
+const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign' | 'podcast' | 'text'): string => {
   console.error(`Error during ${context} generation:`, error);
   
   if (error instanceof Error) {
@@ -102,6 +103,9 @@ export const generateImages = async (
             images.push(`data:image/png;base64,${base64ImageBytes}`);
           }
         }
+      }
+      if (images.length === 0) {
+          throw new Error("The model did not return an image. It might have responded with text instead. Check the safety settings or refine your prompt.");
       }
       return images;
     }
@@ -262,65 +266,68 @@ export const generateStory = async (
 
       For each scene, provide:
       1.  **text**: A narrative portion for the scene. The text for each scene should be ${lengthInstruction}.
-      2.  **imagePrompt**: A detailed, descriptive prompt for an AI image generator to create the scene's illustration. This prompt must be in English. It should describe the scene's composition, characters, actions, setting, and mood. If a character description is provided, ensure it is used consistently in every image prompt.
-
-      The response must be a valid JSON array of objects, where each object has "text" and "imagePrompt" string properties. Do not include any other text or markdown formatting outside of the JSON array.
-
-      Example for one scene:
-      {
-        "text": "The little squirrel, Pip, nervously clutched the ancient map, its tiny paws trembling. The Golden Acorn was said to be at the top of the Whispering Peaks.",
-        "imagePrompt": "A small, fluffy squirrel with big, curious eyes stands on a mossy branch, looking up at a towering, misty mountain range in the distance. He is holding a small, rolled-up parchment map. The style is a warm, slightly whimsical digital painting, cinematic lighting, golden hour."
-      }
+      2.  **imagePrompt**: A detailed, descriptive prompt for an AI image generator to create the scene's illustration. This prompt must be in English. It should describe the scene's composition, characters, actions, environment, and mood. Crucially, if a main character description is provided, ensure it is integrated into every single image prompt to maintain character consistency. The overall style should be consistent across all prompts.
     `;
     
-    const plannerResponse = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: storyPlannerPrompt,
-      config: {
-        systemInstruction: systemInstruction || undefined,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: storyPlannerPrompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
             type: Type.OBJECT,
             properties: {
-              text: { type: Type.STRING },
-              imagePrompt: { type: Type.STRING },
+              scenes: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    text: { type: Type.STRING },
+                    imagePrompt: { type: Type.STRING },
+                  },
+                  required: ["text", "imagePrompt"],
+                },
+              },
             },
-            required: ['text', 'imagePrompt'],
+            required: ["scenes"],
           },
+          systemInstruction: systemInstruction || undefined,
         },
-      },
     });
 
-    onProgress("Story plan generated. Creating scene images...");
-    const storyPlan: { text: string; imagePrompt: string }[] = JSON.parse(plannerResponse.text);
+    const storyPlan = JSON.parse(response.text);
+    const scenesToGenerate = storyPlan.scenes as { text: string; imagePrompt: string }[];
+    const finalScenes: StoryScene[] = [];
 
-    if (!Array.isArray(storyPlan) || storyPlan.length === 0) {
-        throw new Error("Failed to generate a valid story plan from the model.");
-    }
-    
-    const scenes: StoryScene[] = [];
-    
-    for (let i = 0; i < storyPlan.length; i++) {
-        const sceneData = storyPlan[i];
-        onProgress(`Generating image for scene ${i + 1}/${storyPlan.length}...`);
+    onProgress(`Story plan created. Generating ${scenesToGenerate.length} scene images...`);
+
+    for (let i = 0; i < scenesToGenerate.length; i++) {
+        const scene = scenesToGenerate[i];
+        onProgress(`Generating image for scene ${i + 1}/${scenesToGenerate.length}...`);
         
-        const imageUrls = await generateImages(sceneData.imagePrompt, 1, aspectRatio, 'cinematic', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
+        const imageUrls = await generateImages(
+            scene.imagePrompt, 
+            1, 
+            aspectRatio, 
+            'none',
+            'gemini-2.5-flash-image-preview',
+            undefined,
+            systemInstruction
+        );
 
         if (imageUrls.length === 0) {
-          throw new Error(`Failed to generate an image for scene ${i + 1}.`);
+            throw new Error(`Failed to generate an image for scene ${i + 1}.`);
         }
         
-        scenes.push({
-          text: sceneData.text,
-          imagePrompt: sceneData.imagePrompt,
-          imageUrl: imageUrls[0],
+        finalScenes.push({
+            imageUrl: imageUrls[0],
+            text: scene.text,
+            imagePrompt: scene.imagePrompt,
         });
     }
 
     onProgress("Story generation complete!");
-    return scenes;
+    return finalScenes;
 
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'story'));
@@ -339,68 +346,28 @@ export const generateLogo = async (
 ): Promise<string[]> => {
   try {
     const prompt = `
-      Create a professional logo concept for a company named "${companyName}".
-      ${slogan ? `Their slogan is: "${slogan}".` : ''}
-      Company Description: ${description}.
-      Logo Style: ${style}, vector, simple, clean, modern, minimalist, flat design.
-      Color Palette: ${colors}.
-      The logo should be on a plain white background. Do NOT include any text, letters, or words in the logo itself.
-    `.trim();
+      Create a professional, text-free logo concept for a company named "${companyName}".
+      ${slogan ? `Their slogan is "${slogan}".` : ''}
+      Company Description: "${description}".
+      The logo must be in a "${style}" style.
+      The primary color palette should be: ${colors}.
+      The logo should be clean, iconic, and suitable for a modern brand. Do not include any text or letters in the logo itself. Focus on a symbolic or abstract mark.
+    `;
 
-    const images = await generateImages(prompt, numberOfConcepts, "1:1", 'none', model, undefined, systemInstruction);
+    const images = await generateImages(
+      prompt,
+      numberOfConcepts,
+      "1:1",
+      'none',
+      model,
+      "text, letters, words, font, blurry, signature",
+      systemInstruction,
+    );
     return images;
 
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'logo'));
   }
-};
-
-export const generateAdCopy = async (
-    productName: string,
-    description: string,
-    audience: string,
-    tone: string,
-    cta: string,
-    systemInstruction?: string
-): Promise<AdCopy> => {
-    try {
-        const adCopyPrompt = `
-            Create compelling ad copy for a product.
-
-            Product Name: "${productName}"
-            Description: "${description}"
-            Target Audience: "${audience}"
-            Tone of Voice: "${tone}"
-            Call to Action: "${cta}"
-
-            Provide a response in a valid JSON object format with three string properties: "headline", "body", and "cta".
-            - headline: A short, attention-grabbing headline (max 10 words).
-            - body: A concise and persuasive body text (max 40 words).
-            - cta: A clear call to action, which should be the exact CTA provided by the user.
-        `;
-
-        const copyResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: adCopyPrompt,
-            config: {
-                systemInstruction: systemInstruction || undefined,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        headline: { type: Type.STRING },
-                        body: { type: Type.STRING },
-                        cta: { type: Type.STRING },
-                    },
-                    required: ['headline', 'body', 'cta']
-                }
-            }
-        });
-
-        return JSON.parse(copyResponse.text);
-    } catch (error) {
-        throw new Error(getFriendlyErrorMessage(error, 'ad'));
-    }
 };
 
 export const generateAd = async (
@@ -410,40 +377,61 @@ export const generateAd = async (
     tone: string,
     cta: string,
     image?: { mimeType: string; data: string },
-    systemInstruction?: string
-): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
+    systemInstruction?: string,
+): Promise<{ mediaUrl: string; adCopy: AdCopy; }> => {
     try {
-        const adCopy = await generateAdCopy(productName, description, audience, tone, cta, systemInstruction);
-        let imageUrl: string;
+        const adCopyPrompt = `
+            Generate ad copy for a product. The tone should be ${tone}.
+            - Product Name: ${productName}
+            - Description: ${description}
+            - Target Audience: ${audience}
+            - Call to Action: ${cta}
+        `;
+        const copyResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: adCopyPrompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        headline: { type: Type.STRING },
+                        body: { type: Type.STRING },
+                        cta: { type: Type.STRING },
+                    },
+                    required: ["headline", "body", "cta"],
+                },
+                systemInstruction: systemInstruction || "You are a professional marketing copywriter.",
+            }
+        });
+        const adCopy: AdCopy = JSON.parse(copyResponse.text);
+
+        let mediaUrl: string;
+        const imagePrompt = `
+            Create a professional, high-quality advertisement image for "${productName}".
+            The ad's headline is "${adCopy.headline}".
+            The target audience is ${audience}.
+            The overall mood should be ${tone}.
+            The image should be visually appealing and showcase the product or its benefits as described: ${description}.
+            This is for a social media ad, so it should be eye-catching. No text on the image.
+        `;
 
         if (image) {
-            const imageEditPrompt = `
-                Analyze this product image. Enhance it to look like a professional, high-quality advertisement.
-                Make the lighting cinematic, improve the colors, and place the product in a visually appealing, relevant, but clean and uncluttered setting.
-                The focus should be entirely on the product. Do not add any text.
-                Ad Copy (for context only, do not add to image):
-                Headline: ${adCopy.headline}
-                Body: ${adCopy.body}
+            const editPrompt = `
+                Turn this user-provided image into a professional advertisement for "${productName}".
+                The ad's headline is "${adCopy.headline}".
+                The target audience is ${audience}.
+                The overall mood should be ${tone}.
+                Enhance the lighting, composition, and background to make it look like a high-quality product ad. Do not add any text.
             `;
-            imageUrl = await editImage(imageEditPrompt, image, systemInstruction);
-
+            mediaUrl = await editImage(editPrompt, image, systemInstruction);
         } else {
-            const imageGenPrompt = `
-                Create a visually stunning, photorealistic, and professional advertisement image for a product called "${productName}".
-                Description: ${description}.
-                The image should feature the product prominently in a setting that appeals to ${audience}.
-                The style should be high-end, clean, with cinematic lighting. Do not include any text, logos, or watermarks.
-                Ad Copy (for context only, do not add to image):
-                Headline: ${adCopy.headline}
-                Body: ${adCopy.body}
-            `;
-            const generatedImages = await generateImages(imageGenPrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001', undefined, systemInstruction);
-            if (generatedImages.length === 0) throw new Error("Image generation failed.");
-            imageUrl = generatedImages[0];
+            const images = await generateImages(imagePrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001', 'text, words, letters', systemInstruction);
+            if (images.length === 0) throw new Error("Failed to generate ad image.");
+            mediaUrl = images[0];
         }
 
-        return { mediaUrl: imageUrl, adCopy };
-
+        return { mediaUrl, adCopy };
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'ad'));
     }
@@ -457,399 +445,301 @@ export const generateAdVideo = async (
     cta: string,
     onProgress: (message: string) => void,
     image?: { mimeType: string; data: string },
-    systemInstruction?: string
-): Promise<{ mediaUrl: string; adCopy: AdCopy }> => {
+    systemInstruction?: string,
+): Promise<{ mediaUrl: string; adCopy: AdCopy; }> => {
     try {
         onProgress("Generating ad copy...");
-        const adCopy = await generateAdCopy(productName, description, audience, tone, cta, systemInstruction);
+         const adCopyPrompt = `
+            Generate ad copy for a product. The tone should be ${tone}.
+            - Product Name: ${productName}
+            - Description: ${description}
+            - Target Audience: ${audience}
+            - Call to Action: ${cta}
+        `;
+        const copyResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: adCopyPrompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        headline: { type: Type.STRING },
+                        body: { type: Type.STRING },
+                        cta: { type: Type.STRING },
+                    },
+                    required: ["headline", "body", "cta"],
+                },
+                systemInstruction: systemInstruction || "You are a professional marketing copywriter.",
+            }
+        });
+        const adCopy: AdCopy = JSON.parse(copyResponse.text);
 
         onProgress("Generating video prompt...");
         const videoPrompt = `
-            Create a short, dynamic, and high-energy product advertisement video (around 5-10 seconds) for "${productName}".
-            Product Description: ${description}.
-            Showcase the product in a cinematic way, suitable for ${audience}.
-            Focus on beautiful, sweeping shots of the product. The tone should be ${tone}.
-            Visual-only prompt; do not add text or sound.
+            Create a short, dynamic, 5-second video advertisement for "${productName}".
+            The ad's headline is "${adCopy.headline}".
+            The target audience is ${audience}.
+            The overall mood should be ${tone}.
+            The video should be cinematic and visually engaging, highlighting the product's key features or benefits: ${description}.
         `;
 
-        const videoUrl = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image, systemInstruction);
-        return { mediaUrl: videoUrl, adCopy };
+        const mediaUrl = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image, systemInstruction);
 
+        return { mediaUrl, adCopy };
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'ad'));
     }
 };
 
 export const generateArticle = async (
-    topic: string,
-    articleType: string,
-    writingStyle: string,
-    numImages: number,
-    onProgress: (message: string) => void,
-    systemInstruction?: string
-): Promise<{ title: string, content: ArticleBlock[] }> => {
-    try {
-        // Step 1: Generate the article's text structure with image placeholders
-        onProgress("Planning article structure...");
-        const articleStructurePrompt = `
-            Create a detailed content structure for an article on the topic: "${topic}".
-            The article should be a "${articleType}" written in a "${writingStyle}" style.
-            Your response must be a single, valid JSON object with two keys:
-            1. "title": A compelling title for the article (string).
-            2. "content": An array of objects representing the article's flow.
-
-            The "content" array should contain objects with a "type" and "content" property for text blocks, for example:
-            { "type": "heading", "content": "This is a Section Title" }
-            { "type": "paragraph", "content": "This is a paragraph of text..." }
-
-            Crucially, you must also strategically insert exactly ${numImages} image placeholder objects where a visual would be most impactful.
-            An image placeholder object must look like this:
-            { "type": "image_placeholder" }
-
-            Do not generate image prompts yet. Just place the placeholders.
-        `;
-
-        const structureResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: articleStructurePrompt,
-            config: { 
-                systemInstruction: systemInstruction || undefined,
-                responseMimeType: "application/json"
-            }
-        });
-
-        // Clean the response to ensure it's valid JSON
-        const jsonString = structureResponse.text.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/)?.[0]?.replace(/```json\n|```/g, '') || structureResponse.text;
-        const articlePlan: { title: string; content: ({ type: 'heading' | 'paragraph', content: string } | { type: 'image_placeholder' })[] } = JSON.parse(jsonString);
-
-        if (!articlePlan.title || !articlePlan.content) {
-            throw new Error("Failed to generate a valid article structure.");
-        }
-        
-        onProgress("Article text generated. Creating contextual images...");
-
-        const finalContent: ArticleBlock[] = [];
-        let imageCounter = 0;
-
-        // Step 2 & 3: Iterate through the structure, generate prompts and images contextually
-        for (let i = 0; i < articlePlan.content.length; i++) {
-            const block = articlePlan.content[i];
-
-            if (block.type === 'image_placeholder') {
-                imageCounter++;
-                onProgress(`Analyzing context for image ${imageCounter}/${numImages}...`);
-
-                // Gather context from surrounding text blocks
-                const contextBlocks = articlePlan.content.slice(Math.max(0, i - 2), Math.min(articlePlan.content.length, i + 3));
-                const contextText = contextBlocks.map(b => {
-                    if (b.type === 'heading' || b.type === 'paragraph') return b.content;
-                    return '';
-                }).join('\n\n');
-
-                const imagePromptGenPrompt = `
-                    Based on the following article excerpt, create a single, detailed, and visually descriptive prompt for an AI image generator. The image should be highly relevant to the surrounding text. The prompt must be in English. Only return the prompt itself, with no extra text or labels.
-
-                    Article Context:
-                    ---
-                    ${contextText}
-                    ---
-
-                    Detailed Image Prompt:
-                `;
-                
-                const promptResponse = await ai.models.generateContent({
-                    model: "gemini-2.5-flash",
-                    contents: imagePromptGenPrompt,
-                    config: { systemInstruction: systemInstruction || undefined, }
-                });
-                const imagePrompt = promptResponse.text.trim();
-
-                onProgress(`Generating image ${imageCounter}/${numImages}...`);
-                const imageUrls = await generateImages(imagePrompt, 1, '16:9', 'photorealistic', 'gemini-2.5-flash-image-preview', undefined, systemInstruction);
-
-                if (imageUrls.length > 0) {
-                    finalContent.push({
-                        id: crypto.randomUUID(),
-                        type: 'image',
-                        imageUrl: imageUrls[0],
-                        imagePrompt: imagePrompt
-                    });
-                }
-            } else {
-                // It's a heading or paragraph
-                finalContent.push({ id: crypto.randomUUID(), ...block });
-            }
-        }
-        
-        onProgress("Article generation complete!");
-        return { title: articlePlan.title, content: finalContent };
-
-    } catch (error) {
-        throw new Error(getFriendlyErrorMessage(error, 'article'));
-    }
-};
-
-export const proofreadText = async (text: string): Promise<string> => {
+  prompt: string,
+  articleType: string,
+  writingStyle: string,
+  numImages: number,
+  onProgress: (message: string) => void,
+  systemInstruction?: string,
+): Promise<{ title: string; content: ArticleBlock[] }> => {
   try {
-    const proofreadPrompt = `
-      Proofread the following text for any spelling, grammar, and punctuation errors.
-      Correct the errors and improve the overall clarity and flow, but preserve the original tone and meaning.
-      Only return the corrected text. Do not add any commentary, explanations, or markdown formatting.
-
-      Original Text:
-      "${text}"
-
-      Corrected Text:
+    onProgress("Creating article plan...");
+    const planPrompt = `
+      Create a plan for an article about "${prompt}".
+      The article type is "${articleType}".
+      The writing style should be "${writingStyle}".
+      The plan should include:
+      1. A compelling title for the article.
+      2. A list of 3-5 section headings.
+      3. For each of the ${numImages} images, provide a detailed, descriptive prompt for an AI image generator that is contextually relevant to the article's sections.
     `;
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: proofreadPrompt,
+    const planResponse = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: planPrompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              headings: { type: Type.ARRAY, items: { type: Type.STRING } },
+              imagePrompts: { type: Type.ARRAY, items: { type: Type.STRING } },
+            },
+            required: ["title", "headings", "imagePrompts"],
+          },
+          systemInstruction: systemInstruction || undefined,
+        },
     });
-    return response.text.trim();
+    const plan = JSON.parse(planResponse.text);
+
+    const content: ArticleBlock[] = [];
+    
+    onProgress(`Writing introduction...`);
+    const introPrompt = `Write the introduction (2-3 paragraphs) for an article titled "${plan.title}" about "${prompt}". The style is "${writingStyle}". Do not include the title in your response.`;
+    const introResponse = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: introPrompt, config: { systemInstruction: systemInstruction || undefined }});
+    content.push({ id: crypto.randomUUID(), type: 'paragraph', content: introResponse.text });
+    
+    for (const heading of plan.headings) {
+        onProgress(`Writing section: "${heading}"...`);
+        const sectionPrompt = `Write the content (2-4 paragraphs) for the section titled "${heading}" in an article about "${prompt}". The main title is "${plan.title}". Style: "${writingStyle}". Do not repeat the heading.`;
+        const sectionResponse = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: sectionPrompt, config: { systemInstruction: systemInstruction || undefined }});
+        content.push({ id: crypto.randomUUID(), type: 'heading', content: heading });
+        content.push({ id: crypto.randomUUID(), type: 'paragraph', content: sectionResponse.text });
+    }
+
+    if (plan.imagePrompts && plan.imagePrompts.length > 0) {
+        const imageInsertInterval = Math.max(1, Math.floor(content.filter(b => b.type !== 'image').length / plan.imagePrompts.length));
+        let contentIndex = 0;
+        for (const imagePrompt of plan.imagePrompts) {
+            onProgress(`Generating image: "${imagePrompt.substring(0, 40)}..."`);
+            const imageUrls = await generateImages(imagePrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001', undefined, systemInstruction);
+            if (imageUrls.length > 0) {
+                const imageBlock: ArticleBlock = { id: crypto.randomUUID(), type: 'image', imageUrl: imageUrls[0], imagePrompt };
+                contentIndex += imageInsertInterval;
+                content.splice(contentIndex, 0, imageBlock);
+                contentIndex++;
+            }
+        }
+    }
+
+    onProgress("Article generation complete!");
+    return { title: plan.title, content };
   } catch (error) {
-    // Using 'article' context for error message as it's used there
     throw new Error(getFriendlyErrorMessage(error, 'article'));
   }
 };
 
-export const generateCampaign = async (
-  brief: string,
-  onProgress: (message: string) => void,
-  systemInstruction?: string
-): Promise<{
-  brandIdentity: BrandIdentity;
-  logos: string[];
-  heroImage: string;
-  adCopy: AdCopy;
-  socialVideoUrl: string;
-}> => {
-  try {
-    // Step 1: Brand Identity
-    onProgress("Establishing brand identity...");
-    const brandIdentityPrompt = `
-      Based on the following campaign brief, act as a brand strategist to define a core brand identity.
-      Your response MUST be a valid JSON object with the following structure: { "companyName": string, "targetAudience": string, "colors": string[], "mood": string[], "keywords": string[] }.
-      - companyName: Extract the company or product name from the brief.
-      - targetAudience: Describe the primary target audience in a concise phrase.
-      - colors: Suggest a palette of 3-4 descriptive, nuanced colors (e.g., "midnight blue", "sun-bleached terracotta", "mint green").
-      - mood: Provide 3-4 evocative adjectives that describe the brand's feeling (e.g., "sophisticated", "adventurous", "serene").
-      - keywords: List 4-5 specific, relevant keywords for the brand's industry or concept.
+export const proofreadText = async (
+  text: string,
+): Promise<string> => {
+    try {
+        const prompt = `
+            Please proofread the following text for any spelling and grammar errors.
+            Only return the corrected text, without any commentary or explanations.
 
-      Campaign Brief: "${brief}"
+            Text to proofread:
+            ---
+            ${text}
+            ---
+        `;
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        return response.text.trim();
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'text'));
+    }
+};
+
+export const generateCampaign = async (
+  prompt: string,
+  onProgress: (message: string) => void,
+  systemInstruction?: string,
+): Promise<Omit<HistoryItemCampaign, 'id' | 'timestamp' | 'type' | 'prompt'>> => {
+  try {
+    onProgress("Developing brand strategy...");
+    const planPrompt = `
+      Based on the user's brief, generate a complete brand identity and initial ad copy.
+      User Brief: "${prompt}"
     `;
-    
-    const identityResponse = await ai.models.generateContent({
+    const planResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: brandIdentityPrompt,
+      contents: planPrompt,
       config: {
-        systemInstruction: systemInstruction || undefined,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            companyName: { type: Type.STRING },
-            targetAudience: { type: Type.STRING },
-            colors: { type: Type.ARRAY, items: { type: Type.STRING } },
-            mood: { type: Type.ARRAY, items: { type: Type.STRING } },
-            keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+            brandIdentity: {
+              type: Type.OBJECT,
+              properties: {
+                companyName: { type: Type.STRING },
+                colors: { type: Type.ARRAY, items: { type: Type.STRING } },
+                mood: { type: Type.ARRAY, items: { type: Type.STRING } },
+                keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+                targetAudience: { type: Type.STRING },
+              },
+              required: ["companyName", "colors", "mood", "keywords", "targetAudience"],
+            },
+            adCopy: {
+              type: Type.OBJECT,
+              properties: {
+                headline: { type: Type.STRING },
+                body: { type: Type.STRING },
+                cta: { type: Type.STRING },
+              },
+              required: ["headline", "body", "cta"],
+            },
           },
-          required: ['companyName', 'targetAudience', 'colors', 'mood', 'keywords']
+          required: ["brandIdentity", "adCopy"],
         },
+        systemInstruction: systemInstruction || "You are a creative director and brand strategist.",
       },
     });
-    const brandIdentity: BrandIdentity = JSON.parse(identityResponse.text);
+    const plan = JSON.parse(planResponse.text) as { brandIdentity: BrandIdentity; adCopy: AdCopy; };
 
-    // Step 2: Logos
-    onProgress("Generating logo concepts...");
+    onProgress("Designing logo concepts...");
     const logos = await generateLogo(
-      brandIdentity.companyName,
-      brief,
+      plan.brandIdentity.companyName,
+      `A company with these keywords: ${plan.brandIdentity.keywords.join(', ')} and mood: ${plan.brandIdentity.mood.join(', ')}.`,
       'modern',
-      brandIdentity.colors.join(', '),
-      'imagen-4.0-ultra-generate-001',
+      plan.brandIdentity.colors.join(', '),
+      'imagen-4.0-generate-001',
       4,
       undefined,
       systemInstruction
     );
-    if (logos.length === 0) throw new Error("Logo generation failed.");
 
-    // Step 3: Hero Image
     onProgress("Creating hero image...");
-    const heroImagePrompt = `Create a stunning, cinematic, photorealistic hero image for a website for "${brandIdentity.companyName}". The mood is ${brandIdentity.mood.join(', ')}. The campaign is about: ${brief}. The image should be visually captivating and high-quality, suitable for a main banner. Do not include any text.`;
-    const heroImages = await generateImages(heroImagePrompt, 1, "16:9", 'cinematic', 'imagen-4.0-generate-001', undefined, systemInstruction);
-    if (heroImages.length === 0) throw new Error("Hero image generation failed.");
+    const heroImagePrompt = `Create a high-quality, photorealistic hero image for the website of "${plan.brandIdentity.companyName}". The image should reflect the brand's mood (${plan.brandIdentity.mood.join(', ')}) and appeal to its target audience (${plan.brandIdentity.targetAudience}). Use the color palette: ${plan.brandIdentity.colors.join(', ')}.`;
+    const heroImages = await generateImages(heroImagePrompt, 1, "16:9", 'photorealistic', 'imagen-4.0-generate-001', undefined, systemInstruction);
+    if (heroImages.length === 0) throw new Error("Failed to generate hero image.");
     const heroImage = heroImages[0];
-
-    // Step 4: Ad Copy
-    onProgress("Writing ad copy...");
-    const adCopy = await generateAdCopy(
-        brandIdentity.companyName, 
-        brief, 
-        brandIdentity.targetAudience, 
-        brandIdentity.mood[0] || 'professional', 
-        'Learn More',
-        systemInstruction
-    );
-
-    // Step 5: Social Video
-    onProgress("Producing social media video...");
-    const videoPrompt = `Create a short, captivating, and visually engaging video (5-10 seconds) for social media. The video is for "${brandIdentity.companyName}" and should reflect a ${brandIdentity.mood.join(', ')} mood. The theme is: ${brief}. Use dynamic camera motion and cinematic visuals.`;
-    // The video generator progress will be passed through via its own onProgress callback
-    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress, undefined, systemInstruction);
     
-    onProgress("Campaign generation complete!");
-    return { brandIdentity, logos, heroImage, adCopy, socialVideoUrl };
+    onProgress("Producing social media video...");
+    const videoPrompt = `Create a short, 5-second, eye-catching video for social media for "${plan.brandIdentity.companyName}". It should be dynamic, visually interesting, and aligned with the brand's mood (${plan.brandIdentity.mood.join(', ')}).`;
+    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress, undefined, systemInstruction);
 
+    onProgress("Campaign generation complete!");
+    return {
+      brandIdentity: plan.brandIdentity,
+      adCopy: plan.adCopy,
+      logos,
+      heroImage,
+      socialVideoUrl,
+    };
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'campaign'));
   }
 };
 
 export const generatePodcastScript = async (
-    topic: string,
+    prompt: string,
     speakerNames: string[],
-    systemInstruction?: string
+    systemInstruction?: string,
 ): Promise<PodcastScriptLine[]> => {
     try {
-        let scriptPrompt: string;
-        let responseSchema: any;
-
-        if (speakerNames.length > 1) {
-            scriptPrompt = `
-                You are a podcast script writer. Based on the user's topic, create an engaging podcast script as a conversation between the following speakers: ${speakerNames.join(' and ')}.
-                The response must be a valid JSON array of objects, where each object represents a line in the script.
-                Each object must have two properties:
-                1. "speaker": A string identifying the speaker. YOU MUST ONLY USE THE PROVIDED SPEAKER NAMES: ${speakerNames.map(s => `"${s}"`).join(', ')}.
-                2. "line": A string of the text to be spoken.
-
-                Keep the script concise and conversational.
-
-                User's Topic: "${topic}"
-            `;
-             responseSchema = {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        speaker: { 
-                            type: Type.STRING,
-                            enum: speakerNames
-                        },
-                        line: { type: Type.STRING },
-                    },
-                    required: ['speaker', 'line'],
-                }
-            };
-        } else {
-            const speakerName = speakerNames[0] || 'Narrator';
-            scriptPrompt = `
-                You are a podcast script writer. Based on the user's topic, create an engaging podcast script.
-                The response must be a valid JSON array of objects, where each object represents a line in the script.
-                Each object must have two properties:
-                1. "speaker": A string identifying the speaker. For this monologue, use the speaker name "${speakerName}".
-                2. "line": A string of the text to be spoken.
-
-                Keep the script concise.
-
-                User's Topic: "${topic}"
-            `;
-            responseSchema = {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        speaker: { 
-                            type: Type.STRING,
-                            enum: [speakerName]
-                        },
-                        line: { type: Type.STRING },
-                    },
-                    required: ['speaker', 'line'],
-                }
-            };
-        }
-
+        const scriptPrompt = `
+            Generate a podcast script based on the following topic.
+            The script should be formatted with each line as "Speaker Name: Dialogue text".
+            The available speakers are: ${speakerNames.join(', ')}.
+            Topic: "${prompt}"
+        `;
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: "gemini-2.5-flash",
             contents: scriptPrompt,
-            config: {
-                systemInstruction: systemInstruction || "You are a creative and engaging scriptwriter for audio content.",
-                responseMimeType: "application/json",
-                responseSchema: responseSchema
-            }
+            config: { systemInstruction: systemInstruction || "You are a podcast scriptwriter." },
         });
 
-        const script = JSON.parse(response.text);
-        if (!Array.isArray(script) || script.length === 0) {
-            throw new Error("The AI failed to generate a valid script structure. Please try a different topic.");
-        }
-        return script;
+        return response.text.split('\n').filter(line => line.trim()).map(line => {
+            const parts = line.split(':');
+            if (parts.length > 1) {
+                const speaker = parts[0].trim();
+                const lineContent = parts.slice(1).join(':').trim();
+                return { speaker, line: lineContent };
+            }
+            return { speaker: speakerNames[0] || 'Narrator', line: line.trim() };
+        });
+
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'podcast'));
     }
 };
 
 export const synthesizePodcast = async (
-  script: PodcastScriptLine[],
-  voiceAssignments: { [speaker: string]: string },
-  systemInstruction?: string
+    script: PodcastScriptLine[],
+    voiceAssignments: { [speaker: string]: string },
+    systemInstruction?: string,
 ): Promise<string> => {
-  try {
-    const speakers = [...new Set(script.map(line => line.speaker))];
-    const isMultiSpeaker = speakers.length > 1;
+    try {
+        const ssml = script.map(line => {
+            const voiceName = voiceAssignments[line.speaker] || 'Zephyr';
+            return `<voice name="${voiceName}">${line.line}</voice>`;
+        }).join('\n');
 
-    let prompt = '';
-    let speechConfig: any = {};
+        const synthesisPrompt = `
+            Synthesize the following script into a single, continuous audio file.
+            The script uses <voice> tags to assign different prebuilt voices to each line.
+            Respect these assignments to create a multi-speaker podcast.
+            Script:
+            ${ssml}
+        `;
 
-    if (isMultiSpeaker) {
-      const speakerList = speakers.join(' and ');
-      const scriptText = script.map(line => `${line.speaker}: ${line.line}`).join('\n');
-      prompt = `TTS the following conversation between ${speakerList}:\n${scriptText}`;
-      
-      speechConfig = {
-        multiSpeakerVoiceConfig: {
-          speakerVoiceConfigs: speakers.map(speaker => ({
-            speaker,
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voiceAssignments[speaker] || 'Zephyr' }
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+            contents: synthesisPrompt,
+            config: {
+                responseModalities: [Modality.AUDIO],
+                systemInstruction: systemInstruction || "You are a text-to-speech synthesis engine.",
             }
-          }))
+        });
+
+        const audioPart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
+        if (audioPart?.inlineData) {
+            return audioPart.inlineData.data;
+        } else {
+            throw new Error("Audio synthesis failed to return audio data.");
         }
-      };
-    } else {
-      prompt = script.map(line => line.line).join('\n');
-      const speaker = speakers[0] || 'Narrator';
-      const voice = voiceAssignments[speaker] || 'Zephyr';
-      
-      speechConfig = {
-        voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: voice },
-        },
-      };
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'podcast'));
     }
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: prompt }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: speechConfig,
-        systemInstruction: systemInstruction || undefined,
-      },
-    });
-    
-    const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-
-    if (data) {
-      return data; // This is the base64 encoded audio string
-    } else {
-      const textPart = response.candidates?.[0]?.content?.parts.find(p => p.text);
-      if (textPart?.text) {
-        throw new Error(`Speech generation failed. Model response: ${textPart.text}`);
-      }
-      throw new Error("Speech generation failed to return audio data.");
-    }
-  } catch (error) {
-    throw new Error(getFriendlyErrorMessage(error, 'podcast'));
-  }
 };

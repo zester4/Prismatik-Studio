@@ -79,8 +79,8 @@ export default function Blog(): ReactElement {
             </div>
             
             <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* FIX: Pass props individually instead of spreading to avoid type error with 'key' prop. */}
                 {blogPosts.map((post, index) => (
-                    // FIX: Pass props individually instead of spreading to avoid type error with 'key' prop.
                     <BlogPostCard
                         key={index}
                         title={post.title}

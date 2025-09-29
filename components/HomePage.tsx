@@ -197,6 +197,17 @@ const FeatureDetail = ({ icon, title, description, bulletPoints, imageUrl, align
     </div>
 );
 
+const marqueeImages = [
+    'https://images.unsplash.com/photo-1671922008323-96b6585140f7?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1698033240365-b6951b320d91?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1688502391983-d57b1659a859?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1674228942087-5c5244589ad2?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1664420339932-51786933a11f?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1695425662135-2a912f84a441?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1681242336333-5c02b2913e2f?q=80&w=600&auto=format=fit=crop',
+    'https://images.unsplash.com/photo-1688841920095-2c70014022a8?q=80&w=600&auto=format=fit=crop',
+];
+
 // --- Main HomePage Component --- //
 export default function HomePage(): ReactElement {
   return (
@@ -238,6 +249,19 @@ export default function HomePage(): ReactElement {
                 </div>
             </section>
             
+            {/* Creation Showcase */}
+            <AnimatedSection className="py-8 sm:py-12 bg-brand-wheat-50 overflow-hidden">
+                <div className="relative">
+                    <div className="flex gap-6 animate-marquee">
+                        {marqueeImages.concat(marqueeImages).map((src, index) => (
+                            <div key={index} className="flex-shrink-0 w-64 sm:w-80 h-48 sm:h-56 rounded-xl overflow-hidden shadow-lg">
+                                <img src={src} className="w-full h-full object-cover" alt={`Generated art ${index + 1}`} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </AnimatedSection>
+
              {/* Toolkit Section */}
             <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-100">
                 <div className="container mx-auto px-4 sm:px-6">
@@ -293,7 +317,7 @@ export default function HomePage(): ReactElement {
                             imageUrl="https://images.unsplash.com/photo-1574717547372-5341499557ce?q=80&w=800&auto=format&fit=crop"
                             align="right"
                         />
-                        <FeatureDetail
+                         <FeatureDetail
                             icon={<CampaignIco className="w-7 h-7" />}
                             title="AI Campaign Director"
                             description="Move beyond single assets. Describe a project goal, and our AI Creative Director will generate a complete, cohesive campaign including brand identity, logos, a hero image, ad copy, and a social video."
@@ -303,6 +327,30 @@ export default function HomePage(): ReactElement {
                                 "Launch products or build brands in a fraction of the time, from initial concept to a full media kit."
                             ]}
                             imageUrl="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=800&auto=format&fit=crop"
+                            align="left"
+                        />
+                        <FeatureDetail
+                            icon={<StoryIco className="w-7 h-7" />}
+                            title="Visual Storytelling"
+                            description="Bring your narratives to life. Describe a plot, and the Story Generator will create a multi-scene illustrated storybook, generating both the text and the images for a cohesive experience."
+                            bulletPoints={[
+                                "Generate complete visual narratives from a single high-level prompt.",
+                                "Lock in a character's appearance by uploading an image for perfect consistency across all scenes.",
+                                "Export your final story as a downloadable PDF or an animated video."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1544987979-991b02b5c873?q=80&w=800&auto=format&fit=crop"
+                            align="right"
+                        />
+                        <FeatureDetail
+                            icon={<ArticleIco className="w-7 h-7" />}
+                            title="Intelligent Content Creation"
+                            description="Conquer writer's block and accelerate your content pipeline. The Article Generator can draft well-structured blog posts, reports, and guides on any topic, complete with relevant imagery."
+                            bulletPoints={[
+                                "Specify the topic, article type, and writing style to get perfectly tailored content.",
+                                "The AI intelligently plans sections and generates context-aware images to break up the text.",
+                                "Edit the generated text and use the built-in AI proofreader to polish your work to perfection."
+                            ]}
+                            imageUrl="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=800&auto=format&fit=crop"
                             align="left"
                         />
                     </div>
