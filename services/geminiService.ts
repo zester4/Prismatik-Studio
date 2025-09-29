@@ -705,19 +705,41 @@ export const generateCampaign = async (
   }
 };
 
-export const generatePodcastScript = async (topic: string, systemInstruction?: string): Promise<PodcastScriptLine[]> => {
+export const generatePodcastScript = async (
+    topic: string,
+    speakerNames: string[],
+    systemInstruction?: string
+): Promise<PodcastScriptLine[]> => {
     try {
-        const scriptPrompt = `
-            You are a podcast script writer. Based on the user's topic, create an engaging podcast script.
-            The response must be a valid JSON array of objects, where each object represents a line in the script.
-            Each object must have two properties:
-            1. "speaker": A string identifying the speaker (e.g., "Narrator", "Host", "Guest 1"). If there's only one speaker, use "Narrator".
-            2. "line": A string of the text to be spoken.
+        let scriptPrompt: string;
 
-            Keep the script concise and conversational.
+        if (speakerNames.length > 1) {
+            scriptPrompt = `
+                You are a podcast script writer. Based on the user's topic, create an engaging podcast script as a conversation between the following speakers: ${speakerNames.join(' and ')}.
+                The response must be a valid JSON array of objects, where each object represents a line in the script.
+                Each object must have two properties:
+                1. "speaker": A string identifying the speaker. YOU MUST ONLY USE THE PROVIDED SPEAKER NAMES: ${speakerNames.map(s => `"${s}"`).join(', ')}.
+                2. "line": A string of the text to be spoken.
 
-            User's Topic: "${topic}"
-        `;
+                Keep the script concise and conversational.
+
+                User's Topic: "${topic}"
+            `;
+        } else {
+            const speakerName = speakerNames[0] || 'Narrator';
+            scriptPrompt = `
+                You are a podcast script writer. Based on the user's topic, create an engaging podcast script.
+                The response must be a valid JSON array of objects, where each object represents a line in the script.
+                Each object must have two properties:
+                1. "speaker": A string identifying the speaker. For this monologue, use the speaker name "${speakerName}".
+                2. "line": A string of the text to be spoken.
+
+                Keep the script concise.
+
+                User's Topic: "${topic}"
+            `;
+        }
+
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: scriptPrompt,

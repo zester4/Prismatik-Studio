@@ -113,7 +113,7 @@ export default function Profile(): ReactElement {
 
   const sortedCreations = useMemo(() => {
     // Return a new sorted array, don't mutate the original
-    return [...creations].sort((a: { timestamp: number }, b: { timestamp: number }) => b.timestamp - a.timestamp);
+    return [...creations].sort((a: HistoryItem, b: HistoryItem) => b.timestamp - a.timestamp);
   }, [creations]);
 
   const insights = useMemo(() => {
