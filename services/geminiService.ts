@@ -712,6 +712,7 @@ export const generatePodcastScript = async (
 ): Promise<PodcastScriptLine[]> => {
     try {
         let scriptPrompt: string;
+        let responseSchema: any;
 
         if (speakerNames.length > 1) {
             scriptPrompt = `
@@ -725,6 +726,20 @@ export const generatePodcastScript = async (
 
                 User's Topic: "${topic}"
             `;
+             responseSchema = {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        speaker: { 
+                            type: Type.STRING,
+                            enum: speakerNames
+                        },
+                        line: { type: Type.STRING },
+                    },
+                    required: ['speaker', 'line'],
+                }
+            };
         } else {
             const speakerName = speakerNames[0] || 'Narrator';
             scriptPrompt = `
@@ -738,6 +753,20 @@ export const generatePodcastScript = async (
 
                 User's Topic: "${topic}"
             `;
+            responseSchema = {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        speaker: { 
+                            type: Type.STRING,
+                            enum: [speakerName]
+                        },
+                        line: { type: Type.STRING },
+                    },
+                    required: ['speaker', 'line'],
+                }
+            };
         }
 
         const response = await ai.models.generateContent({
@@ -746,17 +775,7 @@ export const generatePodcastScript = async (
             config: {
                 systemInstruction: systemInstruction || "You are a creative and engaging scriptwriter for audio content.",
                 responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            speaker: { type: Type.STRING },
-                            line: { type: Type.STRING },
-                        },
-                        required: ['speaker', 'line'],
-                    }
-                }
+                responseSchema: responseSchema
             }
         });
 
