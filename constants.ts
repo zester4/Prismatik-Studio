@@ -95,11 +95,11 @@ export const VIDEO_MODELS = [
 ];
 
 export const TTS_VOICES = [
-    { id: 'Zephyr', name: 'Zephyr (Female)' },
-    { id: 'Puck', name: 'Puck (Male)' },
-    { id: 'Charon', name: 'Charon (Male, Deep)' },
-    { id: 'Kore', name: 'Kore (Female)' },
-    { id: 'Fenrir', name: 'Fenrir (Male)' },
+    { id: 'Zephyr', name: 'Aura (Female, Calm)' },
+    { id: 'Puck', name: 'Leo (Male, Upbeat)' },
+    { id: 'Charon', name: 'Orion (Male, Deep)' },
+    { id: 'Kore', name: 'Nova (Female, Clear)' },
+    { id: 'Fenrir', name: 'Jasper (Male, Raspy)' },
 ];
 
 export const ASPECT_RATIOS: AspectRatio[] = ["1:1", "16:9", "9:16", "4:3", "3:4"];

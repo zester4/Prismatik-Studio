@@ -128,6 +128,11 @@ export default function PodcastGenerator(): ReactElement {
         if (!generatedScript) return [];
         return [...new Set(generatedScript.map(line => line.speaker))];
     }, [generatedScript]);
+    
+    const fullScriptText = useMemo(() => {
+        if (!generatedScript) return '';
+        return generatedScript.map(line => `${line.speaker}: ${line.line}`).join('\n');
+    }, [generatedScript]);
 
     const handleSelectTemplate = useCallback((template: any) => {
         setPrompt(template.prompt || '');
@@ -187,11 +192,11 @@ export default function PodcastGenerator(): ReactElement {
         }
     };
     
-    const handleSynthesize = async () => {
+    const handleGeneratePodcast = async () => {
         const scriptToUse = generatedScript;
 
         if (!scriptToUse || scriptToUse.length === 0) {
-            setError('There is no script loaded to synthesize.');
+            setError('There is no script loaded to generate.');
             return;
         }
 
@@ -223,7 +228,6 @@ export default function PodcastGenerator(): ReactElement {
                 type: 'podcast',
                 ...newResult
             });
-            setGeneratedScript(null);
 
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred during synthesis.');
@@ -242,15 +246,26 @@ export default function PodcastGenerator(): ReactElement {
         link.click();
         document.body.removeChild(link);
     };
+    
+    const resetState = () => {
+        setResult(null);
+        setGeneratedScript(null);
+        setPrompt('');
+        setScriptText('');
+        setError(null);
+        setProgress('');
+    }
 
     return (
         <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
                 <h2 className="text-2xl sm:text-3xl font-bold text-brand-wheat-900">Podcast Generator</h2>
-                <button onClick={handleSurpriseMe} disabled={isLoading} className="flex items-center text-sm font-semibold text-brand-teal-600 hover:text-brand-teal-700 transition disabled:opacity-50 self-start sm:self-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" /></svg>
-                    Surprise Me
-                </button>
+                {!result && (
+                    <button onClick={handleSurpriseMe} disabled={isLoading} className="flex items-center text-sm font-semibold text-brand-teal-600 hover:text-brand-teal-700 transition disabled:opacity-50 self-start sm:self-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" /></svg>
+                        Surprise Me
+                    </button>
+                )}
             </div>
 
             <div className="space-y-6">
@@ -258,10 +273,10 @@ export default function PodcastGenerator(): ReactElement {
                     <>
                         <div className="grid grid-cols-2 gap-2 p-1 bg-brand-wheat-200 rounded-lg">
                             <button onClick={() => setInputType('topic')} disabled={isLoading} className={`w-full py-2 px-4 rounded-md text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-teal-500 focus:ring-offset-2 ${inputType === 'topic' ? 'bg-brand-teal-500 text-white shadow' : 'bg-brand-wheat-100 text-brand-wheat-700 hover:bg-brand-wheat-200'}`}>
-                                Generate from Topic
+                                1. Generate from Topic
                             </button>
                             <button onClick={() => setInputType('script')} disabled={isLoading} className={`w-full py-2 px-4 rounded-md text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-teal-500 focus:ring-offset-2 ${inputType === 'script' ? 'bg-brand-teal-500 text-white shadow' : 'bg-brand-wheat-100 text-brand-wheat-700 hover:bg-brand-wheat-200'}`}>
-                                Use Your Own Script
+                                1. Use Your Own Script
                             </button>
                         </div>
                         
@@ -271,7 +286,7 @@ export default function PodcastGenerator(): ReactElement {
                                 <PromptTemplates templates={PODCAST_TEMPLATES} onSelect={handleSelectTemplate} disabled={isLoading} />
                                 <button onClick={handleGenerateScript} disabled={isLoading || !prompt.trim()} className="w-full flex items-center justify-center bg-brand-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-teal-600 transition disabled:bg-brand-teal-300">
                                     {isLoading && <LoadingSpinner />}
-                                    {isLoading ? 'Generating Script...' : 'Generate Script'}
+                                    {isLoading ? 'Generating Script...' : 'Generate Script & Assign Voices'}
                                 </button>
                             </>
                         ) : (
@@ -299,21 +314,29 @@ export default function PodcastGenerator(): ReactElement {
 
                 {generatedScript && !result && (
                     <div className="mt-8 space-y-6">
-                        <h3 className="text-xl font-semibold">Voice Assignment</h3>
+                        <div>
+                            <h3 className="text-xl font-semibold mb-2">2. Review Script & Assign Voices</h3>
+                            <textarea value={fullScriptText} readOnly className="w-full h-48 p-3 bg-brand-wheat-50 border border-brand-wheat-200 rounded-md text-sm" />
+                        </div>
                         <div className="bg-brand-wheat-50 p-4 rounded-lg border border-brand-wheat-200 space-y-4">
                             {speakers.map(speaker => (
-                                <div key={speaker} className="flex items-center gap-4">
-                                    <label htmlFor={`voice-${speaker}`} className="font-bold w-24 flex-shrink-0">{speaker}:</label>
-                                    <select id={`voice-${speaker}`} value={voiceAssignments[speaker]} onChange={e => setVoiceAssignments({...voiceAssignments, [speaker]: e.target.value})} className="w-full px-3 py-2 bg-white border border-brand-wheat-200 rounded-md">
+                                <div key={speaker} className="grid grid-cols-3 items-center gap-4">
+                                    <label htmlFor={`voice-${speaker}`} className="font-bold text-brand-wheat-800 justify-self-start">{speaker}:</label>
+                                    <select id={`voice-${speaker}`} value={voiceAssignments[speaker]} onChange={e => setVoiceAssignments({...voiceAssignments, [speaker]: e.target.value})} className="col-span-2 w-full px-3 py-2 bg-white border border-brand-wheat-200 rounded-md">
                                         {TTS_VOICES.map(voice => <option key={voice.id} value={voice.id}>{voice.name}</option>)}
                                     </select>
                                 </div>
                             ))}
                         </div>
-                        <button onClick={handleSynthesize} disabled={isLoading} className="w-full flex items-center justify-center bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-green-400">
-                           {isLoading && <LoadingSpinner />}
-                           {isLoading ? 'Synthesizing...' : 'Synthesize Audio'}
-                        </button>
+                        <div className="flex gap-4">
+                             <button onClick={resetState} disabled={isLoading} className="w-full flex items-center justify-center bg-brand-wheat-200 text-brand-wheat-800 font-bold py-3 px-4 rounded-lg hover:bg-brand-wheat-300 transition">
+                                Start Over
+                            </button>
+                            <button onClick={handleGeneratePodcast} disabled={isLoading} className="w-full flex items-center justify-center bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-green-400">
+                               {isLoading && <LoadingSpinner />}
+                               {isLoading ? 'Generating...' : 'Generate Podcast'}
+                            </button>
+                        </div>
                     </div>
                 )}
                 
@@ -324,14 +347,20 @@ export default function PodcastGenerator(): ReactElement {
                              <audio controls src={result.audioUrl} className="w-full"></audio>
                              <div className="flex gap-4">
                                 <button onClick={handleDownload} className="flex-1 bg-brand-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-teal-600 transition">Download Audio (.wav)</button>
-                                <button onClick={() => { setResult(null); setGeneratedScript(null); setPrompt(''); setScriptText(''); }} className="flex-1 bg-brand-wheat-200 text-brand-wheat-800 font-bold py-2 px-4 rounded-lg hover:bg-brand-wheat-300 transition">Create Another</button>
+                                <button onClick={resetState} className="flex-1 bg-brand-wheat-200 text-brand-wheat-800 font-bold py-2 px-4 rounded-lg hover:bg-brand-wheat-300 transition">Create Another</button>
                              </div>
                              <details className="pt-4">
-                                <summary className="cursor-pointer font-semibold text-brand-wheat-800">View Script</summary>
+                                <summary className="cursor-pointer font-semibold text-brand-wheat-800">View Script & Voice Assignments</summary>
                                 <div className="mt-4 space-y-2 text-sm max-h-60 overflow-y-auto pr-2">
-                                    {result.script.map((line, index) => (
-                                        <p key={index}><strong className="text-brand-teal-700">{line.speaker}:</strong> {line.line}</p>
-                                    ))}
+                                    {result.script.map((line, index) => {
+                                        const voiceName = TTS_VOICES.find(v => v.id === result.voiceAssignments[line.speaker])?.name || 'Default';
+                                        return (
+                                            <p key={index}>
+                                                <strong className="text-brand-teal-700">{line.speaker}</strong>
+                                                <em className="text-brand-wheat-600 text-xs"> ({voiceName})</em>: {line.line}
+                                            </p>
+                                        );
+                                    })}
                                 </div>
                              </details>
                         </div>
