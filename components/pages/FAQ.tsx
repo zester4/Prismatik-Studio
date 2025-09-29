@@ -6,7 +6,7 @@ const ChevronDownIcon = ({className}: {className?: string}) => (
     </svg>
 );
 
-const FaqItem = ({ question, answer }: { question: string; answer: ReactElement }) => {
+const FaqItem: React.FC<{ question: string; answer: ReactElement }> = ({ question, answer }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="border-b border-brand-wheat-200">

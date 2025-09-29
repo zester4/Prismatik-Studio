@@ -101,7 +101,7 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
         fileExtension = adItem.adType === 'video' ? 'mp4' : 'jpg';
     } else if (item.type === 'podcast') {
         href = (item as HistoryItemPodcast).audioUrl;
-        fileExtension = 'mp3';
+        fileExtension = 'wav';
     }
     
     link.href = href;
@@ -218,7 +218,6 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
 
   if (item.type === 'article') {
     const firstImage = item.content.find(block => block.type === 'image') as Extract<ArticleBlock, { type: 'image' }> | undefined;
-    // Fix: Cast the result of find to the correct type to ensure TypeScript knows `content` property exists.
     const firstParagraph = item.content.find(block => block.type === 'paragraph') as Extract<ArticleBlock, { type: 'paragraph' }> | undefined;
 
     return (

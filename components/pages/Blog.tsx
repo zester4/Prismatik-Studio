@@ -51,7 +51,7 @@ const blogPosts = [
     },
 ];
 
-const BlogPostCard = ({ title, author, date, excerpt, imageUrl, href }: typeof blogPosts[0]) => (
+const BlogPostCard: React.FC<typeof blogPosts[0]> = ({ title, author, date, excerpt, imageUrl, href }) => (
     <a href={href} className="block group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
         <div className="aspect-w-16 aspect-h-9">
             <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />

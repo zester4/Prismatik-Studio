@@ -748,32 +748,65 @@ export const generatePodcastScript = async (topic: string, systemInstruction?: s
     }
 };
 
-export const generateSpeech = async (text: string, voice: string): Promise<string> => {
+export const synthesizePodcast = async (
+  script: PodcastScriptLine[],
+  voiceAssignments: { [speaker: string]: string },
+  systemInstruction?: string
+): Promise<string> => {
   try {
-    // NOTE: The @google/genai SDK documentation provided does not explicitly detail a non-streaming
-    // Text-to-Speech endpoint. This implementation is based on an extrapolation of the 'live' API's
-    // configuration, assuming a similar structure can be used with generateContent for single audio outputs.
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Synthesize the following text into speech: "${text}"`,
-        config: {
-            responseModalities: [Modality.AUDIO],
-            speechConfig: {
-                // Available voices from Dialog TTS documentation include Zephyr, Puck, Charon, Kore, and Fenrir.
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } },
-            },
-        },
-    });
+    const speakers = [...new Set(script.map(line => line.speaker))];
+    const isMultiSpeaker = speakers.length > 1;
 
-    const audioPart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
-    if (audioPart?.inlineData && audioPart.inlineData.mimeType.startsWith('audio/')) {
-        return audioPart.inlineData.data; // This is the base64 encoded audio string
-    } else {
-        const textPart = response.candidates?.[0]?.content.parts.find(p => p.text);
-        if (textPart?.text) {
-          throw new Error(`Speech generation failed. Model response: ${textPart.text}`);
+    let prompt = '';
+    let speechConfig: any = {};
+
+    if (isMultiSpeaker) {
+      const speakerList = speakers.join(' and ');
+      const scriptText = script.map(line => `${line.speaker}: ${line.line}`).join('\n');
+      prompt = `TTS the following conversation between ${speakerList}:\n${scriptText}`;
+      
+      speechConfig = {
+        multiSpeakerVoiceConfig: {
+          speakerVoiceConfigs: speakers.map(speaker => ({
+            speaker,
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voiceAssignments[speaker] || 'Zephyr' }
+            }
+          }))
         }
-        throw new Error("Speech generation failed to return audio data.");
+      };
+    } else {
+      prompt = script.map(line => line.line).join('\n');
+      const speaker = speakers[0] || 'Narrator';
+      const voice = voiceAssignments[speaker] || 'Zephyr';
+      
+      speechConfig = {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: voice },
+        },
+      };
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text: prompt }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: speechConfig,
+        systemInstruction: systemInstruction || undefined,
+      },
+    });
+    
+    const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+    if (data) {
+      return data; // This is the base64 encoded audio string
+    } else {
+      const textPart = response.candidates?.[0]?.content?.parts.find(p => p.text);
+      if (textPart?.text) {
+        throw new Error(`Speech generation failed. Model response: ${textPart.text}`);
+      }
+      throw new Error("Speech generation failed to return audio data.");
     }
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'podcast'));

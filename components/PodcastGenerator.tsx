@@ -1,5 +1,5 @@
 import React, { useState, useCallback, ReactElement, useContext, useMemo } from 'react';
-import { generatePodcastScript, generateSpeech } from '../services/geminiService';
+import { synthesizePodcast, generatePodcastScript } from '../services/geminiService';
 import { HistoryItemPodcast, PodcastScriptLine } from '../types';
 import { TTS_VOICES, PODCAST_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
@@ -7,13 +7,13 @@ import { PersonaContext } from '../context/PersonaContext';
 import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import PromptTemplates from './PromptTemplates';
-import Tooltip from './Tooltip';
 
 type PodcastResult = Omit<HistoryItemPodcast, 'id' | 'timestamp' | 'type'>;
 type InputType = 'topic' | 'script';
 
 // --- Helper Functions for Audio Processing ---
-// Base64 decoding
+
+// Base64 decoding for browser environment
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -24,19 +24,37 @@ function decode(base64: string) {
   return bytes;
 }
 
+// Decodes raw PCM data (as Uint8Array) into an AudioBuffer
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
+
 // Function to convert an AudioBuffer to a Blob (WAV format)
-function bufferToWave(abuffer: AudioBuffer) {
+function bufferToWave(abuffer: AudioBuffer): Blob {
     const numOfChan = abuffer.numberOfChannels,
           length = abuffer.length * numOfChan * 2 + 44,
           buffer = new ArrayBuffer(length),
           view = new DataView(buffer),
           channels = [],
           sampleRate = abuffer.sampleRate;
-
-    let offset = 0,
-        pos = 0;
     
-    // Helper function
+    let pos = 0;
+    
     const setUint16 = (data: number) => {
         view.setUint16(pos, data, true);
         pos += 2;
@@ -50,7 +68,6 @@ function bufferToWave(abuffer: AudioBuffer) {
     setUint32(0x46464952); // "RIFF"
     setUint32(length - 8); // file length - 8
     setUint32(0x45564157); // "WAVE"
-
     setUint32(0x20746d66); // "fmt " chunk
     setUint32(16); // length = 16
     setUint16(1); // PCM (uncompressed)
@@ -59,11 +76,9 @@ function bufferToWave(abuffer: AudioBuffer) {
     setUint32(sampleRate * 2 * numOfChan); // avg. bytes/sec
     setUint16(numOfChan * 2); // block-align
     setUint16(16); // 16-bit
-    
     setUint32(0x61746164); // "data" - chunk
     setUint32(length - pos - 4); // chunk length
 
-    // Write PCM samples
     for (let i = 0; i < abuffer.numberOfChannels; i++) {
         channels.push(abuffer.getChannelData(i));
     }
@@ -82,6 +97,17 @@ function bufferToWave(abuffer: AudioBuffer) {
     return new Blob([buffer], {type: "audio/wav"});
 }
 
+const parseScript = (text: string): PodcastScriptLine[] => {
+    return text.split('\n').filter(line => line.trim()).map(line => {
+        const parts = line.split(':');
+        if (parts.length > 1) {
+            const speaker = parts[0].trim();
+            const lineContent = parts.slice(1).join(':').trim();
+            return { speaker, line: lineContent };
+        }
+        return { speaker: 'Narrator', line: line.trim() };
+    });
+};
 
 export default function PodcastGenerator(): ReactElement {
     const [inputType, setInputType] = useState<InputType>('topic');
@@ -131,9 +157,8 @@ export default function PodcastGenerator(): ReactElement {
         try {
             const script = await generatePodcastScript(prompt, systemInstruction);
             setGeneratedScript(script);
-            // Auto-assign default voices
-            const newAssignments: { [speaker: string]: string } = {};
             const uniqueSpeakers = [...new Set(script.map(line => line.speaker))];
+            const newAssignments: { [speaker: string]: string } = {};
             uniqueSpeakers.forEach((speaker, index) => {
                 newAssignments[speaker] = TTS_VOICES[index % TTS_VOICES.length].id;
             });
@@ -146,50 +171,48 @@ export default function PodcastGenerator(): ReactElement {
         }
     };
     
+    const handleLoadScript = () => {
+        const parsedScript = parseScript(scriptText);
+        if (parsedScript.length > 0) {
+            setGeneratedScript(parsedScript);
+            const uniqueSpeakers = [...new Set(parsedScript.map(line => line.speaker))];
+            const newAssignments: { [speaker: string]: string } = {};
+            uniqueSpeakers.forEach((speaker, index) => {
+                newAssignments[speaker] = voiceAssignments[speaker] || TTS_VOICES[index % TTS_VOICES.length].id;
+            });
+            setVoiceAssignments(newAssignments);
+            setError(null);
+        } else {
+            setError("Could not parse the script. Please use 'Speaker: Text' format for multiple speakers, or plain text for a single speaker.");
+        }
+    };
+    
     const handleSynthesize = async () => {
-        const scriptToUse = inputType === 'topic' 
-            ? generatedScript
-            : [{ speaker: 'Narrator', line: scriptText }];
+        const scriptToUse = generatedScript;
 
         if (!scriptToUse || scriptToUse.length === 0) {
-            setError('There is no script to synthesize.');
+            setError('There is no script loaded to synthesize.');
             return;
         }
 
         setIsLoading(true);
         setError(null);
         setResult(null);
+        setProgress('Synthesizing podcast audio...');
 
         try {
+            const base64Audio = await synthesizePodcast(scriptToUse, voiceAssignments, activePersona?.systemInstruction);
+
+            setProgress('Processing audio...');
             const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const audioBuffers: AudioBuffer[] = [];
-            
-            for (let i = 0; i < scriptToUse.length; i++) {
-                const item = scriptToUse[i];
-                setProgress(`Synthesizing audio for line ${i + 1}/${scriptToUse.length}...`);
-                const voice = voiceAssignments[item.speaker] || TTS_VOICES[0].id;
-                const base64Audio = await generateSpeech(item.line, voice);
-                const decodedAudio = decode(base64Audio);
-                const audioBuffer = await audioContext.decodeAudioData(decodedAudio.buffer);
-                audioBuffers.push(audioBuffer);
-            }
-
-            setProgress('Combining audio clips...');
-            const totalLength = audioBuffers.reduce((sum, buffer) => sum + buffer.length, 0);
-            const outputBuffer = audioContext.createBuffer(1, totalLength, audioBuffers[0].sampleRate);
-            
-            let offset = 0;
-            for (const buffer of audioBuffers) {
-                outputBuffer.getChannelData(0).set(buffer.getChannelData(0), offset);
-                offset += buffer.length;
-            }
-
-            const audioBlob = bufferToWave(outputBuffer);
+            const decodedPcm = decode(base64Audio);
+            const audioBuffer = await decodeAudioData(decodedPcm, audioContext, 24000, 1);
+            const audioBlob = bufferToWave(audioBuffer);
             const audioUrl = URL.createObjectURL(audioBlob);
 
             const newResult = {
                 audioUrl,
-                prompt,
+                prompt: inputType === 'topic' ? prompt : 'Custom Script',
                 script: scriptToUse,
                 voiceAssignments
             };
@@ -200,6 +223,7 @@ export default function PodcastGenerator(): ReactElement {
                 type: 'podcast',
                 ...newResult
             });
+            setGeneratedScript(null);
 
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred during synthesis.');
@@ -230,9 +254,8 @@ export default function PodcastGenerator(): ReactElement {
             </div>
 
             <div className="space-y-6">
-                {!result && (
+                {!result && !generatedScript && (
                     <>
-                        {/* Input Type Selector */}
                         <div className="grid grid-cols-2 gap-2 p-1 bg-brand-wheat-200 rounded-lg">
                             <button onClick={() => setInputType('topic')} disabled={isLoading} className={`w-full py-2 px-4 rounded-md text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-teal-500 focus:ring-offset-2 ${inputType === 'topic' ? 'bg-brand-teal-500 text-white shadow' : 'bg-brand-wheat-100 text-brand-wheat-700 hover:bg-brand-wheat-200'}`}>
                                 Generate from Topic
@@ -255,11 +278,11 @@ export default function PodcastGenerator(): ReactElement {
                             <>
                                 <div>
                                     <label htmlFor="scriptText" className="block text-base sm:text-lg font-semibold text-brand-wheat-800 mb-2">Your Script</label>
+                                    <p className="text-xs text-brand-wheat-600 mb-2">For multiple speakers, use the format: <strong>Speaker Name: Dialogue text...</strong> on each line.</p>
                                     <textarea id="scriptText" value={scriptText} onChange={(e) => setScriptText(e.target.value)} disabled={isLoading} rows={10} placeholder="Paste your podcast script here..." className="w-full px-4 py-3 bg-brand-wheat-50 border-2 border-brand-wheat-200 rounded-lg" />
                                 </div>
-                                <button onClick={handleSynthesize} disabled={isLoading || !scriptText.trim()} className="w-full flex items-center justify-center bg-brand-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-teal-600 transition disabled:bg-brand-teal-300">
-                                    {isLoading && <LoadingSpinner />}
-                                    {isLoading ? 'Synthesizing...' : 'Synthesize Audio'}
+                                <button onClick={handleLoadScript} disabled={isLoading || !scriptText.trim()} className="w-full flex items-center justify-center bg-brand-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-teal-600 transition disabled:bg-brand-teal-300">
+                                    Load Script & Assign Voices
                                 </button>
                             </>
                         )}
@@ -276,7 +299,7 @@ export default function PodcastGenerator(): ReactElement {
 
                 {generatedScript && !result && (
                     <div className="mt-8 space-y-6">
-                        <h3 className="text-xl font-semibold">Generated Script & Voice Assignment</h3>
+                        <h3 className="text-xl font-semibold">Voice Assignment</h3>
                         <div className="bg-brand-wheat-50 p-4 rounded-lg border border-brand-wheat-200 space-y-4">
                             {speakers.map(speaker => (
                                 <div key={speaker} className="flex items-center gap-4">
@@ -300,8 +323,8 @@ export default function PodcastGenerator(): ReactElement {
                         <div className="bg-brand-wheat-50 p-6 rounded-xl border border-brand-wheat-200 space-y-4">
                              <audio controls src={result.audioUrl} className="w-full"></audio>
                              <div className="flex gap-4">
-                                <button onClick={handleDownload} className="flex-1 bg-brand-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-teal-600 transition">Download Audio</button>
-                                <button onClick={() => { setResult(null); setGeneratedScript(null); }} className="flex-1 bg-brand-wheat-200 text-brand-wheat-800 font-bold py-2 px-4 rounded-lg hover:bg-brand-wheat-300 transition">Create Another</button>
+                                <button onClick={handleDownload} className="flex-1 bg-brand-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-teal-600 transition">Download Audio (.wav)</button>
+                                <button onClick={() => { setResult(null); setGeneratedScript(null); setPrompt(''); setScriptText(''); }} className="flex-1 bg-brand-wheat-200 text-brand-wheat-800 font-bold py-2 px-4 rounded-lg hover:bg-brand-wheat-300 transition">Create Another</button>
                              </div>
                              <details className="pt-4">
                                 <summary className="cursor-pointer font-semibold text-brand-wheat-800">View Script</summary>
