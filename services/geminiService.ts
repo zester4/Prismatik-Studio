@@ -360,7 +360,7 @@ export const generateLogo = async (
       "1:1",
       'none',
       model,
-      "text, letters, words, font, blurry, signature",
+      model.startsWith('imagen-') ? "text, letters, words, font, blurry, signature" : undefined,
       systemInstruction,
     );
     return images;

@@ -72,6 +72,7 @@ export default function ImageGenerator(): ReactElement {
     }
   };
 
+  const isImagenModel = model.startsWith('imagen-');
 
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) {
@@ -109,7 +110,8 @@ export default function ImageGenerator(): ReactElement {
 
       } else {
         // Text-to-Image Generation Logic
-        const generatedImages = await generateImages(prompt, numberOfImages, aspectRatio, style, model, negativePrompt, systemInstruction);
+        const finalNegativePrompt = isImagenModel ? negativePrompt : undefined;
+        const generatedImages = await generateImages(prompt, numberOfImages, aspectRatio, style, model, finalNegativePrompt, systemInstruction);
         const newResults: ImageResult[] = generatedImages.map(imageUrl => ({
             prompt,
             imageUrl,
@@ -137,9 +139,8 @@ export default function ImageGenerator(): ReactElement {
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, numberOfImages, aspectRatio, style, model, negativePrompt, addHistoryItem, uploadedImage, activePersona]);
+  }, [prompt, numberOfImages, aspectRatio, style, model, negativePrompt, addHistoryItem, uploadedImage, activePersona, isImagenModel]);
 
-  const isImagenModel = model.startsWith('imagen-');
   const isEditing = uploadedImage !== null;
 
   return (
