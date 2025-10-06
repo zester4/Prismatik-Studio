@@ -25,7 +25,6 @@ const FaqItem: React.FC<{ question: string; answer: ReactElement }> = ({ questio
     );
 };
 
-// FIX: Add explicit type to faqData to resolve type inference issue.
 const faqData: { question: string; answer: ReactElement }[] = [
     {
         question: "What do I need to use Prismatik Studio?",

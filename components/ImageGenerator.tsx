@@ -94,7 +94,7 @@ export default function ImageGenerator(): ReactElement {
         const newResult: ImageResult = {
           prompt,
           imageUrl: editedImage,
-          model: 'gemini-2.5-flash-image-preview',
+          model: 'gemini-2.5-flash-image',
           style: 'edit',
           aspectRatio: "1:1", // Edit model output is square
         };
@@ -198,7 +198,7 @@ export default function ImageGenerator(): ReactElement {
 
         {!isEditing && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className={isImagenModel ? 'md:col-span-2' : ''}>
+            <div className={'md:col-span-2'}>
                 <div className="flex items-center gap-2 mb-1">
                     <label htmlFor="model" className="block text-sm font-medium text-brand-wheat-800">Model</label>
                     <Tooltip text="Different models have different strengths. Imagen models are great for photorealism, while Gemini is excellent for creative and multi-modal tasks.">

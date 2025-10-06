@@ -1,5 +1,4 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-// FIX: Import HistoryItemCampaign to resolve type error.
 import type { AspectRatio, StoryScene, AdCopy, ArticleBlock, BrandIdentity, PodcastScriptLine, HistoryItemCampaign } from '../types';
 
 if (!process.env.API_KEY) {
@@ -123,7 +122,7 @@ export const editImage = async (
   systemInstruction?: string
 ): Promise<string> => {
   try {
-    const model = 'gemini-2.5-flash-image-preview';
+    const model = 'gemini-2.5-flash-image';
     const response = await ai.models.generateContent({
       model: model,
       contents: { 

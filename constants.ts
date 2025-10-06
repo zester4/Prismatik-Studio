@@ -86,7 +86,6 @@ export const IMAGE_MODELS = [
   { id: 'imagen-4.0-ultra-generate-001', name: 'Imagen 4 Ultra' },
   { id: 'imagen-4.0-fast-generate-001', name: 'Imagen 4 Fast' },
   { id: 'imagen-3.0-generate-002', name: 'Imagen 3.0' },
-  { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Preview)' },
 ];
 
 export const VIDEO_MODELS = [

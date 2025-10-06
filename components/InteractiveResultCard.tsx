@@ -14,7 +14,7 @@ interface InteractiveResultCardProps {
 const getModelName = (id: string) => {
     const model = IMAGE_MODELS.find(m => m.id === id);
     if (model) return model.name;
-    if (id === 'gemini-2.5-flash-image-preview') return 'Gemini 2.5 Flash';
+    if (id === 'gemini-2.5-flash-image-preview' || id === 'gemini-2.5-flash-image') return 'Gemini 2.5 Flash';
     return id;
 }
 
