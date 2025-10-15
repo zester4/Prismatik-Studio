@@ -101,6 +101,28 @@ export const TTS_VOICES = [
     { id: 'Fenrir', name: 'Jasper (Male, Raspy)' },
 ];
 
+export const PODCAST_FORMATS = [
+    { id: 'discussion', name: 'Roundtable Discussion' },
+    { id: 'interview', name: 'Interview' },
+    { id: 'solo-monologue', name: 'Solo Monologue' },
+    { id: 'documentary', name: 'Documentary Narration' },
+];
+
+export const PODCAST_TONES = [
+    { id: 'informative', name: 'Informative & Educational' },
+    { id: 'humorous', name: 'Humorous & Casual' },
+    { id: 'dramatic', name: 'Dramatic & Storytelling' },
+    { id: 'professional', name: 'Professional & Corporate' },
+    { id: 'inspirational', name: 'Inspirational' },
+];
+
+export const PODCAST_DURATIONS = [
+    { id: '1 minute', name: 'Short (≈ 1 min)' },
+    { id: '2 minutes', name: 'Medium (≈ 2 mins)' },
+    { id: '5 minutes', name: 'Long (≈ 5 mins)' },
+];
+
+
 export const ASPECT_RATIOS: AspectRatio[] = ["1:1", "16:9", "9:16", "4:3", "3:4"];
 
 export const VIDEO_ASPECT_RATIOS: AspectRatio[] = ["16:9", "9:16"];

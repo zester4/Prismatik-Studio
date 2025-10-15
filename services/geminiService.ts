@@ -674,11 +674,16 @@ export const generateCampaign = async (
 export const generatePodcastScript = async (
     prompt: string,
     speakerNames: string[],
+    format: string,
+    tone: string,
+    duration: string,
     systemInstruction?: string,
 ): Promise<PodcastScriptLine[]> => {
     try {
         const scriptPrompt = `
-            Generate a podcast script based on the following topic.
+            Generate a podcast script with a target duration of approximately ${duration}.
+            The format should be a ${format}.
+            The tone of the podcast should be ${tone}.
             The script should be formatted with each line as "Speaker Name: Dialogue text".
             The available speakers are: ${speakerNames.join(', ')}.
             Topic: "${prompt}"
@@ -686,10 +691,10 @@ export const generatePodcastScript = async (
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: scriptPrompt,
-            config: { systemInstruction: systemInstruction || "You are a podcast scriptwriter." },
+            config: { systemInstruction: systemInstruction || "You are a professional podcast scriptwriter." },
         });
 
-        return response.text.split('\n').filter(line => line.trim()).map(line => {
+        const parsedScript = response.text.split('\n').filter(line => line.trim()).map(line => {
             const parts = line.split(':');
             if (parts.length > 1) {
                 const speaker = parts[0].trim();
@@ -699,6 +704,13 @@ export const generatePodcastScript = async (
             return { speaker: speakerNames[0] || 'Narrator', line: line.trim() };
         });
 
+        // Ensure at least one line is returned
+        if (parsedScript.length === 0 && response.text.trim()) {
+            return [{ speaker: speakerNames[0] || 'Narrator', line: response.text.trim() }];
+        }
+        return parsedScript;
+
+
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'podcast'));
     }
@@ -707,28 +719,51 @@ export const generatePodcastScript = async (
 export const synthesizePodcast = async (
     script: PodcastScriptLine[],
     voiceAssignments: { [speaker: string]: string },
-    systemInstruction?: string,
 ): Promise<string> => {
     try {
-        const ssml = script.map(line => {
-            const voiceName = voiceAssignments[line.speaker] || 'Zephyr';
-            return `<voice name="${voiceName}">${line.line}</voice>`;
-        }).join('\n');
+        const fullScriptText = script.map(line => `${line.speaker}: ${line.line}`).join('\n');
+        
+        const uniqueSpeakers = [...new Set(script.map(line => line.speaker))];
+        
+        if (uniqueSpeakers.length < 2) {
+             const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash-preview-tts",
+                contents: [{ parts: [{ text: fullScriptText }] }],
+                config: {
+                    responseModalities: [Modality.AUDIO],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: voiceAssignments[uniqueSpeakers[0]] || 'Zephyr' },
+                        },
+                    },
+                },
+            });
 
-        const synthesisPrompt = `
-            Synthesize the following script into a single, continuous audio file.
-            The script uses <voice> tags to assign different prebuilt voices to each line.
-            Respect these assignments to create a multi-speaker podcast.
-            Script:
-            ${ssml}
-        `;
+            const audioPart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
+            if (audioPart?.inlineData) {
+                return audioPart.inlineData.data;
+            } else {
+                throw new Error("Single-speaker audio synthesis failed to return audio data.");
+            }
+        }
+        
+        const speakerVoiceConfigs = uniqueSpeakers.map(speakerName => ({
+            speaker: speakerName,
+            voiceConfig: {
+                prebuiltVoiceConfig: { voiceName: voiceAssignments[speakerName] || 'Zephyr' }
+            }
+        }));
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-            contents: synthesisPrompt,
+            model: 'gemini-2.5-flash-preview-tts',
+            contents: [{ parts: [{ text: fullScriptText }] }],
             config: {
                 responseModalities: [Modality.AUDIO],
-                systemInstruction: systemInstruction || "You are a text-to-speech synthesis engine.",
+                speechConfig: {
+                    multiSpeakerVoiceConfig: {
+                        speakerVoiceConfigs: speakerVoiceConfigs
+                    }
+                }
             }
         });
 
@@ -736,7 +771,7 @@ export const synthesizePodcast = async (
         if (audioPart?.inlineData) {
             return audioPart.inlineData.data;
         } else {
-            throw new Error("Audio synthesis failed to return audio data.");
+            throw new Error("Multi-speaker audio synthesis failed to return audio data.");
         }
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'podcast'));
