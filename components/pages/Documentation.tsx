@@ -60,7 +60,7 @@ const Section: React.FC<{title: string, icon: ReactElement, children: ReactEleme
     <>
         <div className="flex items-center gap-4">
             <div className="bg-brand-teal-50 text-brand-teal-600 p-2 rounded-lg">
-                {React.cloneElement(icon, { className: 'w-6 h-6' })}
+                {React.cloneElement(icon, { className: 'w-5 h-5' })}
             </div>
             <h2 className="text-3xl font-bold text-brand-wheat-900">{title}</h2>
         </div>
@@ -369,6 +369,33 @@ export default function Documentation(): ReactElement {
 
                         <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">4. Iterate and Refine</h3>
                         <p className="mt-2 text-brand-wheat-700">Your first prompt is a starting point, not the final destination. If a result isn't quite right, adjust your prompt by adding, removing, or rephrasing keywords. Use the editing and regeneration features to fine-tune specific parts of your creation. Sometimes changing just one word can make a huge difference.</p>
+
+                        <h3 className="text-2xl font-bold text-brand-wheat-900 mt-8">5. Anatomy of a Great Prompt</h3>
+                        <p className="mt-2 text-brand-wheat-700">Let's break down a complex prompt to see how its components work together to create a detailed and evocative image.</p>
+                        <CodeBlock>Epic fantasy concept art. A colossal, ancient golem, constructed from moss-covered stones and intertwined with glowing blue magical vines, sits meditating in the center of a forgotten, sun-dappled clearing in a redwood forest.</CodeBlock>
+                        <p className="mt-4 text-brand-wheat-700">This prompt is effective because it layers different types of information:</p>
+                        <ul className="mt-4 list-disc list-inside space-y-4 text-brand-wheat-700">
+                            <li>
+                                <strong>Medium/Style:</strong> <code className="bg-brand-wheat-200 text-sm p-1 rounded">Epic fantasy concept art.</code><br/>
+                                This immediately tells the AI the desired genre and artistic style, setting the overall mood before any subjects are described.
+                            </li>
+                            <li>
+                                <strong>Subject:</strong> <code className="bg-brand-wheat-200 text-sm p-1 rounded">A colossal, ancient golem, constructed from moss-covered stones and intertwined with glowing blue magical vines...</code><br/>
+                                This is the main focus of the image. It's rich with descriptive adjectives: its size (colossal), age (ancient), material (moss-covered stones), and a key magical element (glowing vines).
+                            </li>
+                            <li>
+                                <strong>Action/Pose:</strong> <code className="bg-brand-wheat-200 text-sm p-1 rounded">...sits meditating...</code><br/>
+                                Giving the subject a specific action or pose adds to the storytelling and makes the scene feel more alive and less static.
+                            </li>
+                            <li>
+                                <strong>Environment:</strong> <code className="bg-brand-wheat-200 text-sm p-1 rounded">...in the center of a forgotten... clearing in a redwood forest.</code><br/>
+                                This places the subject in a specific setting, providing context, atmosphere, and a sense of scale.
+                            </li>
+                            <li>
+                                <strong>Lighting & Atmosphere:</strong> <code className="bg-brand-wheat-200 text-sm p-1 rounded">...sun-dappled...</code><br/>
+                                This single phrase is incredibly powerful. It specifies the lighting conditions, which is crucial for creating depth, mood, and visual interest.
+                            </li>
+                        </ul>
                     </>
                 </Section>
             )
