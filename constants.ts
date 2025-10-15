@@ -190,25 +190,29 @@ export const IMAGE_TEMPLATES = [
         title: "Ancient Stone Golem",
         description: "A colossal, mossy golem meditating in a sun-dappled redwood forest.",
         prompt: "Epic fantasy concept art. A colossal, ancient golem, constructed from moss-covered stones and intertwined with glowing blue magical vines, sits meditating in the center of a forgotten, sun-dappled clearing in a redwood forest. Sunlight filters through the massive canopy, creating dramatic god rays. Small, curious forest spirits, resembling tiny, glowing foxes, peek out from behind giant mushrooms.",
-        style: 'fantasy'
+        style: 'fantasy',
+        negativePrompt: 'blurry, modern elements, text'
     },
     {
         title: "Cyberpunk Night Market",
         description: "A bustling, neon-drenched street market in a futuristic megacity at night.",
         prompt: "A sprawling, cyberpunk megacity street market at night, drenched in neon and perpetual rain. The shot is from a low angle, looking up at towering holographic advertisements that glitch and flicker. A diverse crowd of humans, cyborgs, and aliens bustle through the narrow street, their faces illuminated by the glow of food stalls selling strange, steaming alien cuisine. A lone, trench-coat-wearing android detective leans against a noodle bar, steam rising around them. The atmosphere is dense, moody, and Blade Runner-inspired.",
-        style: 'cinematic'
+        style: 'cinematic',
+        negativePrompt: 'daytime, bright, clean'
     },
     {
         title: "Surreal Floating Clock",
         description: "A giant, antique grandfather clock floating in a cosmic sea under a nebula-filled sky.",
         prompt: "Surrealism painting. An enormous, antique grandfather clock floating in a calm, cosmic sea under a nebula-filled sky with two moons. The clock face is made of swirling galaxies, and its pendulum is a swinging, caged star. Crystalline whales with translucent skin swim gracefully around the clock, their bodies containing miniature, glowing star systems. The art style should be a mix of Salvador Dalí's dreamlike landscapes and the intricate detail of a Victorian illustration.",
-        style: 'fantasy'
+        style: 'fantasy',
+        negativePrompt: 'photorealistic, simple, plain background'
     },
     {
         title: "Wizard's Arcane Study",
         description: "A cozy, cluttered Victorian-era study filled with magical objects and books.",
         prompt: "A cozy, cluttered Victorian-era study filled with arcane objects, books, and celestial maps. In the center, a wise old wizard with a long white beard and star-patterned robes is scrying into a crystal ball, which shows a swirling galaxy. The room is lit by candlelight and the magical glow from the orb, casting long, dancing shadows. A black cat with glowing green eyes is curled up asleep on a pile of ancient tomes. The atmosphere is one of warmth, mystery, and ancient knowledge.",
-        style: 'watercolor'
+        style: 'watercolor',
+        negativePrompt: 'bright lights, modern furniture'
     }
 ];
 

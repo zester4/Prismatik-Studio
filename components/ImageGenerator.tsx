@@ -219,7 +219,7 @@ export default function ImageGenerator(): ReactElement {
                 <div className="md:col-span-2">
                     <div className="flex items-center gap-2 mb-1">
                         <label htmlFor="negativePrompt" className="block text-sm font-medium text-brand-wheat-800">Negative Prompt</label>
-                        <Tooltip text="Specify what you DON'T want in the image. Useful for removing text, extra limbs, or unwanted objects. (Only for Imagen models)">
+                        <Tooltip text="Specify what you DON'T want in the image. Useful for removing text, extra limbs, or unwanted objects.">
                             <InfoIcon />
                         </Tooltip>
                     </div>
