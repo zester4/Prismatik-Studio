@@ -70,6 +70,21 @@ export const generateImages = async (
         finalPrompt = `${systemInstruction}. ${finalPrompt}`;
     }
 
+    // For Gemini, which doesn't support negativePrompt directly, append an instruction.
+    if (negativePrompt && model.startsWith('gemini-')) {
+        finalPrompt = `${finalPrompt}. Do not include: ${negativePrompt}`;
+    }
+
+    // For Gemini, which doesn't support negativePrompt directly, prepend it.
+    if (negativePrompt && model.startsWith('gemini-')) {
+        finalPrompt = `${finalPrompt}. Do not include: ${negativePrompt}`;
+    }
+
+    // For Gemini, which doesn't support negativePrompt directly, prepend it.
+    if (negativePrompt && model.startsWith('gemini-')) {
+        finalPrompt = `${finalPrompt}. Do not include: ${negativePrompt}`;
+    }
+
     if (model.startsWith('imagen-')) {
       const response = await ai.models.generateImages({
         model: model,
