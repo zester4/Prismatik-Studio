@@ -111,6 +111,39 @@ const ChevronDownIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+// --- NEW ICONS --- //
+const SocialMediaIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+);
+const FormalWriterIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+);
+const CreativeStorytellerIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+);
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+);
+const QuoteIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+       <path fillRule="evenodd" d="M7.757 3.007a.75.75 0 00-1.508-.082L4.01 10.993a.75.75 0 00.74 1.007h2.5a.75.75 0 000-1.5h-1.83l1.24-6.493zm6.5 0a.75.75 0 00-1.508-.082L10.51 10.993a.75.75 0 00.74 1.007h2.5a.75.75 0 000-1.5h-1.83l1.24-6.493z" clipRule="evenodd" />
+    </svg>
+);
+const TestimonialStarIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
+        <path fillRule="evenodd" d="M10.868 2.884c.321-.662 1.215-.662 1.536 0l1.681 3.448 3.805.553c.73.106.99.98-.445 1.503l-2.753 2.683.65 3.788c.124.723-.62 1.282-1.258.93l-3.4-1.788-3.4 1.788c-.638.352-1.382-.207-1.258-.93l.65-3.788-2.753-2.683c-.435-.523-.175-1.397.445-1.503l3.805-.553 1.681-3.448z" clipRule="evenodd" />
+    </svg>
+);
+
 // --- Reusable Components --- //
 const AnimatedSection = ({ children, className }: PropsWithChildren<{ className?: string }>) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -196,6 +229,35 @@ const FeatureDetail = ({ icon, title, description, bulletPoints, imageUrl, align
         </div>
     </div>
 );
+
+// --- NEW COMPONENTS --- //
+const AIPersonaCard = ({ icon, title, description, isCustom }: { icon: React.ReactElement, title: string, description: string, isCustom?: boolean }) => (
+    <div className={`bg-white p-6 rounded-xl shadow-md h-full flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${isCustom ? 'border-2 border-dashed border-brand-wheat-300 items-center justify-center text-center' : ''}`}>
+        <div className={`bg-brand-teal-100 text-brand-teal-500 rounded-lg w-16 h-16 flex items-center justify-center mb-4 ${isCustom ? '' : 'mx-auto sm:mx-0'}`}>
+            {React.cloneElement(icon, { className: 'w-8 h-8' })}
+        </div>
+        <h3 className="text-xl font-bold mb-2 text-brand-wheat-900">{title}</h3>
+        <p className="text-brand-wheat-700 text-sm sm:text-base">{description}</p>
+    </div>
+);
+
+const TestimonialCard = ({ quote, name, role, avatarUrl }: { quote: string, name: string, role: string, avatarUrl: string }) => (
+    <div className="bg-brand-wheat-50 p-8 rounded-2xl shadow-lg h-full flex flex-col">
+        <QuoteIcon className="w-8 h-8 text-brand-teal-200 mb-4"/>
+        <div className="flex mb-4">
+            {[...Array(5)].map((_, i) => <TestimonialStarIcon key={i} className="w-5 h-5 text-brand-wheat-400" />)}
+        </div>
+        <p className="text-brand-wheat-800 italic flex-grow text-lg">"{quote}"</p>
+        <div className="mt-6 flex items-center pt-6 border-t border-brand-wheat-200">
+            <img className="h-12 w-12 rounded-full object-cover" src={avatarUrl} alt={name} />
+            <div className="ml-4">
+                <p className="font-bold text-brand-wheat-900">{name}</p>
+                <p className="text-sm text-brand-wheat-600">{role}</p>
+            </div>
+        </div>
+    </div>
+);
+
 
 const marqueeImages = [
     'https://images.unsplash.com/photo-1671922008323-96b6585140f7?q=80&w=600&auto=format=fit=crop',
@@ -356,6 +418,41 @@ export default function HomePage(): ReactElement {
                     </div>
                 </div>
             </AnimatedSection>
+            
+            {/* NEW: Persona Hub Section */}
+            <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-100">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="text-center mb-12 sm:mb-16">
+                         <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Meet Your AI Personas</h3>
+                         <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-brand-wheat-600">
+                            Switch between AI personalities to get the perfect tone for any task. Use our defaults or create your own custom persona to make the AI truly yours.
+                         </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+                        <AIPersonaCard 
+                            icon={<SocialMediaIcon />} 
+                            title="Witty Social Media Manager" 
+                            description="Generates punchy, engaging, and trend-aware copy perfect for platforms like Twitter and Instagram."
+                        />
+                        <AIPersonaCard 
+                            icon={<FormalWriterIcon />} 
+                            title="Formal Report Writer" 
+                            description="Produces structured, professional, and data-driven content suitable for reports and official documents."
+                        />
+                        <AIPersonaCard 
+                            icon={<CreativeStorytellerIcon />} 
+                            title="Creative Storyteller" 
+                            description="Weaves imaginative narratives and rich, descriptive visuals for stories and creative writing."
+                        />
+                        <AIPersonaCard 
+                            icon={<PlusIcon />} 
+                            title="Create Your Own" 
+                            description="Build a custom persona by defining its expertise, tone, and specific instructions in the Persona Hub."
+                            isCustom
+                        />
+                    </div>
+                </div>
+            </AnimatedSection>
 
             {/* Use Cases Section */}
             <AnimatedSection className="py-16 sm:py-20 bg-brand-wheat-50">
@@ -371,6 +468,35 @@ export default function HomePage(): ReactElement {
                         <PersonaCard icon={<AuthorIcon />} title="Authors & Bloggers" description="Break through writer's block by visualizing scenes, illustrate entire chapters with the story tool, and draft full-length articles with AI assistance." />
                         <PersonaCard icon={<DeveloperIcon />} title="Indie Developers" description="Create stunning concept art, generate in-game assets, design unique logos for your projects, and produce promotional materials without an art team." />
                         <PersonaCard icon={<EntrepreneurIcon />} title="Entrepreneurs" description="Design a professional brand identity, create marketing materials for your products, and produce engaging ads for social media, all without a big budget." />
+                    </div>
+                </div>
+            </AnimatedSection>
+
+            {/* NEW: Testimonials Section */}
+            <AnimatedSection className="py-16 sm:py-20 bg-white">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="text-center mb-12 sm:mb-16">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-brand-wheat-900">Loved by Creators Worldwide</h3>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                        <TestimonialCard
+                            quote="Prismatik's Campaign Director is a game-changer. I went from a product idea to a full set of marketing assets in an afternoon. The time and money saved is unbelievable."
+                            name="Sarah L."
+                            role="Digital Marketer"
+                            avatarUrl="https://i.pravatar.cc/150?u=sarah"
+                        />
+                        <TestimonialCard
+                            quote="As an indie dev, I don't have an art budget. The Image Generator lets me create professional-quality game assets and concept art just by describing them. It's an indispensable tool."
+                            name="Mike R."
+                            role="Indie Game Developer"
+                            avatarUrl="https://i.pravatar.cc/150?u=mike"
+                        />
+                        <TestimonialCard
+                            quote="The Story Generator is pure magic. Seeing my characters and scenes visualized helps me break through writer's block and brings my narrative to life in ways I couldn't imagine."
+                            name="Elena C."
+                            role="Novelist & Screenwriter"
+                            avatarUrl="https://i.pravatar.cc/150?u=elena"
+                        />
                     </div>
                 </div>
             </AnimatedSection>
