@@ -8,6 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
 import Tooltip from './Tooltip';
 import PromptTemplates from './PromptTemplates';
+import ProgressStepper from './ProgressStepper';
 
 type AdResult = Omit<HistoryItemAd, 'id' | 'timestamp' | 'type' | 'prompt'> & { prompt: string };
 type AdType = 'image' | 'video';
@@ -47,6 +48,8 @@ const InfoIcon: React.FC = () => (
     </svg>
 );
 
+const adVideoGenerationSteps = ["Writing Copy", "Generating Video", "Finalizing", "Ready"];
+
 
 export default function AdGenerator(): ReactElement {
   const [productName, setProductName] = useState<string>('');
@@ -59,6 +62,7 @@ export default function AdGenerator(): ReactElement {
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<AdResult | null>(null);
@@ -113,6 +117,7 @@ export default function AdGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setCurrentStep(0);
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
@@ -129,7 +134,19 @@ export default function AdGenerator(): ReactElement {
         mediaUrl = response.mediaUrl;
         adCopy = response.adCopy;
       } else { // adType === 'video'
-        const onProgress = (message: string) => setProgress(message);
+        const onProgress = (message: string) => {
+            setProgress(message);
+            const lowerMessage = message.toLowerCase();
+            if (lowerMessage.includes('copy')) {
+                setCurrentStep(0);
+            } else if (lowerMessage.includes('processing')) {
+                setCurrentStep(1);
+            } else if (lowerMessage.includes('downloading') || lowerMessage.includes('complete')) {
+                setCurrentStep(2);
+            } else if (lowerMessage.includes('ready')) {
+                setCurrentStep(3);
+            }
+        };
         const response = await generateAdVideo(
             productName, description, audience, tone, cta,
             onProgress,
@@ -266,9 +283,15 @@ export default function AdGenerator(): ReactElement {
       </div>
 
        {isLoading && adType === 'video' && (
-        <div className="mt-4 text-center p-3 bg-blue-100 text-blue-800 rounded-md">
-            <p className="font-semibold">Generation in progress...</p>
-            <p className="text-sm">{progress || "This may take a few minutes. Please be patient."}</p>
+        <div className="mt-4 text-center p-4 bg-brand-wheat-50 rounded-lg border border-brand-wheat-200">
+            <h3 className="font-semibold text-brand-wheat-800">Your video ad is being produced...</h3>
+            <p className="text-sm text-brand-wheat-600 mb-4">
+                First, the AI copywriter will craft your message. Then, the video will be generated.
+                <br/>
+                This may take a few minutes.
+            </p>
+            <p className="text-sm text-brand-wheat-600 mb-4 font-mono">{progress}</p>
+            <ProgressStepper steps={adVideoGenerationSteps} currentStep={currentStep} />
         </div>
       )}
 

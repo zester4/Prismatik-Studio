@@ -9,6 +9,7 @@ import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
 import Tooltip from './Tooltip';
 import PromptTemplates from './PromptTemplates';
+import ProgressStepper from './ProgressStepper';
 
 type VideoResult = Omit<HistoryItemVideo, 'id' | 'timestamp' | 'type'>;
 
@@ -18,12 +19,16 @@ const InfoIcon: React.FC = () => (
     </svg>
 );
 
+const videoGenerationSteps = ["Initializing", "Generating Video", "Finalizing", "Ready"];
+
+
 export default function VideoGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const [model, setModel] = useState<string>(VIDEO_MODELS[0].id);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<VideoResult | null>(null);
@@ -70,15 +75,23 @@ export default function VideoGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setCurrentStep(0);
 
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
-      const onProgress = (message: string) => setProgress(message);
+      const onProgress = (message: string) => {
+          setProgress(message);
+          const lowerMessage = message.toLowerCase();
+          if (lowerMessage.includes('starting')) setCurrentStep(0);
+          else if (lowerMessage.includes('processing')) setCurrentStep(1);
+          else if (lowerMessage.includes('downloading')) setCurrentStep(2);
+          else if (lowerMessage.includes('ready')) setCurrentStep(3);
+      };
       const imageParam = uploadedImage ? { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 } : undefined;
-      const url = await generateVideo(prompt, aspectRatio, model, onProgress, imageParam, systemInstruction);
+      const { videoUrl, videoObject } = await generateVideo(prompt, aspectRatio, model, onProgress, imageParam, systemInstruction);
       
-      const newResult = { videoUrl: url, prompt, aspectRatio, model };
+      const newResult = { videoUrl, videoObject, prompt, aspectRatio, model };
       setResult(newResult);
       
       addHistoryItem({
@@ -161,9 +174,15 @@ export default function VideoGenerator(): ReactElement {
       </div>
 
       {isLoading && (
-        <div className="mt-4 text-center p-3 bg-blue-100 text-blue-800 rounded-md">
-            <p className="font-semibold">Generation in progress...</p>
-            <p className="text-sm">{progress || "This may take a few minutes. Please be patient."}</p>
+        <div className="mt-4 text-center p-4 bg-brand-wheat-50 rounded-lg border border-brand-wheat-200">
+            <h3 className="font-semibold text-brand-wheat-800">Your video is being created...</h3>
+            <p className="text-sm text-brand-wheat-600 mb-4">
+                This process can take several minutes, especially for complex prompts.
+                <br />
+                Feel free to keep this tab open in the background.
+            </p>
+            <p className="text-sm text-brand-wheat-600 mb-4 font-mono">{progress}</p>
+            <ProgressStepper steps={videoGenerationSteps} currentStep={currentStep} />
         </div>
       )}
 
@@ -184,7 +203,7 @@ export default function VideoGenerator(): ReactElement {
       {result && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Result</h3>
-           <InteractiveResultCard item={{ id: 'current', timestamp: Date.now(), type: 'video', ...result }} />
+           <InteractiveResultCard item={{ id: 'current', timestamp: Date.now(), type: 'video', ...result }} onWorkflowAction={() => {}} />
         </div>
       )}
     </div>

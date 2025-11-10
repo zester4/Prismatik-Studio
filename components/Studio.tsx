@@ -10,6 +10,7 @@ import LogoGenerator from './LogoGenerator';
 import AdGenerator from './AdGenerator';
 import CampaignGenerator from './CampaignGenerator';
 import PodcastGenerator from './PodcastGenerator';
+import TTSGenerator from './TTSGenerator';
 import CreationGallery from './CreationGallery';
 import Profile from './Profile';
 import PersonaHub from './PersonaHub';
@@ -24,6 +25,24 @@ function StudioContent(): ReactElement {
     setMode(newMode);
   }, []);
 
+  // FIX: Added handler for onWorkflowAction to pass to CreationGallery.
+  const handleWorkflowAction = useCallback((action: string, data: any) => {
+    // NOTE: This is a simplified handler. A full implementation would require
+    // a mechanism (like context or state lifting) to pass the `data` payload
+    // to the target generator to pre-fill its form. For now, it just switches modes.
+    console.log("Workflow action triggered:", action, data);
+
+    if (action.includes('-to-video') || action === 'action:extend-video') {
+        setMode(GenerationMode.VIDEO);
+    } else if (action.includes('-to-story')) {
+        setMode(GenerationMode.STORY);
+    } else if (action.includes('-to-ad')) {
+        setMode(GenerationMode.AD);
+    } else if (action.includes('-to-campaign')) {
+        setMode(GenerationMode.CAMPAIGN);
+    }
+  }, []);
+
   const renderContent = () => {
     switch (mode) {
       case GenerationMode.IMAGE:
@@ -36,6 +55,8 @@ function StudioContent(): ReactElement {
         return <ArticleGenerator />;
       case GenerationMode.PODCAST:
         return <PodcastGenerator />;
+      case GenerationMode.TTS:
+        return <TTSGenerator />;
       case GenerationMode.LOGO:
         return <LogoGenerator />;
       case GenerationMode.AD:
@@ -43,7 +64,7 @@ function StudioContent(): ReactElement {
       case GenerationMode.CAMPAIGN:
         return <CampaignGenerator />;
       case GenerationMode.GALLERY:
-        return <CreationGallery />;
+        return <CreationGallery onWorkflowAction={handleWorkflowAction} />;
       case GenerationMode.PROFILE:
         return <Profile />;
       default:

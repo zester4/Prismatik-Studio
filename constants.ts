@@ -275,6 +275,14 @@ export const STORY_TEMPLATES = [
         aspectRatio: '3:4' as AspectRatio,
         numberOfScenes: 4,
         textLength: 'medium'
+    },
+    {
+        title: "The Crystal Cave",
+        description: "A young explorer discovers a cave filled with luminous crystals that react to sound.",
+        prompt: "A young, intrepid explorer with a headlamp and a backpack stumbles upon a hidden entrance to a cave. Inside, she discovers a massive cavern filled with towering, luminous crystals of all shapes and sizes. The crystals are inert at first, but when she makes a sound—a gasp of awe, a footstep's echo—they pulse with vibrant, colored light in response. She experiments, humming a simple tune that causes the entire cave to light up in a synchronized, breathtaking symphony of color and light, revealing ancient patterns on the cavern walls.",
+        aspectRatio: '16:9' as AspectRatio,
+        numberOfScenes: 4,
+        textLength: 'medium'
     }
 ];
 

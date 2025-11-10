@@ -9,8 +9,18 @@ import LoadingSpinner from './LoadingSpinner';
 import InteractiveResultCard from './InteractiveResultCard';
 import Tooltip from './Tooltip';
 import PromptTemplates from './PromptTemplates';
+import ImageEditorModal from './ImageEditorModal';
 
 type ImageResult = Omit<HistoryItemImage, 'id' | 'timestamp' | 'type'>;
+
+interface UploadedImageState {
+  file: File;
+  originalDataUrl: string; // The pristine uploaded file data
+  dataUrl: string; // The current data, possibly edited
+  base64: string; // base64 of dataUrl
+  mimeType: string;
+}
+
 
 const InfoIcon: React.FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brand-wheat-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -30,7 +40,8 @@ export default function ImageGenerator(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [results, setResults] = useState<ImageResult[]>([]);
-  const [uploadedImage, setUploadedImage] = useState<{ file: File; dataUrl: string; base64: string; mimeType: string } | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<UploadedImageState | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
 
   
   const { addHistoryItem } = useContext(HistoryContext);
@@ -66,9 +77,31 @@ export default function ImageGenerator(): ReactElement {
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
         const base64 = dataUrl.split(',')[1];
-        setUploadedImage({ file, dataUrl, base64, mimeType: file.type });
+        setUploadedImage({ file, originalDataUrl: dataUrl, dataUrl, base64, mimeType: file.type });
       };
       reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleSaveEdits = (newDataUrl: string) => {
+    if (uploadedImage) {
+        const newBase64 = newDataUrl.split(',')[1];
+        setUploadedImage({
+            ...uploadedImage,
+            dataUrl: newDataUrl,
+            base64: newBase64,
+        });
+        setIsEditorOpen(false);
+    }
+  };
+
+  const handleResetEdits = () => {
+    if (uploadedImage) {
+        setUploadedImage({
+            ...uploadedImage,
+            dataUrl: uploadedImage.originalDataUrl,
+            base64: uploadedImage.originalDataUrl.split(',')[1],
+        });
     }
   };
 
@@ -142,9 +175,17 @@ export default function ImageGenerator(): ReactElement {
   }, [prompt, numberOfImages, aspectRatio, style, model, negativePrompt, addHistoryItem, uploadedImage, activePersona, isImagenModel]);
 
   const isEditing = uploadedImage !== null;
+  const hasEdits = isEditing && uploadedImage.dataUrl !== uploadedImage.originalDataUrl;
 
   return (
     <div>
+      {isEditorOpen && uploadedImage && (
+        <ImageEditorModal
+            src={uploadedImage.originalDataUrl}
+            onClose={() => setIsEditorOpen(false)}
+            onSave={handleSaveEdits}
+        />
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-brand-wheat-900">Image Generation</h2>
         <button onClick={handleSurpriseMe} disabled={isLoading} className="flex items-center text-sm font-semibold text-brand-teal-600 hover:text-brand-teal-700 transition disabled:opacity-50 self-start sm:self-center">
@@ -173,11 +214,17 @@ export default function ImageGenerator(): ReactElement {
                 </Tooltip>
             </div>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-brand-wheat-200 border-dashed rounded-md">
-                <div className="space-y-1 text-center">
+                <div className="space-y-1 text-center w-full">
                 {uploadedImage ? (
-                    <div className="relative w-full max-w-xs mx-auto">
-                        <img src={uploadedImage.dataUrl} alt="Upload preview" className="rounded-lg shadow-md max-h-48" />
-                        <button onClick={() => setUploadedImage(null)} disabled={isLoading} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold">&times;</button>
+                    <div>
+                        <div className="relative w-full max-w-xs mx-auto">
+                            <img src={uploadedImage.dataUrl} alt="Upload preview" className="rounded-lg shadow-md max-h-48" />
+                            <button onClick={() => setUploadedImage(null)} disabled={isLoading} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold">&times;</button>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 mt-4">
+                            <button onClick={() => setIsEditorOpen(true)} className="px-4 py-2 text-sm font-semibold text-white bg-brand-teal-500 hover:bg-brand-teal-600 rounded-md">Edit Image</button>
+                            {hasEdits && <button onClick={handleResetEdits} className="px-4 py-2 text-sm font-semibold text-brand-wheat-800 bg-brand-wheat-100 hover:bg-brand-wheat-200 rounded-md">Reset</button>}
+                        </div>
                     </div>
                 ) : (
                     <>

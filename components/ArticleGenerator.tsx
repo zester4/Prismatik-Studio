@@ -1,5 +1,5 @@
 import React, { useState, useCallback, ReactElement, useContext } from 'react';
-import { generateArticle, generateImages, proofreadText } from '../services/geminiService';
+import { generateArticle, generateImages, proofreadText, expandArticleSection } from '../services/geminiService';
 import { HistoryItemArticle, ArticleBlock } from '../types';
 import { ARTICLE_TYPES, WRITING_STYLES, ARTICLE_TEMPLATES } from '../constants';
 import { HistoryContext } from '../context/HistoryContext';
@@ -8,8 +8,8 @@ import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import Tooltip from './Tooltip';
 import PromptTemplates from './PromptTemplates';
+import ProgressStepper from './ProgressStepper';
 
-// FIX: Corrected Omit syntax to use a union type for keys.
 type ArticleResult = Omit<HistoryItemArticle, 'id' | 'timestamp' | 'type'>;
 
 const RegenerateIcon = () => (
@@ -43,6 +43,8 @@ const InfoIcon: React.FC = () => (
     </svg>
 );
 
+const articleGenerationSteps = ["Planning Outline", "Writing Content", "Generating Images", "Complete"];
+
 
 export default function ArticleGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
@@ -52,6 +54,7 @@ export default function ArticleGenerator(): ReactElement {
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<ArticleResult | null>(null);
@@ -96,11 +99,24 @@ export default function ArticleGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setCurrentStep(0);
     setImageErrors({});
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
-      const onProgress = (message: string) => setProgress(message);
+      const onProgress = (message: string) => {
+        setProgress(message);
+        const lowerMessage = message.toLowerCase();
+        if (lowerMessage.includes('plan')) {
+            setCurrentStep(0);
+        } else if (lowerMessage.includes('writing')) {
+            setCurrentStep(1);
+        } else if (lowerMessage.includes('generating image')) {
+            setCurrentStep(2);
+        } else if (lowerMessage.includes('complete')) {
+            setCurrentStep(3);
+        }
+      };
       const { title, content } = await generateArticle(prompt, articleType, writingStyle, numImages, onProgress, systemInstruction);
       
       const newResult: ArticleResult = { title, content, prompt };
@@ -315,9 +331,13 @@ export default function ArticleGenerator(): ReactElement {
       </div>
 
       {isLoading && (
-        <div className="mt-4 text-center p-3 bg-blue-100 text-blue-800 rounded-md">
-          <p className="font-semibold">Generation in progress...</p>
-          <p className="text-sm">{progress || "This may take a moment. Please be patient."}</p>
+        <div className="mt-4 text-center p-4 bg-brand-wheat-50 rounded-lg border border-brand-wheat-200">
+            <h3 className="font-semibold text-brand-wheat-800">Your article is being drafted...</h3>
+            <p className="text-sm text-brand-wheat-600 mb-4">
+                The AI is planning sections, writing content, and generating relevant images.
+            </p>
+            <p className="text-sm text-brand-wheat-600 mb-4 font-mono">{progress}</p>
+            <ProgressStepper steps={articleGenerationSteps} currentStep={currentStep} />
         </div>
       )}
 

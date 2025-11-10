@@ -13,7 +13,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * @param context The generation context (e.g., 'image', 'video').
  * @returns A user-friendly error string.
  */
-const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign' | 'podcast' | 'text'): string => {
+const getFriendlyErrorMessage = (error: unknown, context: 'image' | 'video' | 'story' | 'logo' | 'ad' | 'article' | 'campaign' | 'podcast' | 'text' | 'tts'): string => {
   console.error(`Error during ${context} generation:`, error);
   
   if (error instanceof Error) {
@@ -159,8 +159,9 @@ export const generateVideo = async (
   model: string,
   onProgress: (message: string) => void,
   image?: { mimeType: string; data: string },
-  systemInstruction?: string
-): Promise<string> => {
+  systemInstruction?: string,
+  previousVideo?: any
+): Promise<{ videoUrl: string, videoObject: any }> => {
   try {
     onProgress("Starting video generation...");
 
@@ -169,6 +170,8 @@ export const generateVideo = async (
         finalPrompt = `${systemInstruction}. ${prompt}`;
     }
 
+    const isExtension = previousVideo && model === 'veo-3.1-generate-preview';
+
     let operation = await ai.models.generateVideos({
       model,
       prompt: finalPrompt,
@@ -176,26 +179,31 @@ export const generateVideo = async (
         imageBytes: image.data,
         mimeType: image.mimeType,
        } : undefined,
+      video: isExtension ? previousVideo : undefined,
       config: {
         numberOfVideos: 1,
+        resolution: '720p',
         aspectRatio: aspectRatio,
       },
     });
 
+    let checkCount = 0;
     while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      onProgress(`Checking status...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      checkCount++;
+      onProgress(`Processing video (status check ${checkCount})...`);
       operation = await ai.operations.getVideosOperation({ operation: operation });
     }
 
     onProgress("Video processing complete. Downloading...");
 
-    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    if (!downloadLink) {
+    const videoInfo = operation.response?.generatedVideos?.[0]?.video;
+
+    if (!videoInfo?.uri) {
       throw new Error("Video generation succeeded, but the final video file could not be retrieved. Please try again.");
     }
     
-    const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    const response = await fetch(`${videoInfo.uri}&key=${process.env.API_KEY}`);
     if (!response.ok) {
         throw new Error(`Failed to download the generated video (${response.statusText}). This might be a temporary network issue.`);
     }
@@ -204,7 +212,7 @@ export const generateVideo = async (
     const videoUrl = URL.createObjectURL(videoBlob);
     
     onProgress("Video ready!");
-    return videoUrl;
+    return { videoUrl, videoObject: videoInfo };
   } catch (error) {
     if (error instanceof Error && (error.message.startsWith('Failed to download') || error.message.startsWith('Video generation succeeded'))) {
         throw error;
@@ -483,9 +491,9 @@ export const generateAdVideo = async (
             The video should be cinematic and visually engaging, highlighting the product's key features or benefits: ${description}.
         `;
 
-        const mediaUrl = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image, systemInstruction);
+        const { videoUrl } = await generateVideo(videoPrompt, "16:9", 'veo-2.0-generate-001', onProgress, image, systemInstruction);
 
-        return { mediaUrl, adCopy };
+        return { mediaUrl: videoUrl, adCopy };
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'ad'));
     }
@@ -565,6 +573,38 @@ export const generateArticle = async (
     throw new Error(getFriendlyErrorMessage(error, 'article'));
   }
 };
+
+export const expandArticleSection = async (
+    textBefore: string,
+    textAfter: string,
+    instruction: string,
+    systemInstruction?: string,
+): Promise<string> => {
+     try {
+        const prompt = `
+            Given the context of an article, please generate a new paragraph of text that fits between the two provided sections.
+            The new paragraph should follow this instruction: "${instruction}".
+
+            ---
+            [Text from section BEFORE the new paragraph]
+            ${textBefore}
+            ---
+            [Text from section AFTER the new paragraph]
+            ${textAfter}
+            ---
+
+            Please only return the new paragraph of text, without any commentary.
+        `;
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: { systemInstruction: systemInstruction || "You are a helpful writing assistant." },
+        });
+        return response.text.trim();
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'text'));
+    }
+}
 
 export const proofreadText = async (
   text: string,
@@ -656,7 +696,7 @@ export const generateCampaign = async (
     
     onProgress("Producing social media video...");
     const videoPrompt = `Create a short, 5-second, eye-catching video for social media for "${plan.brandIdentity.companyName}". It should be dynamic, visually interesting, and aligned with the brand's mood (${plan.brandIdentity.mood.join(', ')}).`;
-    const socialVideoUrl = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress, undefined, systemInstruction);
+    const { videoUrl } = await generateVideo(videoPrompt, "9:16", 'veo-2.0-generate-001', onProgress, undefined, systemInstruction);
 
     onProgress("Campaign generation complete!");
     return {
@@ -664,7 +704,7 @@ export const generateCampaign = async (
       adCopy: plan.adCopy,
       logos,
       heroImage,
-      socialVideoUrl,
+      socialVideoUrl: videoUrl,
     };
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error, 'campaign'));
@@ -775,5 +815,38 @@ export const synthesizePodcast = async (
         }
     } catch (error) {
         throw new Error(getFriendlyErrorMessage(error, 'podcast'));
+    }
+};
+
+export const synthesizeSpeech = async (
+    text: string,
+    voice: string,
+): Promise<string> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash-preview-tts",
+            contents: [{ parts: [{ text }] }],
+            config: {
+                responseModalities: [Modality.AUDIO],
+                speechConfig: {
+                    voiceConfig: {
+                        prebuiltVoiceConfig: { voiceName: voice },
+                    },
+                },
+            },
+        });
+
+        const audioPart = response.candidates?.[0]?.content.parts.find(p => p.inlineData);
+        if (audioPart?.inlineData) {
+            return audioPart.inlineData.data;
+        } else {
+            const textPart = response.candidates?.[0]?.content.parts.find(p => p.text);
+            if (textPart?.text) {
+                throw new Error(`Audio synthesis failed. Model response: ${textPart.text}`);
+            }
+            throw new Error("Audio synthesis failed to return audio data.");
+        }
+    } catch (error) {
+        throw new Error(getFriendlyErrorMessage(error, 'tts'));
     }
 };

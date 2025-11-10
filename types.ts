@@ -9,6 +9,7 @@ export enum GenerationMode {
   AD = 'ad',
   CAMPAIGN = 'campaign',
   PODCAST = 'podcast',
+  TTS = 'tts',
   GALLERY = 'gallery',
   PROFILE = 'profile',
 }
@@ -35,6 +36,7 @@ export interface HistoryItemVideo extends HistoryItemBase {
   videoUrl: string; // This will be a blob URL, not persistent across sessions
   aspectRatio: AspectRatio;
   model: string;
+  videoObject?: any; // Raw video object from Veo API for extensions. Session-only.
 }
 
 export interface StoryScene {
@@ -111,8 +113,14 @@ export interface HistoryItemPodcast extends HistoryItemBase {
     voiceAssignments: { [speaker: string]: string };
 }
 
+export interface HistoryItemTTS extends HistoryItemBase {
+    type: 'tts';
+    audioUrl: string; // This will be a blob URL
+    voice: string;
+}
 
-export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign | HistoryItemPodcast;
+
+export type HistoryItem = HistoryItemImage | HistoryItemVideo | HistoryItemStory | HistoryItemLogo | HistoryItemAd | HistoryItemArticle | HistoryItemCampaign | HistoryItemPodcast | HistoryItemTTS;
 
 // --- Persona Hub Types ---
 export type PersonaIconName = 'general' | 'social' | 'writer' | 'formal' | 'creative' | 'technical' | 'marketing';

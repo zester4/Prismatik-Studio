@@ -32,6 +32,7 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
         const validItems = parsedItems.filter(item => 
             item.type !== 'video' && 
             item.type !== 'podcast' &&
+            item.type !== 'tts' &&
             !(item.type === 'ad' && item.adType === 'video') &&
             item.type !== 'campaign'
         );
@@ -52,6 +53,7 @@ export const HistoryProvider = ({ children }: PropsWithChildren<{}>) => {
         const itemsToStore = items.filter(item => 
             item.type !== 'video' && 
             item.type !== 'podcast' &&
+            item.type !== 'tts' &&
             !(item.type === 'ad' && item.adType === 'video') &&
             item.type !== 'campaign'
         );

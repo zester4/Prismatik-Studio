@@ -8,6 +8,7 @@ import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import Tooltip from './Tooltip';
 import PromptTemplates from './PromptTemplates';
+import ProgressStepper from './ProgressStepper';
 
 type StoryResult = Omit<HistoryItemStory, 'id' | 'timestamp' | 'type'>;
 type TextLength = 'short' | 'medium' | 'detailed';
@@ -36,6 +37,9 @@ const InfoIcon: React.FC = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
+
+const storyGenerationSteps = ["Planning Story", "Writing Scenes", "Illustrating", "Complete"];
+
 
 /**
  * Helper function to draw word-wrapped text with a semi-transparent background on a canvas.
@@ -92,6 +96,7 @@ export default function StoryGenerator(): ReactElement {
   const [textLength, setTextLength] = useState<TextLength>('medium');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<StoryResult | null>(null);
@@ -146,11 +151,24 @@ export default function StoryGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setCurrentStep(0);
     setSceneErrors({});
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
-      const onProgress = (message: string) => setProgress(message);
+      const onProgress = (message: string) => {
+        setProgress(message);
+        const lowerMessage = message.toLowerCase();
+        if (lowerMessage.includes('analyzing') || lowerMessage.includes('story plan')) {
+            setCurrentStep(0);
+        } else if (lowerMessage.includes('plan created')) {
+            setCurrentStep(1);
+        } else if (lowerMessage.includes('generating image')) {
+            setCurrentStep(2);
+        } else if (lowerMessage.includes('complete')) {
+            setCurrentStep(3);
+        }
+      };
       const imageParam = uploadedImage ? { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 } : undefined;
       const scenes = await generateStory(prompt, aspectRatio, numberOfScenes, textLength, onProgress, imageParam, systemInstruction);
       
@@ -446,9 +464,13 @@ export default function StoryGenerator(): ReactElement {
       </div>
 
       {isLoading && (
-        <div className="mt-4 text-center p-3 bg-blue-100 text-blue-800 rounded-md">
-            <p className="font-semibold">Generation in progress...</p>
-            <p className="text-sm">{progress || "This may take a few minutes. Please be patient."}</p>
+        <div className="mt-4 text-center p-4 bg-brand-wheat-50 rounded-lg border border-brand-wheat-200">
+            <h3 className="font-semibold text-brand-wheat-800">Your story is coming to life...</h3>
+            <p className="text-sm text-brand-wheat-600 mb-4">
+                The AI is planning the narrative and creating illustrations for each scene.
+            </p>
+            <p className="text-sm text-brand-wheat-600 mb-4 font-mono">{progress}</p>
+            <ProgressStepper steps={storyGenerationSteps} currentStep={currentStep} />
         </div>
       )}
 

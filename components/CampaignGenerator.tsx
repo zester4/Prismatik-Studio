@@ -8,14 +8,23 @@ import PromptInput from './PromptInput';
 import LoadingSpinner from './LoadingSpinner';
 import ImageModal from './ImageModal';
 import PromptTemplates from './PromptTemplates';
-import Tooltip from './Tooltip';
+import ProgressStepper from './ProgressStepper';
 
 type CampaignResult = Omit<HistoryItemCampaign, 'id' | 'timestamp' | 'type'>;
+
+const campaignGenerationSteps = [
+    "Brand Strategy",
+    "Logo Design",
+    "Hero Image",
+    "Social Video",
+    "Complete",
+];
 
 export default function CampaignGenerator(): ReactElement {
   const [prompt, setPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [isRetryable, setIsRetryable] = useState<boolean>(false);
   const [result, setResult] = useState<CampaignResult | null>(null);
@@ -55,10 +64,19 @@ export default function CampaignGenerator(): ReactElement {
     setIsRetryable(false);
     setResult(null);
     setProgress('');
+    setCurrentStep(0);
     const systemInstruction = activePersona?.systemInstruction;
 
     try {
-      const onProgress = (message: string) => setProgress(message);
+      const onProgress = (message: string) => {
+          setProgress(message);
+          const lowerMessage = message.toLowerCase();
+          if (lowerMessage.includes('strategy')) setCurrentStep(0);
+          else if(lowerMessage.includes('logo')) setCurrentStep(1);
+          else if(lowerMessage.includes('hero image')) setCurrentStep(2);
+          else if(lowerMessage.includes('video')) setCurrentStep(3);
+          else if(lowerMessage.toLowerCase().includes('complete')) setCurrentStep(4);
+      };
       const campaignResult = await generateCampaign(prompt, onProgress, systemInstruction);
       
       const newResult: CampaignResult = { prompt, ...campaignResult };
@@ -113,9 +131,15 @@ export default function CampaignGenerator(): ReactElement {
       </div>
 
       {isLoading && (
-        <div className="mt-4 text-center p-3 bg-blue-100 text-blue-800 rounded-md">
-            <p className="font-semibold">Generation in progress...</p>
-            <p className="text-sm">{progress || "This may take a few minutes. Please be patient."}</p>
+        <div className="mt-4 text-center p-4 bg-brand-wheat-50 rounded-lg border border-brand-wheat-200">
+            <h3 className="font-semibold text-brand-wheat-800">Your campaign is being built...</h3>
+            <p className="text-sm text-brand-wheat-600 mb-4">
+                The AI Creative Director is assembling your brand assets. 
+                <br/>
+                This multi-step process may take a few minutes.
+            </p>
+            <p className="text-sm text-brand-wheat-600 mb-4 font-mono">{progress}</p>
+            <ProgressStepper steps={campaignGenerationSteps} currentStep={currentStep} />
         </div>
       )}
 

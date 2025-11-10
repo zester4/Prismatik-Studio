@@ -1,6 +1,6 @@
 import React, { ReactElement, useState, useCallback, useContext } from 'react';
-import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock, HistoryItemCampaign, HistoryItemPodcast } from '../types';
-import { IMAGE_MODELS, VIDEO_MODELS } from '../constants';
+import { HistoryItem, HistoryItemImage, HistoryItemVideo, HistoryItemStory, HistoryItemLogo, HistoryItemAd, HistoryItemArticle, ArticleBlock, HistoryItemCampaign, HistoryItemPodcast, HistoryItemTTS, GenerationMode } from '../types';
+import { IMAGE_MODELS, VIDEO_MODELS, TTS_VOICES } from '../constants';
 import ImageModal from './ImageModal';
 import StoryModal from './StoryModal';
 import ArticleModal from './ArticleModal';
@@ -9,6 +9,9 @@ import { HistoryContext } from '../context/HistoryContext';
 
 interface InteractiveResultCardProps {
   item: HistoryItem;
+  // FIX: Made onWorkflowAction optional to accommodate usage in components like Profile.tsx
+  // where workflow actions are not applicable. The call sites already use optional chaining.
+  onWorkflowAction?: (action: string, data: any) => void;
 }
 
 const getModelName = (id: string) => {
@@ -48,7 +51,7 @@ const StarIconOutline: React.FC<{className?: string}> = ({className}) => (
 );
 
 
-const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) => {
+const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item, onWorkflowAction }) => {
   const [copyButtonText, setCopyButtonText] = useState('Copy Prompt');
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
@@ -102,6 +105,9 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
     } else if (item.type === 'podcast') {
         href = (item as HistoryItemPodcast).audioUrl;
         fileExtension = 'wav';
+    } else if (item.type === 'tts') {
+        href = (item as HistoryItemTTS).audioUrl;
+        fileExtension = 'wav';
     }
     
     link.href = href;
@@ -140,6 +146,48 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
     }
   };
   const closeCampaignModal = () => setIsCampaignModalOpen(false);
+
+
+  const renderWorkflowActions = () => {
+    const commonButtonClass = "text-xs font-semibold bg-brand-wheat-100 hover:bg-brand-wheat-200 text-brand-wheat-800 py-1.5 px-3 rounded-md transition duration-200";
+    
+    switch(item.type) {
+        case 'image':
+            return (
+                <div className="p-3 border-t border-brand-wheat-100">
+                    <h5 className="text-xs font-bold text-brand-wheat-600 uppercase mb-2">Next Steps</h5>
+                    <div className="flex flex-wrap gap-2">
+                        <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:image-to-video', { imageUrl: item.imageUrl, mimeType: 'image/jpeg' })}>Animate Image</button>
+                        <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:image-to-story', { prompt: item.prompt })}>Write Story</button>
+                        <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:image-to-ad', { imageUrl: item.imageUrl, mimeType: 'image/jpeg' })}>Use for Ad</button>
+                    </div>
+                </div>
+            );
+        case 'logo':
+             return (
+                <div className="p-3 border-t border-brand-wheat-100">
+                    <h5 className="text-xs font-bold text-brand-wheat-600 uppercase mb-2">Next Steps</h5>
+                    <div className="flex flex-wrap gap-2">
+                        <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:logo-to-campaign', { prompt: `Create a campaign for ${item.companyName}. The logo style is ${item.style}. Company details: ${item.prompt}` })}>Build Campaign</button>
+                        <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:logo-to-ad', { imageUrl: item.imageUrl, mimeType: 'image/jpeg', productName: item.companyName })}>Create Ad</button>
+                    </div>
+                </div>
+            );
+        case 'video':
+             return (
+                <div className="p-3 border-t border-brand-wheat-100">
+                    <h5 className="text-xs font-bold text-brand-wheat-600 uppercase mb-2">Next Steps</h5>
+                    <div className="flex flex-wrap gap-2">
+                        {item.model === 'veo-3.1-generate-preview' && item.videoObject && (
+                            <button className={commonButtonClass} onClick={() => onWorkflowAction?.('action:extend-video', { videoObject: item.videoObject, prompt: item.prompt, aspectRatio: item.aspectRatio })}>Extend Video</button>
+                        )}
+                    </div>
+                </div>
+            );
+        default:
+            return null;
+    }
+  }
 
 
   if (item.type === 'campaign') {
@@ -339,6 +387,41 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
     );
   }
 
+  if (item.type === 'tts') {
+    return (
+      <div className="bg-brand-wheat-50 rounded-xl overflow-hidden shadow-lg transition-shadow hover:shadow-xl flex flex-col">
+        <div className="p-4 flex flex-col flex-grow">
+            <div className="relative group bg-brand-wheat-900 p-6 rounded-lg flex items-center justify-center aspect-video">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-brand-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                 <div className="absolute top-2 right-2 bg-brand-teal-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    TTS
+                 </div>
+                 <button onClick={handleToggleFavorite} title={isFavorited ? "Remove from favorites" : "Add to favorites"} className="absolute top-2 left-2 z-10 p-1.5 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition">
+                    {isFavorited ? <StarIconFilled className="w-5 h-5 text-yellow-400" /> : <StarIconOutline className="w-5 h-5" />}
+                </button>
+            </div>
+            <audio controls src={item.audioUrl} className="w-full mt-4"></audio>
+            <p className="text-sm text-brand-wheat-700 leading-relaxed flex-grow mt-4">
+                "{item.prompt}"
+            </p>
+            <div className="text-xs text-brand-wheat-500 mt-3 pt-3 border-t border-brand-wheat-200">
+                <span>Voice: <strong>{(TTS_VOICES.find(v => v.id === item.voice) || {name: item.voice}).name}</strong></span>
+             </div>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button onClick={handleCopyPrompt} className="text-sm w-full bg-brand-wheat-100 hover:bg-brand-wheat-200 text-brand-wheat-800 font-semibold py-2 px-3 rounded-md transition duration-200">
+                {copyButtonText}
+              </button>
+              <button onClick={handleDownload} className="text-sm w-full bg-brand-teal-500 hover:bg-brand-teal-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200">
+                Download
+              </button>
+            </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <>
@@ -397,6 +480,7 @@ const InteractiveResultCard: React.FC<InteractiveResultCardProps> = ({ item }) =
             </button>
           </div>
         </div>
+        {renderWorkflowActions()}
       </div>
       {(isImageModalOpen && (item.type === 'image' || item.type === 'logo')) && (
         <ImageModal imageUrl={item.imageUrl} onClose={closeImageModal} />

@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" integrity="sha512-UtLo2rL9l2iL7iAwnV3sJdEKw7vD0lQDbLqI2pYCROEn17x9dYqf3zL/xzYqC2f0e3sMu8f5RjNYROjD/QyYRA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha512-JyCZjCOZqReS2Ld2U9/6QvY2abTDT4BzhDmmIqB2f/L8Xw2do62EYT0KIZT2Qk2S/3sDbI0v2s3xSjr30x3G6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -101,6 +103,12 @@
       .no-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
+      }
+
+      /* Cropper.js image editor styles */
+      .cropper-view-box,
+      .cropper-face {
+        border-radius: .5rem;
       }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
